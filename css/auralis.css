@@ -1,29 +1,26 @@
 /* ==========================================================================
    Auralis Design System — Portal Web Terpadu YPIA (SI-YAYASAN)
-   Style: "Engineered Softness" — Minimalism + Tonal Layering + Soft-Industrial
-   Colors:
-     - Canvas Base:        #F7F7F5
+   Style: "Engineered Softness" — Minimalism, Generous Whitespace, Tonal Layering
+   Colors (DESIGN.md):
+     - Primary Canvas:     #F7F7F5
      - Recessed Panel:     #F3F2EF
      - Elevated Card:      #FCFCFB
-     - Border / Outline:   #E7E7E4
-     - Primary Ink:        #111111
+     - Low-Contrast Line:  #E7E7E4
+     - Primary Header Ink: #111111
      - Secondary Metadata: #6B6B6B
    ========================================================================== */
 
 :root {
   --bg-canvas: #F7F7F5;
   --bg-panel: #F3F2EF;
-  --bg-panel-deep: #EBEAE6;
   --bg-card: #FCFCFB;
   --border-subtle: #E7E7E4;
-  --border-strong: #D4D3CE;
+  --border-strong: #D5D4CE;
   --text-primary: #111111;
   --text-secondary: #6B6B6B;
-  --text-muted: #8E8E8A;
   --accent-emerald: #10B981;
   --accent-blue: #3B82F6;
   --accent-coral: #F43F5E;
-  --accent-amber: #F59E0B;
 }
 
 * {
@@ -45,64 +42,73 @@ body {
   overflow-x: hidden;
 }
 
-/* ---------- Typography Tokens (Auralis System) ---------- */
+/* ---------- Typography (Auralis System) ---------- */
 .typo-h1 {
-  font-size: clamp(2.5rem, 5.2vw, 4.75rem);
+  font-size: clamp(2.4rem, 4.8vw, 4.25rem);
   font-weight: 600;
-  line-height: 1.05;
+  line-height: 1.06;
   letter-spacing: -0.04em;
 }
 
 .typo-h2 {
-  font-size: clamp(1.85rem, 3.6vw, 3.25rem);
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.12;
   letter-spacing: -0.03em;
 }
 
 .typo-h3 {
-  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: -0.02em;
 }
 
 .typo-body-lg {
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.65;
   letter-spacing: -0.01em;
 }
 
 .typo-body-md {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 400;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .typo-label-caps {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-/* ---------- Tonal Layering Surfaces ---------- */
-.surface-canvas {
-  background-color: var(--bg-canvas);
+/* ---------- Section Rhythm (120px - 160px breathing room) ---------- */
+.section-block {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  margin-bottom: 8.5rem;
+  scroll-margin-top: 6rem;
 }
 
+@media (min-width: 768px) {
+  .section-block {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    margin-bottom: 10rem;
+  }
+}
+
+/* ---------- Tonal Surfaces ---------- */
 .surface-panel {
   background-color: var(--bg-panel);
   border: 1px solid var(--border-subtle);
-  border-radius: 24px;
-}
-
-.surface-panel-sm {
-  background-color: var(--bg-panel);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: 26px;
 }
 
 .surface-card {
@@ -110,90 +116,38 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: 24px;
   position: relative;
-  transition: border-color 0.25s ease, transform 0.25s ease;
+  transition: border-color 0.2s ease;
 }
 
 .surface-card:hover {
   border-color: var(--border-strong);
 }
 
-.surface-card-interactive {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 24px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.25s ease, transform 0.2s ease;
-}
-
-.surface-card-interactive::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(59, 130, 246, 0.06), rgba(16, 185, 129, 0.04) 45%, transparent 75%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.surface-card-interactive:hover {
-  border-color: #CECDC7;
-}
-
-.surface-card-interactive:hover::before {
-  opacity: 1;
-}
-
-/* ---------- Accent Glows (Auralis Ambient Light) ---------- */
+/* ---------- Subtle Ambient Glows ---------- */
 .glow-orb-coral {
-  background: linear-gradient(135deg, rgba(251, 113, 133, 0.35), rgba(253, 186, 116, 0.28));
-  filter: blur(64px);
+  background: radial-gradient(circle, rgba(251, 113, 133, 0.26) 0%, rgba(253, 186, 116, 0.16) 55%, transparent 75%);
+  filter: blur(48px);
 }
 
 .glow-orb-blue {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.32), rgba(167, 139, 250, 0.28));
-  filter: blur(68px);
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.26) 0%, rgba(167, 139, 250, 0.16) 55%, transparent 75%);
+  filter: blur(52px);
 }
 
 .glow-orb-emerald {
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.32), rgba(45, 212, 191, 0.24));
-  filter: blur(64px);
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.26) 0%, rgba(45, 212, 191, 0.14) 55%, transparent 75%);
+  filter: blur(48px);
 }
 
-.top-glow-emerald::after,
-.top-glow-blue::after,
-.top-glow-coral::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 24px;
-  right: 24px;
-  height: 2px;
-  border-radius: 999px;
-  opacity: 0.85;
-}
-
-.top-glow-emerald::after {
-  background: linear-gradient(90deg, transparent, #10B981, #14B8A6, transparent);
-}
-
-.top-glow-blue::after {
-  background: linear-gradient(90deg, transparent, #3B82F6, #8B5CF6, transparent);
-}
-
-.top-glow-coral::after {
-  background: linear-gradient(90deg, transparent, #F43F5E, #FB923C, transparent);
-}
-
-/* ---------- Buttons & Precision Controls ---------- */
+/* ---------- Buttons & Pills ---------- */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   background-color: var(--text-primary);
   color: var(--bg-card);
-  padding: 0.75rem 1.5rem;
+  padding: 0.7rem 1.35rem;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -206,18 +160,14 @@ body {
   opacity: 0.88;
 }
 
-.btn-primary:active {
-  transform: scale(0.98);
-}
-
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   background-color: transparent;
   color: var(--text-primary);
-  padding: 0.75rem 1.5rem;
+  padding: 0.7rem 1.35rem;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -231,63 +181,41 @@ body {
   border-color: var(--text-primary);
 }
 
-.btn-chip {
+.tab-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background-color: var(--bg-panel);
-  color: var(--text-secondary);
-  padding: 0.45rem 0.9rem;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
   border-radius: 9999px;
   font-size: 0.8125rem;
   font-weight: 500;
-  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.btn-chip:hover {
+.tab-pill:hover {
   color: var(--text-primary);
-  border-color: var(--border-strong);
 }
 
-.btn-chip.active {
-  background-color: var(--text-primary);
-  color: var(--bg-card);
-  border-color: var(--text-primary);
-}
-
-/* ---------- Inputs (Auralis Minimal Fields) ---------- */
-.input-auralis {
-  width: 100%;
-  background-color: var(--bg-panel);
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
-  border-bottom: 2px solid var(--border-strong);
-  border-radius: 10px;
-  padding: 0.7rem 0.95rem;
-  font-size: 0.9375rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-  outline: none;
-}
-
-.input-auralis:focus {
+.tab-pill.active {
   background-color: var(--bg-card);
-  border-color: var(--border-strong);
-  border-bottom-color: var(--accent-blue);
-  box-shadow: 0 6px 20px -8px rgba(59, 130, 246, 0.28);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
-/* ---------- Status Dot & Badges ---------- */
 .badge-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.4rem;
   background-color: var(--bg-panel);
   border: 1px solid var(--border-subtle);
-  padding: 0.35rem 0.8rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -301,38 +229,29 @@ body {
   display: inline-block;
 }
 
-/* ---------- Marquee ---------- */
-@keyframes auralis-marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* ---------- Inputs (Minimal Auralis Fields) ---------- */
+.input-auralis {
+  width: 100%;
+  background-color: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  outline: none;
 }
 
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: auralis-marquee 42s linear infinite;
+.input-auralis:focus {
+  background-color: var(--bg-card);
+  border-color: var(--text-primary);
 }
 
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-
-/* ---------- Spectral Bars Animation ---------- */
-@keyframes spectral-pulse {
-  0%, 100% { transform: scaleY(0.85); }
-  50% { transform: scaleY(1.08); }
-}
-
-.spectral-bar {
-  transform-origin: bottom;
-  animation: spectral-pulse 2.6s ease-in-out infinite;
-}
-
-/* ---------- Navigation Pill ---------- */
+/* ---------- Navigation Link ---------- */
 .nav-link {
   padding: 0.45rem 0.9rem;
   border-radius: 9999px;
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   font-weight: 500;
   color: var(--text-secondary);
   transition: color 0.2s ease, background-color 0.2s ease;
@@ -349,51 +268,44 @@ body {
 }
 
 /* ---------- Markdown Chat Formatting ---------- */
-.chat-md p { margin-bottom: 0.55rem; }
+.chat-md p { margin-bottom: 0.5rem; }
 .chat-md p:last-child { margin-bottom: 0; }
-.chat-md ul, .chat-md ol { margin: 0.45rem 0 0.65rem 1.2rem; }
+.chat-md ul, .chat-md ol { margin: 0.4rem 0 0.6rem 1.2rem; }
 .chat-md ul { list-style: disc; }
 .chat-md ol { list-style: decimal; }
-.chat-md li { margin-bottom: 0.25rem; }
+.chat-md li { margin-bottom: 0.2rem; }
 .chat-md strong { font-weight: 600; color: var(--text-primary); }
 .chat-md table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0.65rem 0;
-  font-size: 0.8125rem;
+  margin: 0.6rem 0;
+  font-size: 0.78rem;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
   overflow: hidden;
 }
 .chat-md th, .chat-md td {
-  padding: 0.45rem 0.65rem;
+  padding: 0.4rem 0.6rem;
   border-bottom: 1px solid var(--border-subtle);
   text-align: left;
 }
 .chat-md th {
   background: var(--bg-panel);
   font-weight: 600;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--text-secondary);
 }
 
 /* ---------- Custom Scrollbar ---------- */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 7px; height: 7px; }
 ::-webkit-scrollbar-track { background: var(--bg-panel); }
 ::-webkit-scrollbar-thumb { background: #CFCEC8; border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: #A8A7A1; }
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
 .material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 22;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
   vertical-align: middle;
 }
-.material-symbols-outlined.fill {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 22;
-}
-

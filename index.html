@@ -32,7 +32,7 @@
 <body class="min-h-screen flex flex-col typo-body-md selection:bg-primary selection:text-card">
 
   <!-- =====================================================================
-       TOP NAVIGATION — 5 Modul Utama Sesuai Struktur Kebutuhan
+       TOP NAVIGATION — 5 Menu Utama Sesuai Matriks Spesifikasi
        ===================================================================== -->
   <header class="fixed top-0 inset-x-0 z-50 border-b border-auralis bg-canvas/85 backdrop-blur-md">
     <div class="max-w-[1280px] mx-auto px-6 md:px-8 h-[72px] flex items-center justify-between gap-4">
@@ -43,7 +43,7 @@
         <span class="text-base font-semibold tracking-tight text-primary">Al-Mun'imiyah</span>
       </a>
 
-      <!-- 5 Pillar Links -->
+      <!-- 5 Menu Utama -->
       <nav class="hidden lg:flex items-center gap-1 bg-panel p-1 rounded-full border border-auralis" aria-label="Navigasi Portal">
         <a href="#beranda" data-nav="beranda" class="nav-link active">Beranda</a>
         <a href="#profil" data-nav="profil" class="nav-link">Profil &amp; Tata Kelola</a>
@@ -57,7 +57,7 @@
           <span class="dot-indicator bg-emerald-500"></span>
           <span id="drive-status-label">Drive "data masukan"</span>
         </button>
-        <a href="#konsultasi" class="btn-primary !py-2 !px-4 !text-xs">Konsultasi AI</a>
+        <button type="button" data-open-ppdb-form="true" class="btn-primary !py-2 !px-4 !text-xs">Daftar PPDB Online</button>
         <button id="btn-mobile-menu" type="button" class="lg:hidden w-9 h-9 rounded-xl bg-panel border border-auralis flex items-center justify-center text-primary" aria-label="Menu">
           <span class="material-symbols-outlined">menu</span>
         </button>
@@ -67,11 +67,11 @@
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden lg:hidden border-t border-auralis bg-canvas px-6 py-3">
       <div class="flex flex-col gap-1">
-        <a href="#beranda" data-nav="beranda" class="nav-link active">Beranda</a>
-        <a href="#profil" data-nav="profil" class="nav-link">Profil &amp; Tata Kelola</a>
-        <a href="#unit" data-nav="unit" class="nav-link">Unit Pendidikan</a>
-        <a href="#ppdb" data-nav="ppdb" class="nav-link">Informasi PPDB</a>
-        <a href="#konsultasi" data-nav="konsultasi" class="nav-link">Konsultasi AI &amp; FAQ</a>
+        <a href="#beranda" data-nav="beranda" class="nav-link active">1. Beranda (Home)</a>
+        <a href="#profil" data-nav="profil" class="nav-link">2. Profil &amp; Tata Kelola</a>
+        <a href="#unit" data-nav="unit" class="nav-link">3. Unit Pendidikan</a>
+        <a href="#ppdb" data-nav="ppdb" class="nav-link">4. Informasi PPDB</a>
+        <a href="#konsultasi" data-nav="konsultasi" class="nav-link">5. Konsultasi AI &amp; FAQ</a>
       </div>
     </div>
   </header>
@@ -79,83 +79,104 @@
   <!-- =====================================================================
        MAIN CONTENT CANVAS
        ===================================================================== -->
-  <main class="flex-grow pt-[124px]">
+  <main class="flex-grow pt-[120px]">
 
     <!-- ===================================================================
-         1. BERANDA
+         1. BERANDA (HOME) — Landing Page Utama Yayasan
+         Komponen Wajib:
+         • Hero Banner Visi-Misi & Nilai Dasar 'JUBAEDAH'
+         • 2 Tombol CTA Utama: 'Daftar PPDB Online' & 'Chat Asisten AI 24 Jam'
+         • Ringkasan 5 Unit Pendidikan (PG, TK, SDIT, SMPIT, SMAIT) & Akreditasi A
          =================================================================== -->
     <section id="beranda" class="section-block">
       <!-- Asymmetrical 12-Col Hero Header (DESIGN.md) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-12">
-        <div class="lg:col-span-7 space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-10">
+        <div class="lg:col-span-7 space-y-5">
           <div class="flex flex-wrap items-center gap-2">
             <span class="badge-pill">
               <span class="dot-indicator bg-emerald-500"></span>
               <span id="hero-sk">SK Kemenkumham RI AHU-0019283</span>
             </span>
-            <span class="badge-pill">Akreditasi 'A' (Unggul) BAN-PDM</span>
+            <span class="badge-pill">
+              <span class="dot-indicator bg-blue-500"></span>
+              <span>Terakreditasi 'A' (Unggul) BAN-PDM</span>
+            </span>
+            <span class="badge-pill">Nilai Dasar 'JUBAEDAH'</span>
           </div>
           <h1 class="typo-h1 text-primary">
-            Pendidikan Islam terpadu dari usia dini hingga menengah atas.
+            Mencetak Generasi Qur'ani, Cendekia, Berakhlak Mulia &amp; Berwawasan Global.
           </h1>
-          <div class="flex flex-wrap items-center gap-3 pt-1">
-            <a href="#ppdb" class="btn-primary">Simulasi Biaya &amp; PPDB</a>
-            <a href="#unit" class="btn-secondary">Lihat 5 Unit Pendidikan</a>
+          <!-- 2 Tombol CTA Utama Wajib -->
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button type="button" data-open-ppdb-form="true" class="btn-primary">
+              <span class="material-symbols-outlined !text-[18px]">edit_document</span>
+              <span>Daftar PPDB Online</span>
+            </button>
+            <a href="#konsultasi" class="btn-secondary">
+              <span class="material-symbols-outlined !text-[18px]">smart_toy</span>
+              <span>Chat Asisten AI 24 Jam</span>
+            </a>
           </div>
         </div>
 
-        <div class="lg:col-span-4 lg:col-start-9 space-y-4">
-          <p id="hero-semboyan" class="typo-body-lg text-secondary"></p>
-          <p id="hero-address" class="text-xs text-secondary border-t border-auralis pt-3"></p>
+        <div class="lg:col-span-5 space-y-4">
+          <div class="surface-card p-5 space-y-2">
+            <span class="typo-label-caps text-emerald-700">Visi Yayasan 2030 (Statuta Pasal 4)</span>
+            <p id="hero-visi" class="text-sm font-medium text-primary leading-relaxed"></p>
+            <p id="hero-address" class="text-xs text-secondary border-t border-auralis pt-2.5"></p>
+          </div>
         </div>
       </div>
 
-      <!-- Mounted Overview Panel (Single Clean Showcase Card) -->
-      <div class="surface-panel p-6 md:p-10 relative overflow-hidden">
+      <!-- Hero Banner Container: Misi + Nilai Dasar 'JUBAEDAH' + Ringkasan 5 Unit Pendidikan & Akreditasi A -->
+      <div class="surface-panel p-6 md:p-9 relative overflow-hidden space-y-8">
         <!-- Soft Ambient Glow -->
         <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div class="w-80 h-80 rounded-full glow-orb-blue -translate-x-28"></div>
           <div class="w-80 h-80 rounded-full glow-orb-emerald translate-x-28"></div>
         </div>
 
-        <div class="relative z-10 flex flex-col gap-8">
-          <!-- Top Bar -->
+        <!-- Baris 1: Nilai Dasar 'JUBAEDAH' (Statuta Pasal 3 Ayat 2) & Ringkasan Misi (Pasal 5) -->
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 surface-card p-6 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <span class="typo-label-caps text-secondary">Statuta Pasal 3 Ayat (2)</span>
+                <h2 class="text-base font-semibold text-primary mt-1">8 Nilai Dasar Yayasan — Akronym &ldquo;JUBAEDAH&rdquo;</h2>
+              </div>
+              <span class="badge-pill !bg-primary !text-card">J · U · B · A · E · D · A · H</span>
+            </div>
+            <div id="hero-jubaedah-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+          </div>
+
+          <div class="lg:col-span-5 surface-card p-6 flex flex-col justify-between gap-4">
+            <div>
+              <span class="typo-label-caps text-secondary">Statuta Pasal 5</span>
+              <h2 class="text-base font-semibold text-primary mt-1 mb-3">5 Pilar Misi Pendidikan YPIA</h2>
+              <ul id="hero-misi-short" class="space-y-2 text-xs text-secondary"></ul>
+            </div>
+            <div class="bg-panel rounded-xl p-3 border border-auralis flex items-center justify-between text-xs">
+              <span class="text-secondary">Semboyan Resmi</span>
+              <strong id="hero-semboyan" class="text-primary"></strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Baris 2: Ringkasan 5 Unit Pendidikan (PG, TK, SDIT, SMPIT, SMAIT) & Akreditasi A -->
+        <div class="relative z-10 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <span class="badge-pill !bg-card">
-              <span class="dot-indicator bg-emerald-500"></span>
-              <span>One-Stop Islamic Education Complex · PG – TK – SDIT – SMPIT – SMAIT</span>
-            </span>
-            <span class="text-xs text-secondary">Tahun Ajaran <strong id="hero-ta" class="text-primary">2026/2027</strong></span>
+            <div class="flex items-center gap-2.5">
+              <span class="badge-pill !bg-card">
+                <span class="dot-indicator bg-emerald-500"></span>
+                <span>Ringkasan 5 Unit Pendidikan Terpadu</span>
+              </span>
+              <span class="badge-pill !bg-card">Seluruh Unit Terakreditasi &lsquo;A&rsquo; (Unggul) BAN-PDM</span>
+            </div>
+            <span class="text-xs text-secondary">Total Kuota TA <strong id="hero-ta" class="text-primary">2026/2027</strong>: <strong id="hero-quota" class="text-primary">462 Siswa</strong></span>
           </div>
 
-          <!-- Key Institutional Metrics (4 Clean Cards) -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="surface-card p-5">
-              <span class="typo-label-caps text-secondary">Satuan Pendidikan</span>
-              <div class="text-2xl font-semibold text-primary mt-2">5 Jenjang</div>
-              <p class="text-xs text-secondary mt-1">Playgroup, TK, SDIT, SMPIT &amp; SMAIT</p>
-            </div>
-            <div class="surface-card p-5">
-              <span class="typo-label-caps text-secondary">Total Daya Tampung</span>
-              <div id="hero-quota" class="text-2xl font-semibold text-primary mt-2">462 Siswa</div>
-              <p class="text-xs text-secondary mt-1">Rasio kelas terkendali &amp; ramah anak</p>
-            </div>
-            <div class="surface-card p-5">
-              <span class="typo-label-caps text-secondary">Halaqah Tahfidz Pagi</span>
-              <div class="text-2xl font-semibold text-primary mt-2">1 : 10 Siswa</div>
-              <p class="text-xs text-secondary mt-1">75 menit setiap pagi + Klinik Tahsin Gratis</p>
-            </div>
-            <div class="surface-card p-5">
-              <span class="typo-label-caps text-secondary">Keringanan &amp; Beasiswa</span>
-              <div class="text-2xl font-semibold text-primary mt-2">s.d. 100%</div>
-              <p class="text-xs text-secondary mt-1">Early Bird, Alumni, Sibling, Tahfidz &amp; Yatim</p>
-            </div>
-          </div>
-
-          <!-- 8 Core Values Strip ("AL-MUN'IMIYAH") -->
-          <div class="bg-card/85 backdrop-blur-md rounded-2xl p-4 border border-auralis flex flex-wrap items-center justify-between gap-3">
-            <span class="typo-label-caps text-secondary">8 Nilai Dasar (Core Values)</span>
-            <div id="hero-values-strip" class="flex flex-wrap gap-2"></div>
+          <div id="hero-units-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+            <!-- Diisi otomatis: PG, TK, SDIT, SMPIT, SMAIT + Badge Akreditasi A -->
           </div>
         </div>
       </div>
@@ -163,110 +184,270 @@
 
     <!-- ===================================================================
          2. PROFIL & TATA KELOLA
+         Sub-Halaman / Seksi Konten:
+         • Statuta & Struktur Organisasi
+         • Knowledge Base Internal (NotebookLM)
+         Komponen Wajib:
+         • Ringkasan eksekutif Statuta Yayasan & daftar pimpinan unit
+         • Kartu akses menuju Link NotebookLM (Fase 2) untuk Pimpinan/Guru
          =================================================================== -->
     <section id="profil" class="section-block">
       <!-- Module Header -->
       <div class="flex items-center gap-4 mb-6">
         <span class="badge-pill">
           <span class="dot-indicator bg-blue-500"></span>
-          <span>01 · Profil &amp; Tata Kelola</span>
+          <span>02 · Profil &amp; Tata Kelola</span>
         </span>
         <div class="h-px bg-auralis flex-grow"></div>
         <span id="profil-doc-no" class="typo-label-caps text-secondary hidden sm:inline"></span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 items-end">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-end">
         <div class="lg:col-span-6">
-          <h2 class="typo-h2 text-primary">Visi 2030, legalitas lembaga, dan struktur kepemimpinan.</h2>
+          <h2 class="typo-h2 text-primary">Statuta yayasan, pimpinan unit, dan Knowledge Base internal.</h2>
         </div>
         <div class="lg:col-span-6">
           <p id="profil-mukadimah" class="typo-body-md text-secondary"></p>
         </div>
       </div>
 
-      <!-- Sub-tab Switcher (Agar tampilan bersih & tidak menumpuk) -->
+      <!-- Sub-Halaman Switcher Sesuai Tabel Spesifikasi -->
       <div class="flex flex-wrap gap-1.5 bg-panel p-1.5 rounded-full border border-auralis w-fit mb-8" id="profil-tabs">
-        <button type="button" data-profil-tab="visi" class="tab-pill active">Visi, Misi &amp; Legalitas</button>
-        <button type="button" data-profil-tab="struktur" class="tab-pill">Struktur Organ &amp; Kepala Unit (10)</button>
-        <button type="button" data-profil-tab="sdm" class="tab-pill">Standar SDM &amp; KPI Mutu</button>
+        <button type="button" data-profil-tab="statuta" class="tab-pill active">
+          <span class="material-symbols-outlined !text-[16px]">account_balance</span>
+          <span>Statuta &amp; Struktur Organisasi</span>
+        </button>
+        <button type="button" data-profil-tab="notebooklm" class="tab-pill">
+          <span class="material-symbols-outlined !text-[16px]">menu_book</span>
+          <span>Knowledge Base Internal (NotebookLM)</span>
+        </button>
       </div>
 
-      <!-- Tab 1: Visi, Misi & Legalitas -->
-      <div id="profil-pane-visi" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-5 surface-card p-7 flex flex-col justify-between gap-6">
-          <div>
-            <span class="typo-label-caps text-secondary">Identitas Badan Hukum (Pasal 1–2)</span>
-            <h3 id="profil-name" class="typo-h3 text-primary mt-1 mb-4"></h3>
-            <div id="profil-legal-rows" class="divide-y divide-auralis text-xs"></div>
+      <!-- Sub-Halaman 2.1: Statuta & Struktur Organisasi -->
+      <div id="profil-pane-statuta" class="space-y-6">
+        <!-- Ringkasan Eksekutif Statuta Yayasan -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-5 surface-card p-6 flex flex-col justify-between gap-5">
+            <div>
+              <span class="typo-label-caps text-secondary">Dokumen 01 · Bab I–II</span>
+              <h3 id="profil-name" class="typo-h3 text-primary mt-1 mb-4"></h3>
+              <div id="profil-legal-rows" class="divide-y divide-auralis text-xs"></div>
+            </div>
+            <div class="bg-panel rounded-2xl p-4 border border-auralis text-xs text-secondary">
+              <strong class="text-primary block mb-1">Komitmen Sekolah Ramah Anak &amp; Zero Bullying (Pasal 11)</strong>
+              Kawasan bebas asap rokok/vape (radius 500m), larangan mutlak kekerasan fisik/verbal/perundungan, serta Tim Pencegahan dan Penanganan Kekerasan (TPPK) aktif di setiap unit.
+            </div>
           </div>
-          <div class="bg-panel rounded-2xl p-4 border border-auralis text-xs text-secondary">
-            <strong class="text-primary block mb-1">Sekolah Ramah Anak &amp; Zero Bullying (Pasal 11)</strong>
-            Lingkungan bebas asap rokok/vape (radius 500m), bebas kekerasan fisik/verbal, dan dilengkapi Tim Pencegahan &amp; Penanganan Kekerasan (TPPK).
+
+          <div class="lg:col-span-7 surface-card p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="typo-label-caps text-secondary">Ringkasan Eksekutif Statuta (Bab I – Bab VIII)</span>
+                <h3 class="typo-h3 text-primary mt-1">Pokok-Pokok Aturan Tata Kelola YPIA</h3>
+              </div>
+              <span class="badge-pill">14 Pasal Utama</span>
+            </div>
+            <div id="profil-statuta-summary" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs"></div>
           </div>
         </div>
 
-        <div class="lg:col-span-7 surface-card p-7 space-y-6">
-          <div class="bg-panel rounded-2xl p-5 border border-auralis">
-            <span class="typo-label-caps text-emerald-700">Visi Yayasan 2030 (Pasal 4)</span>
-            <p id="profil-visi" class="text-base md:text-lg font-semibold text-primary mt-2 leading-snug"></p>
+        <!-- Daftar Organ Yayasan & Pimpinan Unit Pendidikan -->
+        <div class="surface-panel p-6 md:p-7 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="typo-label-caps text-secondary">Statuta Pasal 6 &amp; Pasal 7</span>
+              <h3 class="typo-h3 text-primary mt-1">Struktur Organisasi Yayasan &amp; Daftar Pimpinan Unit</h3>
+            </div>
+            <span class="badge-pill !bg-card">Pembina · Pengurus · Pengawas · 5 Kepala Unit</span>
           </div>
-          <div>
-            <span class="typo-label-caps text-secondary block mb-3">Misi Yayasan (Pasal 5)</span>
-            <div id="profil-misi" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-          </div>
+          <div id="profil-struktur-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
         </div>
       </div>
 
-      <!-- Tab 2: Struktur Organ & Kepala Unit -->
-      <div id="profil-pane-struktur" class="hidden">
-        <div id="profil-struktur-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      </div>
+      <!-- Sub-Halaman 2.2: Knowledge Base Internal (NotebookLM) -->
+      <div id="profil-pane-notebooklm" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <!-- Kartu Akses Menuju Link NotebookLM (Fase 2) untuk Pimpinan/Guru -->
+          <div class="lg:col-span-7 surface-card p-7 flex flex-col justify-between gap-6 border-2 border-primary">
+            <div class="space-y-4">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="badge-pill !bg-primary !text-card">Fase 2 · Internal Pimpinan &amp; Guru</span>
+                <span class="badge-pill">Google NotebookLM Integrated</span>
+              </div>
+              <h3 class="typo-h3 text-primary">
+                Portal Knowledge Base Internal YPIA (NotebookLM Fase 2)
+              </h3>
+              <p class="text-xs text-secondary leading-relaxed">
+                Pusat kendali pengetahuan internal bagi Dewan Pembina, Pengurus, Kepala Unit, serta Pendidik &amp; Tenaga Kependidikan YPIA. Seluruh dokumen regulasi yayasan (Statuta, SK Biaya, SOP PPDB, Kurikulum Khas, dan Master FAQ) telah disinkronkan ke dalam <strong>Google NotebookLM</strong> untuk memudahkan audit kebijakan, penyusunan surat resmi, dan asistensi rapat pimpinan berbasis sitasi dokumen asli.
+              </p>
 
-      <!-- Tab 3: Standar SDM & KPI -->
-      <div id="profil-pane-sdm" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-7 surface-card p-6">
-          <span class="typo-label-caps text-secondary">Dokumen 04 · Bagian III</span>
-          <h3 class="typo-h3 text-primary mt-1 mb-4">SOP Disiplin Jam Kerja &amp; Kewajiban Pembinaan</h3>
-          <div id="profil-sdm-list" class="divide-y divide-auralis text-xs"></div>
-        </div>
-        <div class="lg:col-span-5 surface-card p-6">
-          <span class="typo-label-caps text-secondary">Dokumen 04 · Bagian V</span>
-          <h3 class="typo-h3 text-primary mt-1 mb-4">Matriks Indikator Kinerja Utama (KPI)</h3>
-          <div id="profil-kpi-list" class="space-y-3"></div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
+                <div class="bg-panel rounded-xl p-3.5 border border-auralis">
+                  <span class="typo-label-caps text-secondary">Sumber Grounding</span>
+                  <strong class="text-primary block mt-1">6 Dokumen Resmi</strong>
+                  <span class="text-[11px] text-secondary">Statuta, Biaya, SOP, Kurikulum, FAQ, Gem</span>
+                </div>
+                <div class="bg-panel rounded-xl p-3.5 border border-auralis">
+                  <span class="typo-label-caps text-secondary">Hak Akses</span>
+                  <strong class="text-primary block mt-1">Pimpinan &amp; Guru</strong>
+                  <span class="text-[11px] text-secondary">Akun Workspace @almunimiyah.sch.id</span>
+                </div>
+                <div class="bg-panel rounded-xl p-3.5 border border-auralis">
+                  <span class="typo-label-caps text-secondary">Akurasi Sitasi</span>
+                  <strong class="text-primary block mt-1">100% Grounded</strong>
+                  <span class="text-[11px] text-secondary">Merujuk Pasal &amp; Ayat Statuta</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-2 border-t border-auralis">
+              <div class="flex flex-wrap items-center gap-3">
+                <a href="https://notebooklm.google.com/" target="_blank" rel="noopener" class="btn-primary">
+                  <span class="material-symbols-outlined !text-[18px]">open_in_new</span>
+                  <span>Buka NotebookLM Internal (Fase 2)</span>
+                </a>
+                <a href="https://docs.google.com/document/d/1H-N9hWYTsuKZp7lxgQsT053mxXAfPVIIzSg2jqpSCGI/edit" target="_blank" rel="noopener" class="btn-secondary">
+                  <span class="material-symbols-outlined !text-[18px]">description</span>
+                  <span>Master Doc Knowledge Base</span>
+                </a>
+                <a href="https://drive.google.com/drive/folders/157nEr-14sON96VUaWsNkkpetWrMI_bQs" target="_blank" rel="noopener" class="btn-secondary !py-2 !px-3.5 !text-xs">
+                  <span>Folder Drive &ldquo;data masukan&rdquo; ↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daftar Dokumen Sumber NotebookLM & Standar KPI Guru -->
+          <div class="lg:col-span-5 surface-panel p-6 flex flex-col justify-between gap-4">
+            <div>
+              <span class="typo-label-caps text-secondary">Daftar Dokumen Sumber NotebookLM</span>
+              <h4 class="text-sm font-semibold text-primary mt-1 mb-3">6 Berkas Grounding di Folder &ldquo;data masukan&rdquo;</h4>
+              <div id="profil-notebook-files" class="space-y-2 text-xs"></div>
+            </div>
+            <div class="bg-card rounded-2xl p-4 border border-auralis text-xs space-y-2">
+              <span class="typo-label-caps text-emerald-700">Ringkasan SOP SDM &amp; KPI Guru (Dokumen 04)</span>
+              <div id="profil-kpi-compact" class="space-y-1.5 text-secondary"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ===================================================================
          3. UNIT PENDIDIKAN
+         Sub-Halaman / Seksi Konten:
+         • Playgroup & TK Islam
+         • SDIT | SMPIT | SMAIT
+         Komponen Wajib:
+         • Jam belajar efektif, rasio kelas, target hafalan tahfidz per jenjang
+         • Program unggulan teknologi (Coding Kids SD, Robotika SMP, AI/Python SMA)
          =================================================================== -->
     <section id="unit" class="section-block">
       <!-- Module Header -->
       <div class="flex items-center gap-4 mb-6">
         <span class="badge-pill">
           <span class="dot-indicator bg-emerald-500"></span>
-          <span>02 · Unit Pendidikan</span>
+          <span>03 · Unit Pendidikan</span>
         </span>
         <div class="h-px bg-auralis flex-grow"></div>
-        <span class="typo-label-caps text-secondary hidden sm:inline">Tri-Kurikulum Terpadu</span>
+        <span class="typo-label-caps text-secondary hidden sm:inline">Tri-Kurikulum Terpadu YPIA</span>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-end">
         <div class="lg:col-span-6">
-          <h2 class="typo-h2 text-primary">Kurikulum khas, target tahfidz, dan profil tiap jenjang.</h2>
+          <h2 class="typo-h2 text-primary">Jam belajar, rasio kelas, target tahfidz &amp; teknologi unggulan.</h2>
         </div>
         <div class="lg:col-span-6">
           <p id="unit-intro" class="typo-body-md text-secondary"></p>
         </div>
       </div>
 
-      <!-- Interactive Unit Selector Tabs (1 Focused Detail View at a Time) -->
-      <div id="unit-tabs" class="flex flex-wrap gap-1.5 bg-panel p-1.5 rounded-full border border-auralis w-fit mb-8" role="tablist">
-        <!-- Populated: PG, TK, SDIT, SMPIT, SMAIT -->
+      <!-- Sub-Halaman Switcher Sesuai Tabel Spesifikasi:
+           1) Playgroup & TK Islam
+           2) SDIT | SMPIT | SMAIT -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div class="flex flex-wrap gap-1.5 bg-panel p-1.5 rounded-full border border-auralis w-fit" id="unit-group-tabs">
+          <button type="button" data-unit-group="PAUD" class="tab-pill">
+            <span class="material-symbols-outlined !text-[16px]">child_care</span>
+            <span>Playgroup &amp; TK Islam</span>
+          </button>
+          <button type="button" data-unit-group="DIKDASMEN" class="tab-pill active">
+            <span class="material-symbols-outlined !text-[16px]">school</span>
+            <span>SDIT | SMPIT | SMAIT</span>
+          </button>
+          <button type="button" data-unit-group="ALL" class="tab-pill">
+            <span>Semua 5 Unit Sekaligus</span>
+          </button>
+        </div>
+        <span class="text-xs text-secondary">Pemisahan kelas Ikhwan &amp; Akhwat berlaku mulai <strong>Kelas 4 SDIT, SMPIT, hingga SMAIT</strong> (Pasal 8 Ayat 4)</span>
       </div>
 
-      <!-- Focused Unit Detail Card -->
-      <div id="unit-detail-card" class="surface-card p-6 md:p-8 mb-6"></div>
+      <!-- Highlight Strip: Program Unggulan Teknologi (Coding Kids SD, Robotika SMP, AI/Python SMA) -->
+      <div class="surface-panel p-6 mb-8">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="typo-label-caps text-emerald-700">Kurikulum Khas Dokumen 04 · Bagian II</span>
+            <h3 class="text-base font-semibold text-primary mt-0.5">Peta Jalan Program Unggulan Sains &amp; Teknologi Terpadu</h3>
+          </div>
+          <span class="badge-pill !bg-card">STEAM · Coding · Robotika · AI/Python</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="surface-card p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="badge-pill !bg-emerald-50 !text-emerald-800 !border-emerald-200">SDIT · Kelas 1–6</span>
+              <span class="material-symbols-outlined text-emerald-600">terminal</span>
+            </div>
+            <h4 class="text-sm font-semibold text-primary">Coding Kids SD &amp; Math-Science Club</h4>
+            <p class="text-secondary leading-relaxed">
+              Pengenalan logika pemrograman visual (<strong>Scratch / Blockly Coding Kids</strong>), eksperimen sains aplikatif, serta pembinaan Olimpiade Sains Nasional (OSN) &amp; Arabic-English Fun Day.
+            </p>
+          </div>
+          <div class="surface-card p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="badge-pill !bg-blue-50 !text-blue-800 !border-blue-200">SMPIT · Kelas 7–9</span>
+              <span class="material-symbols-outlined text-blue-600">precision_manufacturing</span>
+            </div>
+            <h4 class="text-sm font-semibold text-primary">Robotika SMP (Arduino &amp; IoT)</h4>
+            <p class="text-secondary leading-relaxed">
+              Praktikum <strong>Robotika berbasis mikrokontroler Arduino &amp; Internet of Things (IoT)</strong>, Bilingual Camp (Arab &amp; Inggris), Leadership &amp; Entrepreneur Proyek, serta Sanad Tahfidz Juz 29 &amp; 30.
+            </p>
+          </div>
+          <div class="surface-card p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="badge-pill !bg-rose-50 !text-rose-800 !border-rose-200">SMAIT · Kelas 10–12</span>
+              <span class="material-symbols-outlined text-rose-600">psychology</span>
+            </div>
+            <h4 class="text-sm font-semibold text-primary">AI / Python SMA &amp; Riset Ilmiah</h4>
+            <p class="text-secondary leading-relaxed">
+              Pemrograman <strong>Python, Kecerdasan Buatan (Artificial Intelligence) &amp; Data Science</strong>, Karya Ilmiah Remaja (KIR), pembinaan intensif UTBK-SNBT, TOEFL/IELTS Prep, dan kuliah Timur Tengah.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid Kartu Unit Pendidikan Sesuai Tab Aktif (Playgroup & TK Islam vs SDIT | SMPIT | SMAIT) -->
+      <div id="unit-cards-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"></div>
+
+      <!-- Tabel Perbandingan Cepat: Jam Belajar Efektif, Rasio Kelas, Target Hafalan Tahfidz & Program Teknologi -->
+      <div class="surface-card p-6 overflow-x-auto mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <span class="typo-label-caps text-secondary">Matriks Komparatif 5 Unit Pendidikan (Statuta Pasal 7, 8 &amp; Dokumen 04)</span>
+          <span class="badge-pill">Halaqah Pagi 1 Ustadz : 10–12 Siswa (75 Menit)</span>
+        </div>
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-auralis bg-panel text-[10px] uppercase tracking-wider text-secondary">
+              <th class="py-3 px-3">Jenjang Unit</th>
+              <th class="py-3 px-3">Syarat Usia / Masuk</th>
+              <th class="py-3 px-3">Jam Belajar Efektif</th>
+              <th class="py-3 px-3">Rasio Kelas &amp; Kuota</th>
+              <th class="py-3 px-3">Target Hafalan Tahfidz</th>
+              <th class="py-3 px-3">Program Unggulan Teknologi &amp; Sains</th>
+            </tr>
+          </thead>
+          <tbody id="unit-comparison-tbody" class="divide-y divide-auralis"></tbody>
+        </table>
+      </div>
 
       <!-- Compact Halaqah & Matrikulasi Strip -->
       <div id="unit-halaqah-strip" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
@@ -274,13 +455,21 @@
 
     <!-- ===================================================================
          4. INFORMASI PPDB
+         Sub-Halaman / Seksi Konten:
+         • Rincian Biaya & Beasiswa
+         • Jadwal 3 Gelombang & SOP
+         • Formulir Registrasi Online
+         Komponen Wajib:
+         • Tabel Biaya Masuk & aturan diskon Statuta Pasal 9
+         • Timeline seleksi 3 gelombang & checklist syarat berkas
+         • Sematan (Embed) langsung Google Forms PPDB (Fase 4) & Grafik Kuota Live
          =================================================================== -->
     <section id="ppdb" class="section-block">
       <!-- Module Header -->
       <div class="flex items-center gap-4 mb-6">
         <span class="badge-pill">
           <span class="dot-indicator bg-rose-500"></span>
-          <span>03 · Informasi PPDB</span>
+          <span>04 · Informasi PPDB</span>
         </span>
         <div class="h-px bg-auralis flex-grow"></div>
         <span id="ppdb-doc-no" class="typo-label-caps text-secondary hidden sm:inline"></span>
@@ -288,27 +477,77 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-end">
         <div class="lg:col-span-6">
-          <h2 class="typo-h2 text-primary">Simulasi biaya, jadwal gelombang, dan syarat pendaftaran.</h2>
+          <h2 class="typo-h2 text-primary">Rincian biaya, jadwal 3 gelombang, dan formulir PPDB online.</h2>
         </div>
         <div class="lg:col-span-6">
           <p id="ppdb-intro" class="typo-body-md text-secondary"></p>
         </div>
       </div>
 
-      <!-- Clean Sub-tab Switcher for PPDB -->
+      <!-- Sub-Halaman Switcher Sesuai Tabel Spesifikasi -->
       <div class="flex flex-wrap gap-1.5 bg-panel p-1.5 rounded-full border border-auralis w-fit mb-8" id="ppdb-tabs">
-        <button type="button" data-ppdb-tab="kalkulator" class="tab-pill active">Kalkulator &amp; Tabel Biaya</button>
-        <button type="button" data-ppdb-tab="jadwal" class="tab-pill">Jadwal 3 Gelombang &amp; 7 Langkah</button>
-        <button type="button" data-ppdb-tab="syarat" class="tab-pill">12 Berkas &amp; Seleksi Ramah Anak</button>
+        <button type="button" data-ppdb-tab="biaya" class="tab-pill active">
+          <span class="material-symbols-outlined !text-[16px]">payments</span>
+          <span>Rincian Biaya &amp; Beasiswa</span>
+        </button>
+        <button type="button" data-ppdb-tab="jadwal" class="tab-pill">
+          <span class="material-symbols-outlined !text-[16px]">event_note</span>
+          <span>Jadwal 3 Gelombang &amp; SOP</span>
+        </button>
+        <button type="button" data-ppdb-tab="formulir" class="tab-pill">
+          <span class="material-symbols-outlined !text-[16px]">assignment</span>
+          <span>Formulir Registrasi Online &amp; Kuota Live</span>
+        </button>
       </div>
 
-      <!-- PPDB Tab 1: Kalkulator Simulasi + Tabel Biaya Ringkas -->
-      <div id="ppdb-pane-kalkulator" class="space-y-8">
+      <!-- Sub-Halaman 4.1: Rincian Biaya & Beasiswa (Tabel Biaya Masuk + Aturan Diskon Statuta Pasal 9 + Kalkulator) -->
+      <div id="ppdb-pane-biaya" class="space-y-8">
+        <!-- Tabel Biaya Masuk Lintas Jenjang -->
+        <div class="surface-card p-6 overflow-x-auto">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <span class="typo-label-caps text-secondary">Dokumen 02 · SK Pengurus No. 012/SK-KEU/YPIA/X/2025</span>
+              <h3 class="typo-h3 text-primary mt-0.5">Tabel Rincian Biaya Masuk Normal (TA 2026/2027)</h3>
+            </div>
+            <span class="badge-pill">SPP Sudah All-In (Ekskul Wajib, Klinik Tahsin &amp; Digital)</span>
+          </div>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-auralis bg-panel text-[10px] uppercase tracking-wider text-secondary">
+                <th class="py-3 px-3">Jenjang Unit</th>
+                <th class="py-3 px-3">Biaya Formulir</th>
+                <th class="py-3 px-3">Uang Pangkal (DPP)</th>
+                <th class="py-3 px-3">Paket Seragam, Buku &amp; Kegiatan</th>
+                <th class="py-3 px-3">SPP Bulanan</th>
+                <th class="py-3 px-3">Total Awal Masuk (Normal)</th>
+              </tr>
+            </thead>
+            <tbody id="fee-master-tbody" class="divide-y divide-auralis"></tbody>
+          </table>
+        </div>
+
+        <!-- Aturan Diskon & Beasiswa Statuta Pasal 9 -->
+        <div class="surface-panel p-6 md:p-7 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="typo-label-caps text-emerald-700">Statuta Pasal 9 Ayat (1) s.d. Ayat (6)</span>
+              <h3 class="typo-h3 text-primary mt-0.5">Daftar Skema Potongan Biaya, Beasiswa &amp; Aturan Penggabungan</h3>
+            </div>
+            <span class="badge-pill !bg-card">Prinsip Non-Akumulatif Kategori Khusus (Pasal 9 Ayat 5)</span>
+          </div>
+          <div id="ppdb-discounts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs"></div>
+          <div class="bg-card rounded-2xl p-4 border border-auralis text-xs text-secondary leading-relaxed">
+            <strong class="text-primary">Aturan Penggabungan Diskon (Statuta Pasal 9 Ayat 5 &amp; Catatan Baku Sheet 02):</strong>
+            Potongan Kategori Khusus (<em>Alumni Internal 20%</em>, <em>Saudara Kandung/Sibling 10%</em>, dan <em>Beasiswa Tahfidz 50%/100%</em>) bersifat <strong>Tidak Dapat Diakumulasikan satu sama lain (Mutually Exclusive)</strong> — sistem otomatis memilih <strong>1 persentase tertinggi</strong> yang paling menguntungkan wali murid, lalu <strong>DAPAT DITAMBAHKAN</strong> dengan <strong>Diskon Gelombang (Early Bird 15% / Reguler I 8%)</strong> serta <strong>Diskon Pelunasan Lunas di Muka (+3% DPP)</strong>.
+          </div>
+        </div>
+
+        <!-- Kalkulator Simulasi Biaya Interaktif -->
         <div class="surface-panel p-6 md:p-8">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             <!-- Left Input Form -->
             <div class="lg:col-span-5 surface-card p-6 space-y-4">
-              <div class="typo-label-caps text-secondary">Parameter Simulasi (Statuta Pasal 9)</div>
+              <div class="typo-label-caps text-secondary">Kalkulator Simulasi Otomatis (Pasal 9)</div>
               <div>
                 <label for="calc-unit" class="block text-xs font-medium text-secondary mb-1">Jenjang Pendidikan</label>
                 <select id="calc-unit" class="input-auralis">
@@ -346,8 +585,8 @@
                 <label for="calc-tahfidz" class="block text-xs font-medium text-secondary mb-1">Beasiswa Tahfidz (Khusus SMP &amp; SMA)</label>
                 <select id="calc-tahfidz" class="input-auralis">
                   <option value="0">Tidak mengajukan jalur Tahfidz</option>
-                  <option value="5">Hafalan Mutqin ≥ 5 Juz (Diskon 50% DPP)</option>
-                  <option value="10">Hafalan Mutqin ≥ 10 Juz (Bebas 100% DPP + 50% SPP)</option>
+                  <option value="5">Hafalan Mutqin &ge; 5 Juz (Diskon 50% DPP)</option>
+                  <option value="10">Hafalan Mutqin &ge; 10 Juz (Bebas 100% DPP + 50% SPP)</option>
                 </select>
               </div>
             </div>
@@ -399,8 +638,8 @@
                     </div>
                   </div>
                   <div class="bg-panel rounded-xl p-3 border border-auralis text-[11px] text-secondary">
-                    <strong class="text-primary block mb-0.5">Rekening VA Resmi YPIA (Pasal 12):</strong>
-                    BSI <code class="text-primary">90012</code> · Muamalat <code class="text-primary">77101</code> · BJB Syariah <code class="text-primary">88205</code>
+                    <strong class="text-primary block mb-0.5">Jaminan Refund 85% (Diterima Sekolah Negeri):</strong>
+                    Pengembalian 85% DPP bersih jika mengundurkan diri maks. H+3 pengumuman resmi SMPN/SMAN/MAN.
                   </div>
                 </div>
               </div>
@@ -409,122 +648,343 @@
                 <button id="btn-ask-calc-ai" type="button" class="btn-primary !py-2 !px-4 !text-xs">
                   Tanyakan Simulasi Ini ke Asisten AI
                 </button>
-                <span class="text-xs text-secondary">Sumber: Google Sheet 02_Tabel_Biaya</span>
+                <button type="button" data-open-ppdb-form="true" class="btn-secondary !py-2 !px-4 !text-xs">
+                  Lanjut Isi Formulir Registrasi &rarr;
+                </button>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Master Fee Table -->
-        <div class="surface-card p-6 overflow-x-auto">
-          <div class="typo-label-caps text-secondary mb-3">Tabel Tarif Normal Lintas Jenjang (TA 2026/2027)</div>
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-auralis bg-panel text-[10px] uppercase tracking-wider text-secondary">
-                <th class="py-3 px-3">Jenjang</th>
-                <th class="py-3 px-3">Formulir</th>
-                <th class="py-3 px-3">Uang Pangkal (DPP)</th>
-                <th class="py-3 px-3">Paket Seragam, Buku &amp; Kegiatan</th>
-                <th class="py-3 px-3">SPP / Bulan</th>
-                <th class="py-3 px-3">Total Awal Masuk</th>
-              </tr>
-            </thead>
-            <tbody id="fee-master-tbody" class="divide-y divide-auralis"></tbody>
-          </table>
-        </div>
       </div>
 
-      <!-- PPDB Tab 2: Jadwal 3 Gelombang & 7 Langkah -->
-      <div id="ppdb-pane-jadwal" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-7 surface-card p-6 overflow-x-auto">
-          <span class="typo-label-caps text-secondary">Dokumen 03 · Bagian I</span>
-          <h3 class="typo-h3 text-primary mt-1 mb-4">Timeline 3 Gelombang PPDB</h3>
-          <table class="w-full text-left border-collapse text-xs">
-            <thead id="timeline-thead" class="border-b border-auralis bg-panel text-[10px] uppercase tracking-wider text-secondary"></thead>
-            <tbody id="timeline-tbody" class="divide-y divide-auralis"></tbody>
-          </table>
+      <!-- Sub-Halaman 4.2: Jadwal 3 Gelombang & SOP (Timeline 3 Gelombang + 7 Langkah SOP + Checklist 12 Berkas) -->
+      <div id="ppdb-pane-jadwal" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 surface-card p-6 overflow-x-auto">
+            <span class="typo-label-caps text-secondary">Dokumen 03 · Bagian I</span>
+            <h3 class="typo-h3 text-primary mt-1 mb-4">Timeline Seleksi 3 Gelombang PPDB (TA 2026/2027)</h3>
+            <table class="w-full text-left border-collapse text-xs">
+              <thead id="timeline-thead" class="border-b border-auralis bg-panel text-[10px] uppercase tracking-wider text-secondary"></thead>
+              <tbody id="timeline-tbody" class="divide-y divide-auralis"></tbody>
+            </table>
+          </div>
+          <div class="lg:col-span-5 surface-card p-6">
+            <span class="typo-label-caps text-secondary">Dokumen 03 · Bagian III</span>
+            <h3 class="typo-h3 text-primary mt-1 mb-4">7 Langkah SOP Pendaftaran Online</h3>
+            <div id="ppdb-steps-list" class="space-y-2.5"></div>
+          </div>
         </div>
-        <div class="lg:col-span-5 surface-card p-6">
-          <span class="typo-label-caps text-secondary">Dokumen 03 · Bagian III</span>
-          <h3 class="typo-h3 text-primary mt-1 mb-4">7 Langkah Alur Pendaftaran Online</h3>
-          <div id="ppdb-steps-list" class="space-y-2.5"></div>
-        </div>
-      </div>
 
-      <!-- PPDB Tab 3: Checklist 12 Dokumen & Seleksi Ramah Anak -->
-      <div id="ppdb-pane-syarat" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-7 surface-card p-6">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div>
-              <span class="typo-label-caps text-secondary">Dokumen 03 · Bagian V</span>
-              <h3 class="typo-h3 text-primary mt-1">Checklist 12 Berkas Administrasi</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 surface-card p-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div>
+                <span class="typo-label-caps text-secondary">Dokumen 03 · Bagian V</span>
+                <h3 class="typo-h3 text-primary mt-1">Checklist 12 Syarat Berkas Administrasi</h3>
+              </div>
+              <select id="doc-filter-unit" class="input-auralis !w-auto !py-1.5 !px-3 !text-xs">
+                <option value="ALL">Semua Jenjang</option>
+                <option value="PG">Playgroup (PG)</option>
+                <option value="TK">TK Islam</option>
+                <option value="SD">SDIT</option>
+                <option value="SMP">SMPIT</option>
+                <option value="SMA">SMAIT</option>
+              </select>
             </div>
-            <select id="doc-filter-unit" class="input-auralis !w-auto !py-1.5 !px-3 !text-xs">
-              <option value="ALL">Semua Jenjang</option>
-              <option value="PG">Playgroup (PG)</option>
-              <option value="TK">TK Islam</option>
-              <option value="SD">SDIT</option>
-              <option value="SMP">SMPIT</option>
-              <option value="SMA">SMAIT</option>
-            </select>
+            <div id="ppdb-docs-list" class="divide-y divide-auralis text-xs"></div>
           </div>
-          <div id="ppdb-docs-list" class="divide-y divide-auralis text-xs"></div>
+
+          <div class="lg:col-span-5 surface-card p-6 space-y-4">
+            <div>
+              <span class="typo-label-caps text-emerald-700">Statuta Pasal 8 Ayat (2) · Bebas Tes Calistung PG/TK/SD</span>
+              <h3 class="typo-h3 text-primary mt-1">Instrumen Seleksi &amp; Kuota Inklusi</h3>
+            </div>
+            <div id="ppdb-instrumen-list" class="space-y-3"></div>
+          </div>
         </div>
-        <div class="lg:col-span-5 surface-card p-6 space-y-4">
-          <div>
-            <span class="typo-label-caps text-emerald-700">Bebas Tes Calistung untuk PG, TK &amp; SD</span>
-            <h3 class="typo-h3 text-primary mt-1">Matriks Observasi &amp; Seleksi</h3>
+      </div>
+
+      <!-- Sub-Halaman 4.3: Formulir Registrasi Online (Sematan Langsung Google Forms PPDB Fase 4 & Grafik Kuota Live) -->
+      <div id="ppdb-pane-formulir" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- Kiri: Grafik Kuota Live (5 Unit, Total 462 Siswa) -->
+          <div class="lg:col-span-5 surface-card p-6 space-y-5">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span class="typo-label-caps text-emerald-700">Dokumen 03 · Bagian II (Live Dashboard)</span>
+                <h3 class="typo-h3 text-primary mt-1">Grafik Kuota Live PPDB 2026/2027</h3>
+              </div>
+              <span class="badge-pill">
+                <span class="dot-indicator bg-emerald-500"></span>
+                <span>Live Sync</span>
+              </span>
+            </div>
+
+            <p class="text-xs text-secondary leading-relaxed">
+              Pantauan keterisian kursi (daya tampung) per jenjang pada Gelombang berjalan. Sistem otomatis menutup pendaftaran unit apabila kuota maksimal telah terpenuhi (<strong>Total 462 Kursi</strong>).
+            </p>
+
+            <!-- Bar Chart Kuota per Unit -->
+            <div id="ppdb-quota-chart" class="space-y-4"></div>
+
+            <div class="bg-panel rounded-2xl p-4 border border-auralis text-xs space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-secondary">Total Daya Tampung Yayasan</span>
+                <strong class="text-primary">462 Siswa (19 Rombel)</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-secondary">Kuota Afirmasi Yatim/Dhuafa</span>
+                <strong class="text-emerald-700">Min. 5% per Unit (Bebas 100%)</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-secondary">Kuota Anak Berkebutuhan Khusus (Inklusi)</span>
+                <strong class="text-primary">Maks. 2 Siswa / Rombel</strong>
+              </div>
+            </div>
           </div>
-          <div id="ppdb-instrumen-list" class="space-y-3"></div>
+
+          <!-- Kanan: Sematan (Embed) Langsung Formulir PPDB Online (Fase 4 Google Forms Terintegrasi) -->
+          <div class="lg:col-span-7 surface-card p-6 md:p-7 space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-auralis pb-4">
+              <div>
+                <span class="typo-label-caps text-secondary">Fase 4 · Integrasi Google Forms &amp; Spreadsheet PPDB</span>
+                <h3 class="typo-h3 text-primary mt-1">Formulir Registrasi PPDB Online YPIA</h3>
+              </div>
+              <div class="flex items-center gap-1.5 bg-panel p-1 rounded-full border border-auralis text-xs">
+                <button type="button" id="btn-form-mode-native" class="tab-pill active !py-1 !px-3 !text-xs">Form Terpadu SI-YAYASAN</button>
+                <button type="button" id="btn-form-mode-gdrive" class="tab-pill !py-1 !px-3 !text-xs">Sematkan URL Google Form</button>
+              </div>
+            </div>
+
+            <!-- Mode A: Sematan Langsung Formulir PPDB Interaktif (Terhubung Otomatis dengan Nomor Registrasi & VA YPIA) -->
+            <div id="ppdb-form-native-wrap">
+              <form id="ppdb-online-form" class="space-y-4 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">Nama Lengkap Calon Siswa (Sesuai Akta) *</label>
+                    <input id="reg-nama" type="text" class="input-auralis" placeholder="Contoh: Muhammad Фатих Al-Farizi" required />
+                  </div>
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">NIK Calon Siswa (16 Digit KK) *</label>
+                    <input id="reg-nik" type="text" maxlength="16" class="input-auralis" placeholder="3273xxxxxxxxxxxx" required />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">Tanggal Lahir *</label>
+                    <input id="reg-dob" type="date" class="input-auralis" required />
+                  </div>
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">Jenis Kelamin *</label>
+                    <select id="reg-jk" class="input-auralis" required>
+                      <option value="Ikhwan (Laki-laki)">Ikhwan (Laki-laki)</option>
+                      <option value="Akhwat (Perempuan)">Akhwat (Perempuan)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">Pilihan Unit Pendidikan *</label>
+                    <select id="reg-unit" class="input-auralis" required>
+                      <option value="PG">Playgroup (PG)</option>
+                      <option value="TK">TK Islam (TK A / TK B)</option>
+                      <option value="SD" selected>SDIT Al-Mun'imiyah</option>
+                      <option value="SMP">SMPIT Al-Mun'imiyah</option>
+                      <option value="SMA">SMAIT Al-Mun'imiyah</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">Gelombang &amp; Jalur Pendaftaran *</label>
+                    <select id="reg-gelombang" class="input-auralis" required>
+                      <option value="GEL-1">Gelombang 1 — Early Bird (Diskon 15% DPP)</option>
+                      <option value="GEL-2">Gelombang 2 — Reguler I (Diskon 8% DPP)</option>
+                      <option value="GEL-3">Gelombang 3 — Reguler II (Normal)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">Pengajuan Keringanan / Beasiswa (Pasal 9)</label>
+                    <select id="reg-beasiswa" class="input-auralis">
+                      <option value="Reguler">Reguler (Tanpa Kategori Khusus)</option>
+                      <option value="Alumni Internal (+20% DPP)">Alumni Internal YPIA (+20% DPP)</option>
+                      <option value="Sibling / Saudara Kandung (+10% DPP & 5% SPP)">Saudara Kandung Aktif (+10% DPP &amp; 5% SPP)</option>
+                      <option value="Beasiswa Tahfidz 5 Juz (50% DPP)">Beasiswa Tahfidz &ge; 5 Juz (50% DPP - SMP/SMA)</option>
+                      <option value="Beasiswa Tahfidz 10 Juz (100% DPP + 50% SPP)">Beasiswa Tahfidz &ge; 10 Juz (100% DPP - SMP/SMA)</option>
+                      <option value="Afirmasi Yatim/Dhuafa (100%)">Jalur Afirmasi Yatim/Dhuafa (Beasiswa 100%)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">Nama Ayah / Bunda (Wali Murid) *</label>
+                    <input id="reg-wali" type="text" class="input-auralis" placeholder="Nama lengkap orang tua/wali" required />
+                  </div>
+                  <div>
+                    <label class="block font-medium text-secondary mb-1">Nomor WhatsApp Aktif (Notifikasi VA) *</label>
+                    <input id="reg-wa" type="tel" class="input-auralis" placeholder="0812xxxxxxxx" required />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block font-medium text-secondary mb-1">Asal Sekolah Sebelumnya &amp; Catatan Tambahan</label>
+                  <input id="reg-asal" type="text" class="input-auralis" placeholder="Nama TK/SD/SMP asal atau catatan kesiapan anak" />
+                </div>
+
+                <div class="bg-panel rounded-xl p-3.5 border border-auralis flex items-start gap-2.5">
+                  <input id="reg-pakta" type="checkbox" class="mt-0.5 rounded text-primary focus:ring-0" required />
+                  <label for="reg-pakta" class="text-[11px] text-secondary leading-relaxed cursor-pointer">
+                    Saya menyatakan data di atas benar dan menyetujui ketentuan <strong>Statuta YPIA Pasal 12 Ayat (3)</strong> bahwa pembayaran biaya pendidikan hanya sah melalui <strong>Nomor Virtual Account (VA) Resmi Bank Syariah a.n. YPIA</strong>.
+                  </label>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <button type="submit" class="btn-primary">
+                    <span class="material-symbols-outlined !text-[18px]">how_to_reg</span>
+                    <span>Kirim Formulir &amp; Terbitkan Nomor VA Resmi</span>
+                  </button>
+                  <span class="text-[11px] text-secondary">Terintegrasi SOP PPDB Langkah 1 &amp; 2</span>
+                </div>
+              </form>
+
+              <!-- Bukti Registrasi & Nomor Virtual Account Otomatis -->
+              <div id="ppdb-reg-ticket" class="hidden mt-5 bg-panel rounded-2xl p-5 border-2 border-primary space-y-3 text-xs"></div>
+            </div>
+
+            <!-- Mode B: Embed Iframe Google Forms Eksternal (Fase 4) -->
+            <div id="ppdb-form-iframe-wrap" class="hidden space-y-4">
+              <div class="bg-panel rounded-xl p-4 border border-auralis text-xs space-y-2">
+                <label for="custom-gform-url" class="block font-semibold text-primary">Tautan Sematan (Embed URL) Google Forms PPDB Fase 4:</label>
+                <div class="flex gap-2">
+                  <input id="custom-gform-url" type="url" class="input-auralis !bg-card !py-2 !text-xs" placeholder="Tempel link https://docs.google.com/forms/d/e/.../viewform?embedded=true" />
+                  <button type="button" id="btn-load-gform" class="btn-primary !py-2 !px-4 !text-xs shrink-0">Muat Form</button>
+                </div>
+                <p class="text-[11px] text-secondary">
+                  Tempelkan URL Google Forms PPDB Fase 4 milik panitia untuk menampilkannya secara langsung di dalam bingkai portal ini.
+                </p>
+              </div>
+              <div id="gform-iframe-container" class="w-full h-[460px] rounded-2xl border border-auralis bg-panel flex items-center justify-center text-xs text-secondary p-6 text-center">
+                Masukkan URL Google Forms PPDB Fase 4 di atas dan klik &ldquo;Muat Form&rdquo;, atau gunakan tab &ldquo;Form Terpadu SI-YAYASAN&rdquo; yang sudah langsung siap pakai.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ===================================================================
          5. KONSULTASI AI & FAQ
+         Sub-Halaman / Seksi Konten:
+         • Asisten PPDB Interaktif (Gem)
+         • FAQ Wali Murid & Rekening VA
+         Komponen Wajib:
+         • Tombol & panduan penggunaan Gemini Custom Gem terpilih (Fase 3)
+         • Daftar FAQ Kategori A–D & Peringatan Resmi Nomor Virtual Account Bank Syariah
          =================================================================== -->
     <section id="konsultasi" class="section-block">
       <!-- Module Header -->
       <div class="flex items-center gap-4 mb-6">
         <span class="badge-pill">
           <span class="dot-indicator bg-emerald-500"></span>
-          <span>04 · Konsultasi AI &amp; FAQ</span>
+          <span>05 · Konsultasi AI &amp; FAQ</span>
         </span>
         <div class="h-px bg-auralis flex-grow"></div>
-        <span class="typo-label-caps text-secondary hidden sm:inline">Asisten Ustadzah Fatimah · 24 Jam</span>
+        <span class="typo-label-caps text-secondary hidden sm:inline">Fase 3 Custom Gem · Ustadzah Fatimah</span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 items-end">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-end">
         <div class="lg:col-span-6">
-          <h2 class="typo-h2 text-primary">Tanya jawab interaktif dan pusat informasi resmi.</h2>
+          <h2 class="typo-h2 text-primary">Asisten AI Custom Gem (Fase 3), FAQ Kategori A–D &amp; Rekening VA.</h2>
         </div>
         <div class="lg:col-span-6">
           <p class="typo-body-md text-secondary">
-            Konsultasikan simulasi biaya, syarat usia, maupun kurikulum langsung dengan Asisten AI <strong>Ustadzah Fatimah</strong> atau telusuri daftar pertanyaan umum (Master FAQ) di samping.
+            Gunakan layanan konsultasi interaktif 24 jam bersama <strong>Gemini Custom Gem Terpilih (Ustadzah Fatimah)</strong> atau pelajari daftar FAQ resmi Kategori A–D beserta peringatan keamanan nomor Virtual Account Bank Syariah.
           </p>
         </div>
       </div>
 
-      <!-- Side-by-Side Clean Layout: Left AI Chat (7 cols) + Right FAQ Accordion (5 cols) -->
+      <!-- Sub-Seksi 5.1: Kartu Tombol & Panduan Penggunaan Gemini Custom Gem Terpilih (Fase 3) -->
+      <div class="surface-panel p-6 md:p-7 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-7 space-y-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="badge-pill !bg-primary !text-card">Fase 3 · Gemini Custom Gem Terpilih</span>
+              <span class="badge-pill !bg-card">Skor Evaluasi A/B: 24/25 (Unggul vs Gem B 21/25)</span>
+            </div>
+            <h3 class="typo-h3 text-primary">
+              Asisten PPDB Al-Mun'imiyah — Model A (Ustadzah Fatimah)
+            </h3>
+            <p class="text-xs text-secondary leading-relaxed">
+              Berdasarkan pengujian komparatif Dokumen 06 pada 5 skenario uji wali murid, <strong>Gem A (Persona Ustadzah Fatimah — Konsultan Pendidikan Islami, Empatik &amp; Solutif)</strong> ditetapkan sebagai asisten AI resmi YPIA karena mampu menghitung simulasi diskon ganda secara presisi, menenangkan kecemasan orang tua terkait tes <em>calistung</em>/mengaji, dan menjaga kepatuhan hukum Statuta.
+            </p>
+            <div class="flex flex-wrap items-center gap-2.5 pt-1">
+              <a href="https://gemini.google.com/gems/view" target="_blank" rel="noopener" class="btn-primary !py-2 !px-4 !text-xs">
+                <span class="material-symbols-outlined !text-[16px]">auto_awesome</span>
+                <span>Buka Gemini Custom Gem (Fase 3) ↗</span>
+              </a>
+              <button type="button" id="btn-copy-gem-prompt" class="btn-secondary !py-2 !px-4 !text-xs">
+                <span class="material-symbols-outlined !text-[16px]">content_copy</span>
+                <span id="copy-gem-label">Salin System Prompt Gem A</span>
+              </button>
+              <a href="https://docs.google.com/document/d/1kZ3-oZbZfUAZPksk9GWf81-1iwBZMNREIwqQvBucXng/edit" target="_blank" rel="noopener" class="btn-secondary !py-2 !px-3.5 !text-xs">
+                <span>Dokumen 06 (Uji A/B Gem) ↗</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Panduan 3 Langkah Penggunaan Custom Gem -->
+          <div class="lg:col-span-5 surface-card p-5 space-y-3 text-xs">
+            <span class="typo-label-caps text-emerald-700">Panduan Penggunaan Asisten AI (Gem)</span>
+            <div class="space-y-2.5">
+              <div class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-primary text-card flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">1</span>
+                <div>
+                  <strong class="text-primary">Pilih Topik atau Klik Chip Skenario</strong>
+                  <p class="text-secondary">Sebutkan jenjang (PG/TK/SDIT/SMPIT/SMAIT), gelombang, dan kondisi khusus (Alumni, Sibling, atau Tahfidz).</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-primary text-card flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
+                <div>
+                  <strong class="text-primary">Dapatkan Simulasi &amp; Rujukan Pasal Statuta</strong>
+                  <p class="text-secondary">Ustadzah Fatimah akan menyajikan tabel komparasi biaya Lunas vs Cicilan 3 Termin beserta dasar pasalnya.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-primary text-card flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
+                <div>
+                  <strong class="text-primary">Verifikasi Nomor VA &amp; Jadwal Observasi</strong>
+                  <p class="text-secondary">Lanjutkan pendaftaran pada tab Formulir Online atau hubungi WhatsApp Resmi PPDB 0811-2233-4455.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side-by-Side Layout:
+           Kiri: Konsol Live Chat Asisten PPDB Interaktif (Gem A - Ustadzah Fatimah)
+           Kanan: Peringatan Resmi Nomor Virtual Account Bank Syariah + Daftar FAQ Kategori A–D -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- Left: AI Assistant Console -->
-        <div class="lg:col-span-7 surface-card flex flex-col h-[620px] overflow-hidden">
+        <!-- Left: AI Assistant Console (7 Cols) -->
+        <div class="lg:col-span-7 surface-card flex flex-col h-[680px] overflow-hidden">
           <div class="p-4 md:p-5 border-b border-auralis bg-panel/60 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-xl bg-primary text-card flex items-center justify-center">
                 <span class="material-symbols-outlined !text-[18px]">smart_toy</span>
               </div>
               <div>
-                <h3 id="ai-persona-name" class="text-sm font-semibold text-primary">Ustadzah Fatimah — Asisten PPDB YPIA</h3>
-                <p id="ai-engine-badge" class="text-[11px] text-secondary">Grounded pada 6 Dokumen Drive "data masukan"</p>
+                <h3 id="ai-persona-name" class="text-sm font-semibold text-primary">Ustadzah Fatimah — Custom Gem A (Aktif)</h3>
+                <p id="ai-engine-badge" class="text-[11px] text-secondary">Grounded pada 6 Dokumen Folder Google Drive &ldquo;data masukan&rdquo;</p>
               </div>
             </div>
-            <button id="btn-clear-chat" type="button" class="tab-pill !py-1 !px-3 !text-xs border !border-auralis !bg-card">Reset</button>
+            <button id="btn-clear-chat" type="button" class="tab-pill !py-1 !px-3 !text-xs border !border-auralis !bg-card">Reset Chat</button>
           </div>
 
           <!-- Quick Prompt Chips (5 Skenario Uji Dokumen 06) -->
           <div class="px-4 py-2.5 border-b border-auralis bg-panel/30 flex items-center gap-2 overflow-x-auto">
-            <span class="text-[11px] font-semibold text-secondary shrink-0">Coba tanya:</span>
+            <span class="text-[11px] font-semibold text-secondary shrink-0">5 Skenario Uji Gem:</span>
             <div id="ai-scenarios-chips" class="flex items-center gap-1.5"></div>
           </div>
 
@@ -533,25 +993,67 @@
 
           <!-- Input -->
           <form id="chat-form" class="p-3.5 border-t border-auralis bg-card flex items-center gap-2">
-            <input id="chat-input" type="text" class="input-auralis" placeholder="Ketik pertanyaan Ayah/Bunda di sini..." autocomplete="off" required />
+            <input id="chat-input" type="text" class="input-auralis" placeholder="Ketik pertanyaan Ayah/Bunda kepada Ustadzah Fatimah..." autocomplete="off" required />
             <button id="chat-submit" type="submit" class="btn-primary !py-2.5 !px-5 shrink-0">Kirim</button>
           </form>
         </div>
 
-        <!-- Right: Master FAQ Explorer (Clean Collapsible Accordion) -->
-        <div class="lg:col-span-5 surface-panel p-6 flex flex-col gap-4 max-h-[620px] overflow-hidden">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <span class="typo-label-caps text-secondary">Dokumen 05 · Master FAQ</span>
-              <h3 class="text-base font-semibold text-primary mt-0.5">Pertanyaan yang Sering Diajukan</h3>
+        <!-- Right: Peringatan Resmi Rekening VA Bank Syariah + Daftar FAQ Kategori A–D (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+          <!-- Komponen Wajib: Peringatan Resmi Nomor Virtual Account Bank Syariah (Statuta Pasal 12 Ayat 3) -->
+          <div class="surface-card p-5 border-2 border-rose-500/80 bg-rose-50/40 space-y-3 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="badge-pill !bg-rose-600 !text-white !border-rose-600">
+                <span class="material-symbols-outlined !text-[14px]">verified_user</span>
+                <span>Peringatan Resmi Keamanan Transaksi</span>
+              </span>
+              <span class="typo-label-caps text-rose-700">Statuta Pasal 12 Ayat (3)</span>
+            </div>
+            <h3 class="text-sm font-semibold text-primary">
+              Daftar Resmi Nomor Virtual Account (VA) Bank Syariah YPIA
+            </h3>
+            <p class="text-secondary leading-relaxed">
+              Seluruh pembayaran Formulir, Daftar Ulang (DPP), dan SPP <strong>WAJIB</strong> melalui rekening <strong>Virtual Account (VA) atas nama &ldquo;Yayasan Pendidikan Islam Al-Mun'imiyah&rdquo;</strong>. Yayasan <strong>TIDAK PERNAH</strong> menerima pembayaran tunai atau transfer ke rekening pribadi staf/panitia:
+            </p>
+            <div class="grid grid-cols-1 gap-2 pt-1">
+              <div class="bg-card rounded-xl p-3 border border-auralis flex items-center justify-between">
+                <div>
+                  <strong class="text-primary block">Bank Syariah Indonesia (BSI)</strong>
+                  <span class="text-[11px] text-secondary">Rekening Utama PPDB &amp; SPP Bulanan</span>
+                </div>
+                <div class="text-right font-mono text-xs font-semibold text-primary">
+                  <div>PPDB: <span class="px-1.5 py-0.5 rounded bg-panel">90012</span> + No.Reg</div>
+                  <div class="mt-0.5">SPP: <span class="px-1.5 py-0.5 rounded bg-panel">90088</span> + NIS</div>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="bg-card rounded-xl p-2.5 border border-auralis flex items-center justify-between">
+                  <span class="font-medium text-primary">Bank Muamalat</span>
+                  <code class="px-1.5 py-0.5 rounded bg-panel font-semibold text-primary">77101</code>
+                </div>
+                <div class="bg-card rounded-xl p-2.5 border border-auralis flex items-center justify-between">
+                  <span class="font-medium text-primary">BJB Syariah</span>
+                  <code class="px-1.5 py-0.5 rounded bg-panel font-semibold text-primary">88205</code>
+                </div>
+              </div>
             </div>
           </div>
 
-          <input id="faq-search" type="search" class="input-auralis !bg-card !py-2 !text-xs" placeholder="Cari topik FAQ (calistung, asrama, cicilan, refund, VA)..." />
+          <!-- Komponen Wajib: Daftar FAQ Wali Murid Kategori A–D (+ E) -->
+          <div class="surface-panel p-5 flex flex-col gap-3.5 max-h-[410px] overflow-hidden">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span class="typo-label-caps text-secondary">Dokumen 05 · Master FAQ Kategori A–D</span>
+                <h3 class="text-sm font-semibold text-primary mt-0.5">Pertanyaan Wali Murid yang Sering Diajukan</h3>
+              </div>
+            </div>
 
-          <div id="faq-cat-tabs" class="flex flex-wrap gap-1.5"></div>
+            <input id="faq-search" type="search" class="input-auralis !bg-card !py-2 !text-xs" placeholder="Cari FAQ Kategori A–D (kurikulum, calistung, diskon, refund, VA)..." />
 
-          <div id="faq-items-list" class="space-y-2.5 overflow-y-auto pr-1"></div>
+            <div id="faq-cat-tabs" class="flex flex-wrap gap-1"></div>
+
+            <div id="faq-items-list" class="space-y-2 overflow-y-auto pr-1"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -566,7 +1068,7 @@
       <div class="flex items-center justify-between border-b border-auralis pb-3">
         <div>
           <span class="typo-label-caps text-secondary">Sumber Data Terintegrasi</span>
-          <h3 class="text-base font-semibold text-primary">Folder Google Drive: "data masukan"</h3>
+          <h3 class="text-base font-semibold text-primary">Folder Google Drive: &ldquo;data masukan&rdquo;</h3>
         </div>
         <button id="btn-close-drive-modal" type="button" class="w-8 h-8 rounded-full bg-panel flex items-center justify-center text-secondary hover:text-primary">
           <span class="material-symbols-outlined">close</span>
@@ -588,14 +1090,14 @@
   <footer class="w-full border-t border-auralis bg-canvas py-10 mt-auto">
     <div class="max-w-[1280px] mx-auto px-6 md:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs text-secondary">
       <div>
-        <strong class="text-primary">Yayasan Pendidikan Islam Al-Mun'imiyah (YPIA)</strong> · Jl. Pendidikan Terpadu No. 99, Arcamanik, Bandung 40292 · WA: <span id="footer-wa" class="text-primary font-medium">0811-2233-4455</span>
+        <strong class="text-primary">Yayasan Pendidikan Islam Al-Mun'imiyah (YPIA)</strong> · Jl. Pendidikan Terpadu No. 99, Arcamanik, Bandung 40292 · WA Resmi: <span id="footer-wa" class="text-primary font-medium">0811-2233-4455</span>
       </div>
       <div class="flex flex-wrap gap-5">
-        <a href="#beranda" class="hover:text-primary">Beranda</a>
-        <a href="#profil" class="hover:text-primary">Profil &amp; Tata Kelola</a>
-        <a href="#unit" class="hover:text-primary">Unit Pendidikan</a>
-        <a href="#ppdb" class="hover:text-primary">Informasi PPDB</a>
-        <a href="#konsultasi" class="hover:text-primary">Konsultasi AI &amp; FAQ</a>
+        <a href="#beranda" class="hover:text-primary">1. Beranda</a>
+        <a href="#profil" class="hover:text-primary">2. Profil &amp; Tata Kelola</a>
+        <a href="#unit" class="hover:text-primary">3. Unit Pendidikan</a>
+        <a href="#ppdb" class="hover:text-primary">4. Informasi PPDB</a>
+        <a href="#konsultasi" class="hover:text-primary">5. Konsultasi AI &amp; FAQ</a>
       </div>
     </div>
   </footer>

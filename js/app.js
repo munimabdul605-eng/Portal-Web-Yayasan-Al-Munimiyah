@@ -1,11 +1,11 @@
 /**
- * Portal Web Terpadu YPIA (SI-YAYASAN) — Simplified Auralis Frontend Controller
- * Sesuai Matriks Spesifikasi 5 Menu Utama:
- *  1. Beranda (#beranda) — Hero Visi-Misi & Nilai Dasar 'JUBAEDAH', 2 CTA Utama, Ringkasan 5 Unit & Akreditasi A
- *  2. Profil & Tata Kelola (#profil) — Statuta & Struktur Organisasi + Knowledge Base Internal (NotebookLM Fase 2)
- *  3. Unit Pendidikan (#unit) — Playgroup & TK Islam | SDIT, SMPIT, SMAIT + Jam Belajar, Rasio, Tahfidz & Teknologi
- *  4. Informasi PPDB (#ppdb) — Rincian Biaya & Beasiswa | Jadwal 3 Gelombang & SOP | Formulir Registrasi Online & Grafik Kuota Live
- *  5. Konsultasi AI & FAQ (#konsultasi) — Asisten PPDB Interaktif (Gem Fase 3) | FAQ Kategori A–D & Peringatan Resmi Rekening VA
+ * Portal Web Resmi Yayasan Pendidikan Islam Al-Mun'imiyah (YPIA)
+ * Struktur 5 Menu Utama:
+ *  1. Beranda (#beranda)
+ *  2. Profil & Tata Kelola (#profil)
+ *  3. Unit Pendidikan (#unit)
+ *  4. Informasi PPDB (#ppdb)
+ *  5. Konsultasi & Layanan Informasi (#konsultasi)
  */
 (function () {
   const R = window.YPIACore.formatRp;
@@ -75,12 +75,51 @@
     if (ppdbEl) ppdbEl.scrollIntoView({ behavior: 'smooth' });
   }
 
+  const MASTER_DOCS = [
+    {
+      title: "Dokumen 01: Statuta Yayasan Pendidikan Islam Al-Mun'imiyah",
+      subtitle: 'Akta & Ketetapan Dasar Hukum Tata Kelola Lembaga',
+      key: 'statuta',
+    },
+    {
+      title: 'Dokumen 02: Tabel Master Biaya Pendidikan & Kebijakan Keringanan',
+      subtitle: 'Rincian Tarif Resmi Pendidikan & Ketentuan Beasiswa Pasal 9',
+      key: 'biaya',
+    },
+    {
+      title: 'Dokumen 03: Petunjuk Teknis & Standar Operasional Seleksi PPDB',
+      subtitle: 'Jadwal 3 Gelombang, Alur Pendaftaran & Persyaratan Administratif',
+      key: 'ppdb',
+    },
+    {
+      title: 'Dokumen 04: Standar Mutu Tenaga Pendidik & Kurikulum Khas',
+      subtitle: 'Tri-Kurikulum Terpadu, Target Tahfidz Bersanad & Indikator Mutu Pendidik',
+      key: 'kurikulum',
+    },
+    {
+      title: 'Dokumen 05: Panduan Layanan Informasi & Penanganan Pertanyaan (FAQ)',
+      subtitle: 'Pedoman Resmi Informasi Publik & Layanan Konsultasi Wali Murid',
+      key: 'faq',
+    },
+  ];
+
+  function getMasterDocsWithUrls() {
+    const rawFiles = Object.values((KB && KB.drive && KB.drive.files) || {});
+    return MASTER_DOCS.map((d, idx) => {
+      const match = rawFiles[idx] || {};
+      return {
+        ...d,
+        url: match.url || 'https://drive.google.com/drive/folders/157nEr-14sON96VUaWsNkkpetWrMI_bQs',
+      };
+    });
+  }
+
   // =====================================================================
-  // 1. BERANDA (HOME) — Visi-Misi, Nilai Dasar 'JUBAEDAH', 2 CTA, 5 Unit & Akreditasi A
+  // MENU 1 — BERANDA
   // =====================================================================
   function renderBeranda() {
     const y = KB.yayasan;
-    document.getElementById('hero-sk').textContent = y.sk;
+    document.getElementById('hero-sk').textContent = `SK Kemenkumham RI No. ${y.sk}`;
     document.getElementById('hero-visi').textContent = `"${y.visi}"`;
     document.getElementById('hero-semboyan').textContent = `"${y.semboyan}"`;
     document.getElementById('hero-address').textContent = y.address;
@@ -89,31 +128,7 @@
     const totalQuota = KB.ppdb.kuota.reduce((acc, k) => acc + (parseInt(k.total, 10) || 0), 0);
     document.getElementById('hero-quota').textContent = `${totalQuota || 462} Siswa`;
 
-    // 8 Nilai Dasar Resmi: JUBAEDAH (Jujur, Ulet, Bersih, Amanah, Empati, Disiplin, Adaptif, Harmonis)
-    const jubaedahValues = [
-      { name: 'Jujur', meaning: 'Integritas & Shiddiq' },
-      { name: 'Ulet', meaning: 'Tangguh & Istiqamah' },
-      { name: 'Bersih', meaning: 'Suci Hati & Lingkungan' },
-      { name: 'Amanah', meaning: 'Terpercaya & Akuntabel' },
-      { name: 'Empati', meaning: 'Peduli Sosial & Ukhuwah' },
-      { name: 'Disiplin', meaning: 'Tertib Ibadah & Tata Kelola' },
-      { name: 'Adaptif', meaning: 'Inovasi Sains & Teknologi' },
-      { name: 'Harmonis', meaning: 'Kolaboratif & Rahmatan' },
-    ];
-    document.getElementById('hero-jubaedah-grid').innerHTML = jubaedahValues.map((v) => {
-      const letter = v.name.charAt(0).toUpperCase();
-      return `
-        <div class="bg-panel rounded-xl p-3 border border-auralis flex items-start gap-2.5">
-          <span class="w-6 h-6 rounded-lg bg-primary text-card font-bold text-xs flex items-center justify-center shrink-0">${esc(letter)}</span>
-          <div class="min-w-0">
-            <strong class="text-xs font-semibold text-primary block truncate">${esc(v.name)}</strong>
-            <span class="text-[11px] text-secondary block truncate">${esc(v.meaning)}</span>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    // Ringkasan 5 Pilar Misi di Hero
+    // Ringkasan Misi di Hero
     document.getElementById('hero-misi-short').innerHTML = y.misi.map((m, idx) => `
       <li class="flex items-start gap-2">
         <span class="font-semibold text-primary">0${idx + 1}.</span>
@@ -121,21 +136,27 @@
       </li>
     `).join('');
 
-    // Ringkasan 5 Unit Pendidikan (PG, TK, SDIT, SMPIT, SMAIT) & Terakreditasi A (Unggul)
+    // Ringkasan 5 Satuan Pendidikan (Playgroup, TK Islam, SDIT, SMPIT, SMAIT) Terakreditasi A (Unggul)
     const techTagByUnit = {
-      PG: '15 Surat Pendek & Motorik',
-      TK: '1/2 Juz 30 & STEAM Anak',
-      SD: '2 Juz Mutqin & Coding Kids SD',
-      SMP: '3–5 Juz Mutqin & Robotika SMP',
-      SMA: '5–10 Juz Mutqin & AI/Python SMA',
+      PG: '15 Surat Pendek Juz 30',
+      TK: '1/2 Juz 30 & Eksplorasi Sains',
+      SD: '2 Juz Mutqin & Coding Dasar',
+      SMP: '3–5 Juz Mutqin & Robotika Terapan',
+      SMA: '5–10 Juz Mutqin & AI / Python',
     };
-    const unitDisplayCode = { PG: 'PG', TK: 'TK', SD: 'SDIT', SMP: 'SMPIT', SMA: 'SMAIT' };
+    const unitDisplayLabel = {
+      PG: 'Playgroup',
+      TK: 'TK Islam',
+      SD: 'SDIT',
+      SMP: 'SMPIT',
+      SMA: 'SMAIT',
+    };
 
     document.getElementById('hero-units-summary').innerHTML = KB.units.map((u) => `
       <div class="surface-card p-4 flex flex-col justify-between gap-3">
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-1">
-            <span class="badge-pill !py-0.5 !px-2 !text-[10px]">${esc(unitDisplayCode[u.code] || u.code)}</span>
+            <span class="badge-pill !py-0.5 !px-2 !text-[10px]">${esc(unitDisplayLabel[u.code] || u.code)}</span>
             <span class="badge-pill !bg-emerald-50 !text-emerald-800 !border-emerald-200 !py-0.5 !px-2 !text-[10px]">Terakreditasi A (Unggul)</span>
           </div>
           <h3 class="text-sm font-semibold text-primary leading-snug">${esc(u.nama.replace(/Al-Mun'imiyah/i, '').trim())}</h3>
@@ -143,15 +164,15 @@
         </div>
         <div class="pt-2.5 border-t border-auralis space-y-1.5 text-[11px]">
           <div class="flex justify-between">
-            <span class="text-secondary">Kuota</span>
+            <span class="text-secondary">Daya Tampung</span>
             <strong class="text-primary">${esc(u.kuota.total)}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-secondary">Target &amp; Tech</span>
+            <span class="text-secondary">Fokus Utama</span>
             <strong class="text-emerald-700 truncate max-w-[130px]" title="${esc(techTagByUnit[u.code])}">${esc(techTagByUnit[u.code])}</strong>
           </div>
           <button type="button" data-hero-unit="${esc(u.code)}" class="w-full mt-1.5 py-1.5 px-2.5 rounded-lg bg-panel hover:bg-primary hover:text-card text-primary font-medium text-[11px] transition-colors">
-            Lihat Detail Unit &rarr;
+            Rincian Satuan Pendidikan &rarr;
           </button>
         </div>
       </div>
@@ -168,7 +189,7 @@
   }
 
   // =====================================================================
-  // 2. PROFIL & TATA KELOLA — Statuta & Struktur Organisasi + NotebookLM (Fase 2)
+  // MENU 2 — PROFIL & TATA KELOLA
   // =====================================================================
   function renderProfil() {
     const y = KB.yayasan;
@@ -177,11 +198,11 @@
     document.getElementById('profil-name').textContent = `${y.name} (${y.shortName})`;
 
     const legalRows = [
-      ['Tanggal Berdiri', y.founded],
-      ['SK Kemenkumham RI', y.sk],
+      ['Tanggal Pendirian', y.founded],
+      ['SK Kemenkumham RI', `No. ${y.sk}`],
       ['Akta Notaris', y.legal[1] || ''],
-      ['Akreditasi', 'Terakreditasi "A" (Unggul) BAN-PDM pada Seluruh Unit'],
-      ['Asas & Nilai Dasar', 'Islam Ahlussunnah wal Jama\'ah · Nilai Dasar "JUBAEDAH"'],
+      ['Status Akreditasi', 'Terakreditasi A (Unggul) BAN-PDM pada Seluruh Satuan Pendidikan'],
+      ['Landasan Nilai & Asas', "Islam Ahlussunnah wal Jama'ah berdasarkan Al-Qur'an dan As-Sunnah"],
     ];
     document.getElementById('profil-legal-rows').innerHTML = legalRows.map(([k, v]) => `
       <div class="py-2.5 flex flex-col sm:flex-row sm:justify-between gap-1">
@@ -190,14 +211,14 @@
       </div>
     `).join('');
 
-    // Ringkasan Eksekutif Statuta Yayasan (Bab I - Bab VIII)
+    // Ringkasan Eksekutif Statuta Yayasan
     const statutaBoxes = [
-      { pasal: 'Bab I–II (Pasal 1–5)', title: 'Identitas, Visi 2030 & Nilai JUBAEDAH', desc: 'Penetapan badan hukum YPIA Bandung, Visi Generasi Qur\'ani 2030, 5 Misi Pendidikan, dan 8 Nilai Dasar JUBAEDAH.' },
-      { pasal: 'Bab III (Pasal 6)', title: 'Struktur Organ Yayasan', desc: 'Terdiri atas Dewan Pembina (Otoritas Tertinggi), Dewan Pengawas (Audit & Kepatuhan), dan Pengurus Harian.' },
-      { pasal: 'Bab IV (Pasal 7–8)', title: '5 Unit Pendidikan & Seleksi Ramah Anak', desc: 'Menaungi PG, TK, SDIT, SMPIT, SMAIT. PG/TK/SD bebas tes calistung; kelas Ikhwan & Akhwat terpisah mulai Kelas 4 SD–SMA.' },
-      { pasal: 'Bab V (Pasal 9)', title: 'Beasiswa, Diskon & Kuota Afirmasi', desc: 'Mengatur diskon Early Bird (15%), Alumni (20%), Sibling (10%), Tahfidz (50%/100%), dan Afirmasi Yatim/Dhuafa (100% min 5% kuota).' },
-      { pasal: 'Bab VI (Pasal 10–11)', title: 'Standar Pendidik & Zero Bullying (TPPK)', desc: 'Guru wajib bersertifikasi Tahsin Tilawati/Ummi, hadir 06.45 WIB, dan penegakan Sekolah Ramah Anak bebas perundungan.' },
-      { pasal: 'Bab VII (Pasal 12)', title: 'Akuntabilitas Virtual Account (VA)', desc: 'Seluruh transaksi wajib melalui VA Bank Syariah resmi a.n. YPIA. Pembayaran tunai/rekening pribadi dilarang keras.' },
+      { pasal: 'Statuta Pasal 1 – Pasal 5', title: 'Identitas Badan Hukum, Visi 2030 & Misi Pendidikan', desc: 'Penetapan badan hukum Yayasan Pendidikan Islam Al-Mun\'imiyah Bandung (SK Kemenkumham RI No. AHU-0019283.AH.01.04.Tahun 2015), Visi 2030, dan 5 Misi Pendidikan.' },
+      { pasal: 'Statuta Pasal 6', title: 'Struktur Organ Kepemimpinan Yayasan', desc: 'Tata kelola kelembagaan terdiri atas Dewan Pembina (otoritas tertinggi), Dewan Pengawas (pengawasan & audit), serta Pengurus Harian.' },
+      { pasal: 'Statuta Pasal 7 – Pasal 8', title: 'Penyelenggaraan 5 Satuan Pendidikan', desc: 'Menaungi Playgroup, TK Islam, SDIT, SMPIT, dan SMAIT. Seleksi PG, TK, dan SDIT bebas tes calistung; pemisahan kelas Ikhwan & Akhwat mulai Kelas 4 SDIT hingga SMAIT.' },
+      { pasal: 'Statuta Pasal 9', title: 'Kebijakan Beasiswa, Potongan Biaya & Kuota Afirmasi', desc: 'Mengatur pemberian keringanan Alumni (20% DPP), Saudara Kandung/Sibling (10% DPP + 5% SPP), Prestasi Tahfidz (50%/100% DPP), dan Afirmasi Yatim/Dhuafa.' },
+      { pasal: 'Statuta Pasal 10 – Pasal 11', title: 'Standar Mutu Pendidik & Lingkungan Ramah Anak', desc: 'Kewajiban sertifikasi tahsin Al-Qur\'an bagi tenaga pendidik, kedisiplinan kerja, serta penegakan kawasan bebas perundungan melalui TPPK.' },
+      { pasal: 'Statuta Pasal 12', title: 'Akuntabilitas Keuangan & Virtual Account Resmi', desc: 'Seluruh penerimaan dana pendidikan wajib melalui rekening Virtual Account Bank Syariah resmi atas nama yayasan dan dilarang melalui rekening pribadi.' },
     ];
     document.getElementById('profil-statuta-summary').innerHTML = statutaBoxes.map((b) => `
       <div class="bg-panel rounded-2xl p-4 border border-auralis space-y-1">
@@ -207,7 +228,7 @@
       </div>
     `).join('');
 
-    // Daftar Pimpinan Yayasan & Kepala Unit Pendidikan
+    // Daftar Pimpinan Yayasan & Kepala Satuan Pendidikan (PG s.d. SMAIT)
     document.getElementById('profil-struktur-grid').innerHTML = y.struktur.map((s) => {
       const isKepala = /^Kepala|^Koordinator/i.test(s.jabatan);
       return `
@@ -224,15 +245,15 @@
       `;
     }).join('');
 
-    // Sub-Halaman 2.2: Daftar Berkas Grounding NotebookLM
-    const files = Object.values(KB.drive.files || {});
-    document.getElementById('profil-notebook-files').innerHTML = files.map((f, i) => `
+    // Daftar Murni 5 Berkas Data Master Acuan Utama
+    const masterDocs = getMasterDocsWithUrls();
+    document.getElementById('profil-notebook-files').innerHTML = masterDocs.map((d) => `
       <div class="bg-card rounded-xl p-3 border border-auralis flex items-center justify-between gap-2">
         <div class="min-w-0">
-          <div class="font-semibold text-primary truncate">0${i + 1}. ${esc(f.name)}</div>
-          <div class="text-[11px] text-secondary">Terindeks di NotebookLM · ${esc(f.type.toUpperCase())}</div>
+          <div class="font-semibold text-primary truncate">${esc(d.title)}</div>
+          <div class="text-[11px] text-secondary truncate">${esc(d.subtitle)}</div>
         </div>
-        <a href="${esc(f.url)}" target="_blank" rel="noopener" class="badge-pill !py-1 !px-2.5 hover:!border-primary shrink-0">Buka ↗</a>
+        <a href="${esc(d.url)}" target="_blank" rel="noopener" class="badge-pill !py-1 !px-2.5 hover:!border-primary shrink-0">Buka ↗</a>
       </div>
     `).join('');
 
@@ -245,7 +266,7 @@
   }
 
   // =====================================================================
-  // 3. UNIT PENDIDIKAN — Playgroup & TK Islam vs SDIT | SMPIT | SMAIT
+  // MENU 3 — UNIT PENDIDIKAN
   // =====================================================================
   function renderUnit() {
     document.getElementById('unit-intro').textContent = KB.kurikulum.intro;
@@ -262,19 +283,19 @@
     });
 
     const tahfidzTargetByUnit = {
-      PG: 'PG: 15 surat pendek (Juz 30) & doa harian pilihan',
-      TK: 'TK: 1/2 Juz 30 (An-Nas s.d. Al-Infitar / Ad-Dhuha) & hadits adab',
-      SD: 'SDIT: 2 Juz Mutqin (Juz 30 & Juz 29) + tuntas baca Al-Qur\'an tartil',
-      SMP: 'SMPIT: 3–5 Juz Mutqin (Bersanad) + terjemah lafdziyah Juz 30',
-      SMA: 'SMAIT: 5–10 Juz Mutqin (Bersanad) + kajian tafsir tematik',
+      PG: '15 surat pendek Juz 30 & doa harian pilihan',
+      TK: '1/2 Juz 30 (An-Nas s.d. Al-Infitar / Ad-Dhuha) & hadits adab',
+      SD: '2 Juz Mutqin (Juz 30 & Juz 29) bersanad',
+      SMP: '3–5 Juz Mutqin bersanad & terjemah lafdziyah Juz 30',
+      SMA: '5–10 Juz Mutqin bersanad & kajian tafsir tematik',
     };
 
     const techHighlight = {
-      PG: 'Sensory Integration, Motorik Halus & Kasar, Storytelling Islami',
-      TK: 'Eksplorasi STEAM Anak, Pengenalan Angka/Huruf Kontekstual, Manasik Cilik',
-      SD: 'Coding Kids SD (Scratch/Blockly), Math & Science Club (OSN), Arabic-English Fun Day',
-      SMP: 'Robotika SMP (Arduino & IoT), Bilingual Camp (Arab & Inggris), Leadership & Entrepreneur',
-      SMA: 'AI/Python SMA & Data Science, Karya Ilmiah Remaja (KIR), UTBK-SNBT & TOEFL/IELTS Prep',
+      PG: 'Stimulasi Sensorik & Motorik Terpadu, Kisah Nabawi Interaktif',
+      TK: 'Eksplorasi Sains Dasar Anak, Literasi-Numerasi Kontekstual & Manasik',
+      SD: 'Coding Dasar (SDIT), Klub Matematika-Sains (OSN) & Bahasa Arab-Inggris',
+      SMP: 'Robotika Terapan (SMPIT), Program Dwibahasa (Arab & Inggris) & Kepemimpinan',
+      SMA: 'Dasar Kecerdasan Buatan & Pemrograman Python (SMAIT), Riset Ilmiah & Persiapan Perguruan Tinggi',
     };
 
     const gridEl = document.getElementById('unit-cards-grid');
@@ -288,36 +309,36 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="badge-pill">
               <span class="dot-indicator bg-emerald-500"></span>
-              <span>Unit ${esc(u.code)} · Terakreditasi A (Unggul)</span>
+              <span>Terakreditasi A (Unggul)</span>
             </span>
             <span class="badge-pill">${esc(u.kuota.rombel)} (${esc(u.kuota.total)})</span>
           </div>
 
           <div>
             <h3 class="typo-h3 text-primary">${esc(u.nama)}</h3>
-            <p class="text-xs text-secondary mt-1">Kepala Unit: <strong class="text-primary">${esc(u.kepala ? u.kepala.nama : '-')}</strong></p>
+            <p class="text-xs text-secondary mt-1">Kepala Satuan Pendidikan: <strong class="text-primary">${esc(u.kepala ? u.kepala.nama : '-')}</strong></p>
           </div>
 
-          <!-- 3 Parameter Wajib: Jam Belajar Efektif, Rasio Kelas, Target Hafalan Tahfidz -->
+          <!-- Jam Belajar Efektif & Rasio Kelas -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
             <div class="bg-panel rounded-xl p-3 border border-auralis">
               <span class="typo-label-caps text-secondary">Jam Belajar Efektif</span>
               <strong class="text-primary block mt-1">${esc(u.statuta.jam)}</strong>
             </div>
             <div class="bg-panel rounded-xl p-3 border border-auralis">
-              <span class="typo-label-caps text-secondary">Rasio &amp; Kuota Kelas</span>
+              <span class="typo-label-caps text-secondary">Rasio Kelas &amp; Kuota</span>
               <strong class="text-primary block mt-1">${esc(u.kuota.rombel)} · Total ${esc(u.kuota.total)}</strong>
             </div>
           </div>
 
           <div class="bg-panel rounded-2xl p-4 border border-auralis text-xs space-y-1.5">
-            <span class="typo-label-caps text-emerald-700">Target Hafalan Tahfidz &amp; Metode</span>
+            <span class="typo-label-caps text-emerald-700">Target Hafalan Al-Qur'an Bersanad</span>
             <p class="font-semibold text-primary">${esc(tahfidzTargetByUnit[u.code] || u.statuta.target)}</p>
             <p class="text-secondary leading-relaxed">${esc(u.kurikulum.tahfidz)}</p>
           </div>
 
           <div class="bg-panel rounded-2xl p-4 border border-auralis text-xs space-y-1.5">
-            <span class="typo-label-caps text-blue-700">Program Unggulan Teknologi &amp; Akademik</span>
+            <span class="typo-label-caps text-blue-700">Muatan Teknologi Unggulan &amp; Pembiasaan</span>
             <p class="font-semibold text-primary">${esc(techHighlight[u.code])}</p>
             <p class="text-secondary leading-relaxed">${esc(u.kurikulum.adab)}</p>
           </div>
@@ -330,7 +351,7 @@
           </div>
           <div class="flex gap-2">
             <button type="button" data-unit-sim="${esc(u.code)}" class="btn-secondary !py-1.5 !px-3 !text-xs">Simulasi Biaya</button>
-            <button type="button" data-unit-reg="${esc(u.code)}" class="btn-primary !py-1.5 !px-3 !text-xs">Daftar ${esc(u.code)}</button>
+            <button type="button" data-unit-reg="${esc(u.code)}" class="btn-primary !py-1.5 !px-3 !text-xs">Pendaftaran</button>
           </div>
         </div>
       </div>
@@ -353,7 +374,7 @@
       });
     });
 
-    // Tabel Komparatif 5 Unit
+    // Tabel Komparatif 5 Satuan Pendidikan
     document.getElementById('unit-comparison-tbody').innerHTML = KB.units.map((u) => `
       <tr class="hover:bg-panel/50">
         <td class="py-3 px-3 font-semibold text-primary">${esc(u.nama.replace(/Al-Mun'imiyah/i, '').trim())}</td>
@@ -577,8 +598,8 @@
     document.getElementById('chat-messages').innerHTML = '';
     appendChatBubble(
       'assistant',
-      `Assalamu'alaikum Warahmatullahi Wabarakatuh, Ayah/Bunda.\n\nSaya **${KB.ai.personaName}** (Gemini Custom Gem Model A Terpilih — Fase 3), Asisten PPDB **${KB.yayasan.name}**. Silakan tanyakan simulasi biaya & diskon Pasal 9, syarat usia, kurikulum tahfidz, maupun verifikasi rekening Virtual Account Bank Syariah.`,
-      'Grounded pada 6 Dokumen Drive "data masukan"'
+      `Assalamu'alaikum Warahmatullahi Wabarakatuh, Bapak/Ibu.\n\nSaya **${KB.ai.personaName}**, Naradamping Resmi Layanan Informasi & PPDB **${KB.yayasan.name}**. Silakan sampaikan pertanyaan mengenai rincian biaya pendidikan dan ketentuan beasiswa Statuta Pasal 9, persyaratan usia calon peserta didik, kurikulum tahfidz bersanad, maupun verifikasi rekening Virtual Account Bank Syariah resmi.`,
+      'Rujukan Resmi: 5 Berkas Master Regulasi Yayasan'
     );
   }
 
@@ -604,7 +625,7 @@
       } catch {
         data = window.YPIAAssistant.localAnswer(KB, msg, state.chatHistory);
       }
-      const reply = data.reply || 'Mohon maaf, terjadi kendala.';
+      const reply = data.reply || 'Mohon maaf, terjadi kendala teknis pada layanan konsultasi.';
       state.chatHistory.push({ role: 'user', content: msg }, { role: 'assistant', content: reply });
       appendChatBubble('assistant', reply);
     } finally {
@@ -615,7 +636,13 @@
   function renderKonsultasi() {
     resetChat();
 
-    const labels = ['1. Diskon Ganda SDIT', '2. Biaya & Tahfidz SMPIT', '3. Anak Belum Lancar Ngaji', '4. Cek VA Resmi vs Pribadi', '5. Usia SD 5 Thn 9 Bln'];
+    const labels = [
+      'Simulasi Keringanan SDIT',
+      'Rincian Biaya & Beasiswa SMPIT',
+      'Pendampingan Tahsin Siswa Baru',
+      'Verifikasi Rekening VA Resmi',
+      'Ketentuan Usia Masuk SDIT',
+    ];
     const chipWrap = document.getElementById('ai-scenarios-chips');
     chipWrap.innerHTML = KB.ai.scenarios.map((s, i) => `
       <button type="button" data-sc="${i}" class="badge-pill !bg-card !normal-case !tracking-normal !font-medium hover:!border-primary shrink-0 cursor-pointer">
@@ -634,16 +661,17 @@
   }
 
   function renderFAQ() {
+    const allowedCodes = ['A', 'B', 'C', 'D'];
     const catTitles = {
-      A: 'Kat. A · Umum & Legalitas',
-      B: 'Kat. B · Kurikulum & Tahfidz',
-      C: 'Kat. C · Teknis PPDB',
-      D: 'Kat. D · Biaya, Cicilan & VA',
-      E: 'Kat. E · Solusi Keberatan',
+      A: 'Kategori A · Umum & Legalitas',
+      B: 'Kategori B · Kurikulum & Tahfidz',
+      C: 'Kategori C · Teknis Pendaftaran',
+      D: 'Kategori D · Biaya, Angsuran & VA',
     };
+    const filteredCategories = KB.faq.categories.filter((c) => allowedCodes.includes(c.code));
     const cats = [
-      { code: 'ALL', label: 'Semua (A–D)' },
-      ...KB.faq.categories.map((c) => ({ code: c.code, label: catTitles[c.code] || `Kat. ${c.code}` })),
+      { code: 'ALL', label: 'Semua (Kategori A–D)' },
+      ...filteredCategories.map((c) => ({ code: c.code, label: catTitles[c.code] || `Kategori ${c.code}` })),
     ];
     const tabWrap = document.getElementById('faq-cat-tabs');
     tabWrap.innerHTML = cats.map((c) => `
@@ -661,7 +689,7 @@
 
     const q = state.faqQuery.toLowerCase().trim();
     const items = [];
-    for (const cat of KB.faq.categories) {
+    for (const cat of filteredCategories) {
       if (state.faqCategory !== 'ALL' && state.faqCategory !== cat.code) continue;
       for (const it of cat.items) {
         if (q && !(`${it.id} ${it.q} ${it.a}`).toLowerCase().includes(q)) continue;
@@ -672,28 +700,28 @@
     document.getElementById('faq-items-list').innerHTML = items.map((it) => `
       <details class="group bg-card rounded-2xl border border-auralis p-3.5 text-xs">
         <summary class="font-semibold text-primary cursor-pointer list-none flex items-center justify-between gap-2">
-          <span><span class="badge-pill !py-0.5 !px-1.5 !text-[10px] mr-1.5">Kat. ${esc(it.catCode)}</span>${esc(it.q)}</span>
+          <span><span class="badge-pill !py-0.5 !px-1.5 !text-[10px] mr-1.5">Kategori ${esc(it.catCode)}</span>${esc(it.q)}</span>
           <span class="material-symbols-outlined !text-[16px] text-secondary group-open:rotate-180 transition-transform">expand_more</span>
         </summary>
         <p class="text-secondary leading-relaxed mt-2.5 pt-2.5 border-t border-auralis">${esc(it.a)}</p>
       </details>
-    `).join('') || `<div class="text-xs text-secondary py-6 text-center">Tidak ada pertanyaan yang cocok.</div>`;
+    `).join('') || `<div class="text-xs text-secondary py-6 text-center">Tidak ditemukan pertanyaan yang sesuai dengan kata kunci.</div>`;
   }
 
   // =====================================================================
-  // DRIVE MODAL & EVENTS
+  // MODAL ARSIP DOKUMEN LEGALITAS & KEBIJAKAN YAYASAN (MURNI 5 BERKAS MASTER)
   // =====================================================================
   function renderDriveModal() {
-    const files = Object.values(KB.drive.files || {});
-    document.getElementById('drive-folder-link').href = KB.drive.folderUrl;
-    document.getElementById('drive-generated-at').textContent = new Date(KB.generatedAt).toLocaleDateString('id-ID');
-    document.getElementById('drive-files-list').innerHTML = files.map((f) => `
-      <div class="bg-panel rounded-xl p-3 border border-auralis flex items-center justify-between gap-3">
+    const masterDocs = getMasterDocsWithUrls();
+    document.getElementById('drive-folder-link').href = 'https://drive.google.com/drive/folders/157nEr-14sON96VUaWsNkkpetWrMI_bQs';
+    document.getElementById('drive-generated-at').textContent = '5 Berkas Master Acuan Utama';
+    document.getElementById('drive-files-list').innerHTML = masterDocs.map((d) => `
+      <div class="bg-panel rounded-xl p-3.5 border border-auralis flex items-center justify-between gap-3">
         <div>
-          <div class="font-semibold text-primary">${esc(f.name)}</div>
-          <div class="text-[11px] text-secondary">${esc(f.type.toUpperCase())} · ${esc(f.source)}</div>
+          <div class="font-semibold text-primary">${esc(d.title)}</div>
+          <div class="text-[11px] text-secondary mt-0.5">${esc(d.subtitle)}</div>
         </div>
-        <a href="${esc(f.url)}" target="_blank" rel="noopener" class="text-xs font-medium text-primary hover:underline shrink-0">Buka ↗</a>
+        <a href="${esc(d.url)}" target="_blank" rel="noopener" class="text-xs font-medium text-primary hover:underline shrink-0">Buka Dokumen ↗</a>
       </div>
     `).join('');
   }
@@ -800,18 +828,7 @@
       ticket.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
-    // Salin System Prompt Gemini Custom Gem A (Fase 3)
-    document.getElementById('btn-copy-gem-prompt').addEventListener('click', async () => {
-      const promptText = (KB.ai && KB.ai.gemAPrompt) || 'Anda adalah Ustadzah Fatimah, Konsultan Pendidikan Islami & Asisten Resmi PPDB Yayasan Pendidikan Islam Al-Mun\'imiyah (YPIA) Bandung.';
-      try {
-        await navigator.clipboard.writeText(promptText);
-        const lbl = document.getElementById('copy-gem-label');
-        lbl.textContent = 'System Prompt Tersalin ✓';
-        setTimeout(() => { lbl.textContent = 'Salin System Prompt Gem A'; }, 2200);
-      } catch {}
-    });
-
-    // Konsultasi AI & FAQ
+    // Konsultasi & Layanan Informasi
     document.getElementById('chat-form').addEventListener('submit', (e) => {
       e.preventDefault();
       sendChatPrompt(document.getElementById('chat-input').value);

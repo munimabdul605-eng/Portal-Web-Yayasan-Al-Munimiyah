@@ -1635,3 +1635,4 @@ async function syncLiveQuotaFromSheets() {
     console.warn("[PPDB Live Sync] Menggunakan fallback data lokal:", error);
   }
 }
+document.addEventListener("DOMContentLoaded", syncLiveQuotaFromSheets);

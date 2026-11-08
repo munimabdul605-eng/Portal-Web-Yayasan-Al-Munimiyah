@@ -1693,6 +1693,137 @@ html body textarea.input-auralis:focus,
   padding: 24px;
 }
 
+/* =====================================================================
+   FLOATING ACTION BUTTON (FAB) & RESPONSIVE MOBILE UX (<= 640px)
+   ===================================================================== */
+#floating-chatbot-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  transition:
+    padding 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 220ms ease,
+    box-shadow 260ms ease,
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 240ms ease;
+}
+
+#floating-chatbot-widget .fab-online-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #10b981;
+  border: 1.5px solid #ffffff;
+  z-index: 15;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.dark #floating-chatbot-widget .fab-online-dot {
+  border-color: #09090b;
+}
+
+#floating-chatbot-widget.fab-hidden-on-chat {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(18px) scale(0.8) !important;
+}
+
+/* Table Responsive Scrolling & Padding */
+.table-responsive-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  border-radius: 14px;
+}
+
+/* Mobile Viewport Optimizations (viewport <= 640px) */
+@media (max-width: 640px) {
+  /* A. Floating Action Button (FAB) Minimalis Bulat */
+  #floating-chatbot-widget {
+    bottom: 18px !important;
+    right: 18px !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28) !important;
+  }
+
+  #floating-chatbot-widget .btn-text-label {
+    display: none !important;
+  }
+
+  #floating-chatbot-widget .btn-icon-circle {
+    position: static !important;
+    transform: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  #floating-chatbot-widget .fab-online-dot {
+    top: 3px !important;
+    right: 3px !important;
+    width: 11px !important;
+    height: 11px !important;
+    border-width: 2px !important;
+    display: block !important;
+  }
+
+  /* B. Optimasi Touch Targets Formulir PPDB (>= 44px) */
+  .form-control-modern {
+    min-height: 46px;
+    height: 46px;
+    font-size: 16px; /* Cegah auto-zoom iOS & sentuhan pas dengan jempol */
+    padding: 0.65rem 0.95rem;
+    border-radius: 12px;
+  }
+
+  .form-radio-card {
+    min-height: 44px;
+    padding: 0.65rem 0.8rem;
+    font-size: 0.8125rem;
+  }
+
+  /* E. Padding Bawah Body / Container agar konten tidak tertutup tombol FAB */
+  main#main-content {
+    padding-bottom: 80px !important;
+  }
+
+  footer {
+    padding-bottom: 88px !important;
+  }
+
+  /* Rincian Tabel Biaya di Mobile */
+  .table-responsive-wrapper {
+    padding: 0 0.5rem 0.5rem 0.5rem;
+  }
+
+  .table-modern th,
+  .table-modern td {
+    padding: 14px 12px;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+}
+
 /* R-39: Full Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   html {

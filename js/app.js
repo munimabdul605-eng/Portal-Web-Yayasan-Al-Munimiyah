@@ -40,11 +40,11 @@
     faqQuery: '',
     chatHistory: [],
     liveQuotaStats: [
-      { code: 'PG', label: "Playgroup (PG) Al-Mun'imiyah", rombel: '2 Rombel (@15 Siswa)', filled: 1, total: 30 },
-      { code: 'TK', label: 'TK Islam (TK A & TK B)', rombel: '4 Rombel (@20 Siswa)', filled: 2, total: 80 },
-      { code: 'SD', label: "SDIT Al-Mun'imiyah", rombel: '4 Rombel (@28 Siswa)', filled: 4, total: 112 },
-      { code: 'SMP', label: "SMPIT Al-Mun'imiyah", rombel: '4 Rombel (@30 Siswa)', filled: 3, total: 120 },
-      { code: 'SMA', label: "SMAIT Al-Mun'imiyah", rombel: '4 Rombel (@30 Siswa)', filled: 3, total: 120 },
+      { code: 'PG', label: "Playgroup (PG) Al-Mun'imiyah", rombel: '2 Rombel (@15 Siswa)', filled: 2, total: 30 },
+      { code: 'TK', label: 'TK Islam (TK A & TK B)', rombel: '4 Rombel (@20 Siswa)', filled: 3, total: 80 },
+      { code: 'SD', label: "SDIT Al-Mun'imiyah", rombel: '4 Rombel (@28 Siswa)', filled: 6, total: 112 },
+      { code: 'SMP', label: "SMPIT Al-Mun'imiyah", rombel: '4 Rombel (@30 Siswa)', filled: 4, total: 120 },
+      { code: 'SMA', label: "SMAIT Al-Mun'imiyah", rombel: '4 Rombel (@30 Siswa)', filled: 5, total: 120 },
     ],
   };
 
@@ -924,9 +924,11 @@
     const elTotal = document.getElementById('quota-summary-total');
     const elFilled = document.getElementById('quota-summary-filled');
     const elRem = document.getElementById('quota-summary-remaining');
+    const elBadge = document.getElementById('quota-badge-summary');
     if (elTotal) elTotal.textContent = `${totalAll} Kursi`;
     if (elFilled) elFilled.textContent = `${filledAll} Siswa`;
     if (elRem) elRem.textContent = `${remAll} Kursi`;
+    if (elBadge) elBadge.innerHTML = `Total ${totalAll} Kursi &middot; ${filledAll} Terisi`;
 
     const reduce = prefersReducedMotion();
 
@@ -957,6 +959,81 @@
     quotaAnimated = reduce;
     animateQuotaBars();
   }
+
+  // =====================================================================
+  // D.1 AUTO-SYNC LIVE KUOTA DARI GOOGLE SHEETS PUBLIK
+  // =====================================================================
+  async function syncLiveQuotaFromSheets() {
+    const SHEETS_CSV_URL =
+      'https://docs.google.com/spreadsheets/d/1GzdjUBtnrKXPgZvCebYhQ6iAU0jkhgFNKDWeN6wzMa4/gviz/tq?tqx=out:csv&sheet=3_Dashboard_Kuota';
+    try {
+      const res = await fetch(SHEETS_CSV_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const csvText = await res.text();
+
+      // Parser CSV sederhana berkoma dengan quotes ganda
+      const parseCsvLine = (line) => {
+        const values = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+              current += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === ',' && !inQuotes) {
+            values.push(current.trim().replace(/^"|"$/g, ''));
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        values.push(current.trim().replace(/^"|"$/g, ''));
+        return values;
+      };
+
+      const lines = csvText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      let updatedCount = 0;
+
+      lines.forEach((line) => {
+        const cols = parseCsvLine(line);
+        if (!cols || cols.length < 4) return;
+        const code = (cols[0] || '').toUpperCase().trim();
+        const stat = state.liveQuotaStats.find((q) => q.code === code);
+        if (stat) {
+          const totalVal = parseInt((cols[2] || '').replace(/[^\d]/g, ''), 10);
+          const filledVal = parseInt((cols[3] || '').replace(/[^\d]/g, ''), 10);
+          if (!isNaN(filledVal)) {
+            stat.filled = filledVal;
+            updatedCount++;
+          }
+          if (!isNaN(totalVal) && totalVal > 0) {
+            stat.total = totalVal;
+          }
+        }
+      });
+
+      if (updatedCount > 0) {
+        renderLiveQuotaChart();
+        animateQuotaBars(true);
+
+        const totalAll = state.liveQuotaStats.reduce((s, q) => s + q.total, 0);
+        const filledAll = state.liveQuotaStats.reduce((s, q) => s + q.filled, 0);
+        const elBadge = document.getElementById('quota-badge-summary');
+        if (elBadge) {
+          elBadge.innerHTML = `Total ${totalAll} Kursi &middot; ${filledAll} Terisi`;
+        }
+      }
+    } catch (err) {
+      console.warn('[PPDB Quota Auto-Sync] Menggunakan data lokal:', err && err.message ? err.message : err);
+    }
+  }
+
+  window.syncLiveQuotaFromSheets = syncLiveQuotaFromSheets;
 
   function renderPPDB() {
     if (!KB || !KB.biaya) return;
@@ -1439,6 +1516,25 @@
           : 'Sembunyikan Google Forms Asli ↖';
       });
     }
+
+    // Auto-hide Floating FAB saat berada di area Konsultasi agar tidak menutupi tombol Kirim Pesan
+    const chatSection = document.getElementById('konsultasi');
+    const floatingFab = document.getElementById('floating-chatbot-widget');
+    if (chatSection && floatingFab && 'IntersectionObserver' in window) {
+      const chatFabObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              floatingFab.classList.add('fab-hidden-on-chat');
+            } else {
+              floatingFab.classList.remove('fab-hidden-on-chat');
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      chatFabObserver.observe(chatSection);
+    }
   }
 
   let eventsBound = false;
@@ -1470,6 +1566,9 @@
         flushVisibleReveals();
         animateQuotaBars();
       });
+
+      // Live Auto-Sync Kuota PPDB dari Google Sheets
+      await syncLiveQuotaFromSheets();
     } catch (err) {
       renderErrorState(err && err.message ? err.message : 'Koneksi ke berkas data gagal.');
     }

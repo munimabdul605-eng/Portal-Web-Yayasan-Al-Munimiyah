@@ -356,8 +356,8 @@
             </div>
             <span class="badge-accent">Tahun Ajaran 2026/2027</span>
           </div>
-          <div class="overflow-x-auto">
-            <table class="table-modern">
+          <div class="overflow-x-auto table-responsive-wrapper px-3 sm:px-6 py-2">
+            <table class="table-modern min-w-[580px]">
               <thead>
                 <tr>
                   <th scope="col" class="text-left">Jenjang Pendidikan</th>
@@ -757,7 +757,7 @@
 
                 <div>
                   <label class="form-label">Rencana Skema Pembayaran</label>
-                  <div class="grid grid-cols-2 gap-2" id="ppdb-payment-selector">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="ppdb-payment-selector">
                     <label class="form-radio-card is-selected" data-val="LUNAS">
                       <input type="radio" name="entry.1676886351" value="LUNAS" checked />
                       <span>Pelunasan Sekaligus (Lunas)</span>
@@ -875,21 +875,21 @@
                 <span class="typo-label-caps">Ketersediaan Daya Tampung</span>
                 <h3 class="typo-h3 mt-1">Monitoring Kuota Kursi</h3>
               </div>
-              <span class="badge-accent">Total 462 Kursi &middot; 13 Terisi</span>
+              <span id="quota-badge-summary" class="badge-accent">Total 462 Kursi &middot; 20 Terisi</span>
             </div>
 
-            <div class="grid grid-cols-3 gap-3 text-center">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
               <div class="sub-surface p-3.5">
                 <span class="text-xs text-ink-muted block">Total Kuota</span>
                 <strong id="quota-summary-total" class="text-sm font-mono font-semibold text-ink-primary">462 Kursi</strong>
               </div>
               <div class="notice-accent rounded-2xl p-3.5">
                 <span class="text-xs block">Terisi</span>
-                <strong id="quota-summary-filled" class="text-sm font-mono font-semibold">13 Siswa</strong>
+                <strong id="quota-summary-filled" class="text-sm font-mono font-semibold">20 Siswa</strong>
               </div>
-              <div class="sub-surface p-3.5">
+              <div class="sub-surface p-3.5 col-span-2 sm:col-span-1">
                 <span class="text-xs text-ink-muted block">Tersedia</span>
-                <strong id="quota-summary-remaining" class="text-sm font-mono font-semibold text-ink-primary">449 Kursi</strong>
+                <strong id="quota-summary-remaining" class="text-sm font-mono font-semibold text-ink-primary">442 Kursi</strong>
               </div>
             </div>
 
@@ -1088,16 +1088,15 @@
   <a
     href="#konsultasi"
     id="floating-chatbot-widget"
-    style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"
     class="btn-with-icon btn-with-icon-md group !shadow-xl no-underline"
-    aria-label="Tanya Layanan PPDB">
-    <span class="relative z-10 transition-all duration-500 whitespace-nowrap">
+    aria-label="Tanya Layanan PPDB (Asisten Ustadzah Fatimah)">
+    <span class="fab-online-dot" aria-hidden="true" title="Layanan Aktif Online 24 Jam"></span>
+    <span class="btn-text-label relative z-10 transition-all duration-500 whitespace-nowrap">
       Tanya Layanan PPDB
     </span>
     <div class="btn-icon-circle" aria-hidden="true">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-        <polyline points="12 5 19 12 12 19"></polyline>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
       </svg>
     </div>
   </a>

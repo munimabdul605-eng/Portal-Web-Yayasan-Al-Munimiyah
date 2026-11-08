@@ -1636,3 +1636,79 @@ async function syncLiveQuotaFromSheets() {
   }
 }
 document.addEventListener("DOMContentLoaded", syncLiveQuotaFromSheets);
+// ===============================================================
+// OTOMASI REALTIME: LIVE SYNC KUOTA PPDB LANGSUNG DARI GOOGLE FORM
+// ===============================================================
+async function syncLiveQuotaFromSheets() {
+  // Mengambil data respon mentah langsung dari Google Spreadsheet
+  const GVIZ_URL = "https://docs.google.com/spreadsheets/d/1GzdjUBtnrKXPgZvCebYhQ6iAU0jkhgFNKDWeN6wzMa4/gviz/tq?tqx=out:json&sheet=Form%20Responses%201";
+
+  try {
+    const res = await fetch(GVIZ_URL);
+    const text = await res.text();
+    
+    // Parsing format JSON Google Visualization
+    const jsonStr = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+    const data = JSON.parse(jsonStr);
+    const rows = data.table.rows;
+
+    if (!rows || rows.length === 0) return;
+
+    // Reset hitungan jenjang
+    const counts = { PG: 0, TK: 0, SD: 0, SMP: 0, SMA: 0 };
+    let totalPendaftar = 0;
+
+    // Iterasi setiap pendaftar yang masuk dari Google Form
+    rows.forEach(r => {
+      // Kolom C (indeks 2) adalah Jenjang Pendidikan Tujuan
+      if (r.c && r.c[2] && r.c[2].v) {
+        const jenjangStr = r.c[2].v.toString().trim().toUpperCase();
+        for (const code of ["PG", "TK", "SD", "SMP", "SMA"]) {
+          if (jenjangStr.includes(code)) {
+            counts[code]++;
+            totalPendaftar++;
+            break;
+          }
+        }
+      }
+    });
+
+    // 1. Update nilai kuota terisi di objek state lokal
+    if (typeof state !== "undefined" && state.liveQuotaStats) {
+      state.liveQuotaStats.forEach(item => {
+        if (counts[item.code] !== undefined) {
+          item.filled = counts[item.code];
+        }
+      });
+    }
+
+    // 2. Render ulang grafik batang kuota
+    if (typeof animateQuotaBars === "function") {
+      animateQuotaBars(true);
+    }
+
+    // 3. Update total terisi di kotak ringkasan atas
+    const elFilled = document.getElementById("quota-summary-filled");
+    if (elFilled) elFilled.textContent = `${totalPendaftar} Siswa`;
+
+    const elRem = document.getElementById("quota-summary-remaining");
+    if (elRem) elRem.textContent = `${Math.max(0, 462 - totalPendaftar)} Kursi`;
+
+    // 4. Update teks badge pill
+    const badge = document.querySelector(".badge-accent");
+    if (badge && badge.textContent.includes("Kursi")) {
+      badge.textContent = `Total 462 Kursi · ${totalPendaftar} Terisi`;
+    }
+
+    console.log(`✅ [Realtime Sync] Berhasil! Terdeteksi ${totalPendaftar} pendaftar live dari Google Form.`);
+  } catch (err) {
+    console.warn("⚠️ [Realtime Sync Gagal, gunakan data default]:", err);
+  }
+}
+
+// Jalankan otomatis begitu web terbuka
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", syncLiveQuotaFromSheets);
+} else {
+  syncLiveQuotaFromSheets();
+}

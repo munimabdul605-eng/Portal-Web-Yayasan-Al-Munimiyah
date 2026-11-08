@@ -95,6 +95,16 @@
       },
     },
     {
+      name: 'va',
+      test: (t) => /virtual\s*account|\bva\b|nomor rekening|\brekening resmi\b|\bbsi\b|muamalat|bjb\s*syariah|(cara|metode)\s*(pembayaran|transfer|bayar)/.test(t) && !/rekening pribadi/.test(t),
+      run: (kb, t, ctx) => {
+        if (ctx.done.has('integritas')) return '';
+        const va = faqById(kb, 'FAQ-D05');
+        if (va) return va.a;
+        return `Sesuai Statuta Pasal 12 Ayat (3), seluruh pembayaran hanya sah melalui Nomor Virtual Account (VA) resmi atas nama **YPI AL-MUN'IMIYAH** di Bank Syariah Indonesia (**BSI** kode prefix **90012** untuk PPDB / **90088** untuk SPP), **Bank Muamalat** (**77101**), atau **Bank BJB Syariah** (**88205**). Yayasan melarang keras pembayaran tunai maupun transfer ke rekening pribadi.`;
+      },
+    },
+    {
       name: 'usia',
       test: (t) => /\b\d{1,2}\s*(tahun|thn|th)\b(?!\s*(ajaran|pertama|terakhir|lalu|ini|depan))/.test(t),
       run: (kb, t) => {
@@ -157,7 +167,7 @@
     },
     {
       name: 'biaya',
-      test: (t) => /biaya|berapa|diskon|potongan|rincian|uang pangkal|\bdpp\b|\bspp\b|simulasi|daftar ulang|siapkan|tarif|harga/.test(t),
+      test: (t) => /biaya|diskon|potongan|rincian|uang pangkal|\bdpp\b|\bspp\b|simulasi|daftar ulang|siapkan|tarif|harga/.test(t) || (/berapa/.test(t) && !/nomor|rekening|\bva\b|virtual\s*account|\bbsi\b|muamalat|bjb|kuota|kursi|rombel|usia|umur|tahun|bulan|jam|lama|hafal|tahfidz|juz|surat|\bwa\b|whatsapp|telepon|kontak/.test(t)),
       run: (kb, t, ctx) => {
         if (ctx.done.has('mahal') && !/rincian|simulasi|total|berapa/.test(t)) return '';
         const unit = targetUnit(t);

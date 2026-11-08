@@ -19,19 +19,19 @@
     Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   const TAHFIDZ_TARGETS = {
-    PG: '15 surat pendek Juz 30 & doa harian pilihan',
-    TK: '1/2 Juz 30 (An-Nas s.d. Al-Infitar / Ad-Dhuha)',
-    SD: '2 Juz Mutqin (Juz 30 & Juz 29) bersanad',
-    SMP: '3-5 Juz Mutqin bersanad & terjemah Juz 30',
-    SMA: '5-10 Juz Mutqin bersanad & tafsir tematik',
+    PG: 'Hafal 15 Surat Pendek Juz 30 & Doa Harian',
+    TK: 'Hafal Surat Pilihan Juz 30 (An-Naba s.d. An-Nas) & Pra-Tahsin Iqra',
+    SD: 'Minimal 2 Juz Mutqin (Juz 30 & 29) Bersanad',
+    SMP: 'Minimal 3 Juz Baru (Akumulasi 5 Juz Mutqin Bersanad)',
+    SMA: 'Minimal 3 Juz Baru (Akumulasi 5–10 Juz Mutqin Bersanad)',
   };
 
   const UNGGULAN_PROGRAMS = {
-    PG: 'Stimulasi Sensorik-Motorik & Pembiasaan Adab Harian',
-    TK: 'Eksplorasi Sains Anak, Literasi-Numerasi & Manasik',
-    SD: 'Coding Dasar SDIT, Sains-Matematika & Bahasa Arab-Inggris',
-    SMP: 'Robotika Terapan SMPIT, Program Dwibahasa & Kepemimpinan',
-    SMA: 'AI & Python SMAIT, Riset Ilmiah & Persiapan Perguruan Tinggi',
+    PG: 'Stimulasi Sensorik-Motorik & Kemandirian Toilet Training',
+    TK: 'Eksplorasi Sains Anak, Literasi-Numerasi & Calistung Ramah Anak',
+    SD: 'Shalat Berjamaah, Coding Kids & Bahasa Arab-Inggris Komunikatif',
+    SMP: 'Bilingual Active Days, Robotika-IoT Dasar & Riset Remaja (KIR)',
+    SMA: 'AI & Python Dasar, Entrepreneurship & Klinik Intensif PTN/IELTS',
   };
 
   const state = {
@@ -144,11 +144,74 @@
     });
   }
 
+  const REVEAL_SELECTOR = '.reveal-on-scroll, .reveal-text, .reveal-row';
+  const SECTION_IDS = ['beranda', 'profil', 'unit', 'ppdb', 'konsultasi'];
+  const SECTION_META = {
+    beranda: { kicker: 'Menu 01 · Beranda Utama', title: "Yayasan Pendidikan Islam Al-Mun'imiyah" },
+    profil: { kicker: 'Menu 02 · Profil & Tata Kelola', title: 'Legalitas Badan Hukum & Struktur Kepemimpinan' },
+    unit: { kicker: 'Menu 03 · Unit Pendidikan', title: 'Lima Jenjang Terakreditasi A (Unggul)' },
+    ppdb: { kicker: 'Menu 04 · Informasi PPDB TA 2026/2027', title: 'Biaya Pendidikan, Beasiswa & Pendaftaran Online' },
+    konsultasi: { kicker: 'Menu 05 · Konsultasi & Layanan', title: 'Asisten Informasi, FAQ & Rekening VA Resmi' },
+  };
+  let currentActiveNav = 'beranda';
+
+  function syncSlidingPill(container, activeEl, indicatorSelector, activeClassOnContainer) {
+    if (!container || !activeEl) return;
+    const ind = container.querySelector(indicatorSelector);
+    if (!ind) return;
+    if (container.offsetParent === null) {
+      ind.style.opacity = '0';
+      return;
+    }
+
+    const next = {
+      x: activeEl.offsetLeft,
+      y: activeEl.offsetTop,
+      w: activeEl.offsetWidth,
+      h: activeEl.offsetHeight,
+    };
+
+    const prev = container._pillCache;
+    if (prev && !prefersReducedMotion() && container._pillRecreated) {
+      ind.style.transition = 'none';
+      ind.style.transform = `translate3d(${prev.x}px, ${prev.y}px, 0)`;
+      ind.style.width = `${prev.w}px`;
+      ind.style.height = `${prev.h}px`;
+      ind.style.opacity = '1';
+      void ind.offsetWidth;
+      ind.style.transition = '';
+    }
+    container._pillRecreated = false;
+    container._pillCache = next;
+
+    ind.style.transform = `translate3d(${next.x}px, ${next.y}px, 0)`;
+    ind.style.width = `${next.w}px`;
+    ind.style.height = `${next.h}px`;
+    ind.style.opacity = '1';
+    if (activeClassOnContainer) container.classList.add(activeClassOnContainer);
+  }
+
+  function setActiveNav(navId) {
+    currentActiveNav = navId;
+    document.querySelectorAll('[data-nav]').forEach((a) => {
+      a.classList.toggle('active', a.getAttribute('data-nav') === navId);
+    });
+    const desktopNav = document.getElementById('desktop-nav');
+    const activeDesktopLink = desktopNav ? desktopNav.querySelector(`[data-nav="${navId}"]`) : null;
+    if (desktopNav && activeDesktopLink) {
+      syncSlidingPill(desktopNav, activeDesktopLink, '#nav-active-indicator', 'has-nav-pill');
+    }
+  }
+
   function flushVisibleReveals() {
     const vh = window.innerHeight || 800;
-    document.querySelectorAll('.reveal-on-scroll.reveal-ready:not(.is-visible)').forEach((el) => {
+    const atBottom = window.scrollY + vh >= document.documentElement.scrollHeight - 48;
+    const feeBody = document.getElementById('fee-master-tbody');
+    const feeVisible = feeBody && (feeBody.getBoundingClientRect().top <= vh * 0.94 || atBottom);
+
+    document.querySelectorAll('.reveal-ready:not(.is-visible)').forEach((el) => {
       const rect = el.getBoundingClientRect();
-      if (rect.top <= vh * 0.96) {
+      if (rect.top <= vh * 0.89 || atBottom || (feeVisible && el.classList.contains('reveal-row'))) {
         el.classList.add('is-visible');
         if (revealObserver) revealObserver.unobserve(el);
       }
@@ -156,7 +219,7 @@
   }
 
   function observeReveals(root = document) {
-    const targets = root.querySelectorAll('.reveal-on-scroll');
+    const targets = root.querySelectorAll(REVEAL_SELECTOR);
     if (!targets.length) return;
 
     if (prefersReducedMotion() || typeof window.IntersectionObserver !== 'function') {
@@ -172,20 +235,31 @@
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              entry.target.classList.add('is-visible');
-              revealObserver.unobserve(entry.target);
+              if (entry.target.classList.contains('reveal-row')) {
+                document.querySelectorAll('#fee-master-tbody tr.reveal-row.reveal-ready').forEach((r) => {
+                  r.classList.add('is-visible');
+                  revealObserver.unobserve(r);
+                });
+              } else {
+                entry.target.classList.add('is-visible');
+                revealObserver.unobserve(entry.target);
+              }
             }
           });
         },
-        { threshold: 0.06, rootMargin: '0px 0px -36px 0px' }
+        { threshold: 0.1, rootMargin: '0px 0px -10% 0px' }
       );
     }
 
     const vh = window.innerHeight || 800;
+    const atBottom = window.scrollY + vh >= document.documentElement.scrollHeight - 48;
+    const feeBody = document.getElementById('fee-master-tbody');
+    const feeVisible = feeBody && (feeBody.getBoundingClientRect().top <= vh * 0.94 || atBottom);
+
     targets.forEach((el) => {
       if (el.classList.contains('is-visible')) return;
       const rect = el.getBoundingClientRect();
-      if (rect.top <= vh * 0.94) {
+      if (rect.top <= vh * 0.89 || atBottom || (feeVisible && el.classList.contains('reveal-row'))) {
         el.classList.add('is-visible');
       } else {
         el.classList.add('reveal-ready');
@@ -194,33 +268,269 @@
     });
   }
 
+  function countUpElement(el, target, suffix, duration = 740) {
+    if (!el || prefersReducedMotion()) {
+      if (el) el.textContent = `${target} ${suffix}`;
+      return;
+    }
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = Math.round(target * eased);
+      el.textContent = `${val} ${suffix}`;
+      if (t < 1) window.requestAnimationFrame(tick);
+      else el.textContent = `${target} ${suffix}`;
+    };
+    window.requestAnimationFrame(tick);
+  }
+
   function animateQuotaBars(force = false) {
     const fills = document.querySelectorAll('#ppdb-quota-chart .quota-bar-fill');
     if (!fills.length) return;
+
+    const totalAll = state.liveQuotaStats.reduce((s, q) => s + q.total, 0);
+    const filledAll = state.liveQuotaStats.reduce((s, q) => s + q.filled, 0);
+    const remAll = Math.max(0, totalAll - filledAll);
+    const elTotal = document.getElementById('quota-summary-total');
+    const elFilled = document.getElementById('quota-summary-filled');
+    const elRem = document.getElementById('quota-summary-remaining');
+
     if (prefersReducedMotion() || force) {
       fills.forEach((bar) => {
         const s = bar.getAttribute('data-target-scale') || '1';
         bar.style.transform = `scaleX(${s})`;
       });
+      if (elTotal) elTotal.textContent = `${totalAll} Kursi`;
+      if (elFilled) elFilled.textContent = `${filledAll} Siswa`;
+      if (elRem) elRem.textContent = `${remAll} Kursi`;
       quotaAnimated = true;
       return;
     }
+
     const chartEl = document.getElementById('ppdb-quota-chart');
     if (!chartEl) return;
     const rect = chartEl.getBoundingClientRect();
-    if (rect.top <= (window.innerHeight || 800) * 0.95 && !quotaAnimated) {
+    if (rect.top <= (window.innerHeight || 800) * 0.92 && !quotaAnimated) {
       quotaAnimated = true;
+      countUpElement(elTotal, totalAll, 'Kursi');
+      countUpElement(elFilled, filledAll, 'Siswa');
+      countUpElement(elRem, remAll, 'Kursi');
       fills.forEach((bar, idx) => {
         const s = bar.getAttribute('data-target-scale') || '0.1';
         setTimeout(() => {
           bar.style.transform = `scaleX(${s})`;
-        }, idx * 70);
+        }, idx * 80);
       });
     }
   }
 
+  function updateOverlapChoreography() {
+    const heroShell = document.querySelector('.hero-banner-shell') || document.querySelector('.hero-depth-stage');
+    const stacks = document.querySelectorAll('.stack-section > .stack-inner');
+    if (prefersReducedMotion()) {
+      if (heroShell) heroShell.style.setProperty('--hero-scroll', '0');
+      stacks.forEach((inner) => {
+        inner.classList.remove('is-receding');
+        inner.style.setProperty('--exit-p', '0');
+      });
+      return;
+    }
+
+    if (heroShell) {
+      const heroProgress = Math.min(1, Math.max(0, window.scrollY / 440));
+      heroShell.style.setProperty('--hero-scroll', heroProgress.toFixed(3));
+    }
+
+    const vh = window.innerHeight || 800;
+    stacks.forEach((inner) => {
+      const parentRect = inner.parentElement.getBoundingClientRect();
+      const exitP = Math.min(1, Math.max(0, (vh * 0.88 - parentRect.bottom) / (vh * 0.72)));
+      inner.style.setProperty('--exit-p', exitP.toFixed(3));
+      inner.classList.toggle('is-receding', exitP > 0.005);
+    });
+  }
+
+  let smoothScrollRaf = 0;
+  let navTransitionToken = 0;
+  let navTimers = [];
+
+  function clearNavTimers() {
+    navTimers.forEach((id) => clearTimeout(id));
+    navTimers = [];
+  }
+
+  function cancelSmoothScroll() {
+    if (smoothScrollRaf) {
+      window.cancelAnimationFrame(smoothScrollRaf);
+      smoothScrollRaf = 0;
+    }
+  }
+
+  function triggerSectionArrival(targetEl) {
+    if (!targetEl || prefersReducedMotion()) return;
+    targetEl.classList.remove('section-arrived');
+    void targetEl.offsetWidth;
+    targetEl.classList.add('section-arrived');
+    navTimers.push(setTimeout(() => targetEl.classList.remove('section-arrived'), 580));
+  }
+
+  function replaySectionEntrance(targetEl, direction) {
+    if (!targetEl || prefersReducedMotion()) return;
+    const isHero = targetEl.id === 'beranda';
+    const enterClass = direction === 'backward' ? 'section-entering-backward' : 'section-entering-forward';
+
+    document.querySelectorAll('.section-entering-forward, .section-entering-backward, .hero-entry-wrap').forEach((s) => {
+      s.classList.remove('section-entering-forward', 'section-entering-backward', 'hero-entry-wrap');
+    });
+
+    if (isHero) {
+      const heroStage = targetEl.querySelector('.hero-depth-stage');
+      if (heroStage) {
+        heroStage.classList.add('hero-entry-wrap', enterClass);
+        heroStage.querySelectorAll('.hero-anim-meta, .hero-anim-headline, .hero-anim-copy, .hero-anim-cta').forEach((node) => {
+          node.style.animation = 'none';
+          void node.offsetWidth;
+          node.style.animation = '';
+        });
+      }
+    } else {
+      targetEl.classList.add(enterClass);
+    }
+
+    const items = targetEl.querySelectorAll(REVEAL_SELECTOR);
+    items.forEach((item) => {
+      if (revealObserver) revealObserver.unobserve(item);
+      item.classList.remove('is-visible');
+      item.classList.add('reveal-ready');
+    });
+    if (targetEl.id === 'ppdb') {
+      quotaAnimated = false;
+      document.querySelectorAll('#ppdb-quota-chart .quota-bar-fill').forEach((b) => {
+        b.style.transform = 'scaleX(0)';
+      });
+    }
+    void targetEl.offsetWidth;
+    window.requestAnimationFrame(() => {
+      observeReveals(targetEl);
+      flushVisibleReveals();
+      animateQuotaBars();
+    });
+
+    navTimers.push(
+      setTimeout(() => {
+        targetEl.classList.remove('section-entering-forward', 'section-entering-backward', 'hero-entry-wrap');
+      }, 680)
+    );
+  }
+
+  function smoothScrollToTarget(targetId) {
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    const targetTop = targetId === 'beranda' ? 0 : Math.max(0, Math.round(el.getBoundingClientRect().top + window.scrollY - 74));
+
+    if (prefersReducedMotion()) {
+      window.scrollTo({ top: targetTop, behavior: 'auto' });
+      return;
+    }
+
+    cancelSmoothScroll();
+    const startY = window.scrollY;
+    const distance = targetTop - startY;
+    if (Math.abs(distance) < 4) {
+      triggerSectionArrival(el);
+      return;
+    }
+
+    const duration = Math.min(720, Math.max(380, Math.abs(distance) * 0.28));
+    const startTime = performance.now();
+
+    const step = (now) => {
+      const progress = Math.min(1, (now - startTime) / duration);
+      const eased = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      window.scrollTo({ top: startY + distance * eased, behavior: 'auto' });
+      if (progress < 1) {
+        smoothScrollRaf = window.requestAnimationFrame(step);
+      } else {
+        smoothScrollRaf = 0;
+        flushVisibleReveals();
+        animateQuotaBars();
+        triggerSectionArrival(el);
+      }
+    };
+    smoothScrollRaf = window.requestAnimationFrame(step);
+  }
+
+  function navigateToSection(targetId) {
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    const sheet = document.getElementById('page-transition-sheet');
+    const curIdx = SECTION_IDS.indexOf(currentActiveNav);
+    const nextIdx = SECTION_IDS.indexOf(targetId);
+
+    if (prefersReducedMotion() || !sheet || nextIdx === -1 || curIdx === nextIdx) {
+      smoothScrollToTarget(targetId);
+      if (nextIdx !== -1) setActiveNav(targetId);
+      return;
+    }
+
+    cancelSmoothScroll();
+    clearNavTimers();
+    const token = ++navTransitionToken;
+    const isBackward = nextIdx < curIdx;
+    const meta = SECTION_META[targetId] || { kicker: 'Membuka Bagian', title: targetId };
+
+    setActiveNav(targetId);
+
+    const kickerEl = document.getElementById('pts-kicker');
+    const titleEl = document.getElementById('pts-title');
+    if (kickerEl) kickerEl.textContent = meta.kicker;
+    if (titleEl) titleEl.textContent = meta.title;
+
+    sheet.className = 'page-transition-sheet';
+    sheet.style.transition = 'none';
+    sheet.style.transform = isBackward ? 'translate3d(0, -106%, 0)' : 'translate3d(0, 106%, 0)';
+    sheet.style.visibility = 'visible';
+    void sheet.offsetWidth;
+    sheet.style.transition = '';
+    sheet.style.transform = '';
+    sheet.classList.add('is-covering');
+
+    navTimers.push(
+      setTimeout(() => {
+        if (token !== navTransitionToken) return;
+        const targetTop = targetId === 'beranda' ? 0 : Math.max(0, Math.round(el.getBoundingClientRect().top + window.scrollY - 74));
+        window.scrollTo({ top: targetTop, behavior: 'instant' });
+
+        const docEl = document.documentElement;
+        const maxScroll = Math.max(1, docEl.scrollHeight - window.innerHeight);
+        const ratio = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+        const bar = document.getElementById('scroll-progress-bar');
+        if (bar) bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
+
+        updateOverlapChoreography();
+
+        navTimers.push(
+          setTimeout(() => {
+            if (token !== navTransitionToken) return;
+            replaySectionEntrance(el, isBackward ? 'backward' : 'forward');
+            sheet.classList.remove('is-covering');
+            sheet.classList.add(isBackward ? 'is-exiting-down' : 'is-exiting-up');
+
+            navTimers.push(
+              setTimeout(() => {
+                if (token !== navTransitionToken) return;
+                sheet.className = 'page-transition-sheet';
+                sheet.style.visibility = '';
+              }, 460)
+            );
+          }, 70)
+        );
+      }, 360)
+    );
+  }
+
   function initScrollEngine() {
-    const sections = ['beranda', 'profil', 'unit', 'ppdb', 'konsultasi'];
     const bar = document.getElementById('scroll-progress-bar');
     let ticking = false;
 
@@ -233,16 +543,30 @@
 
       const y = window.scrollY + 180;
       let current = 'beranda';
-      for (const id of sections) {
+      for (const id of SECTION_IDS) {
         const el = document.getElementById(id);
         if (el && el.offsetTop <= y) current = id;
       }
-      document.querySelectorAll('[data-nav]').forEach((a) => {
-        a.classList.toggle('active', a.getAttribute('data-nav') === current);
-      });
+      if (window.scrollY > 120 && window.scrollY + window.innerHeight >= docEl.scrollHeight - 24) {
+        current = SECTION_IDS[SECTION_IDS.length - 1];
+      }
+      if (current !== currentActiveNav) {
+        setActiveNav(current);
+      }
 
+      updateOverlapChoreography();
       flushVisibleReveals();
       animateQuotaBars();
+    };
+
+    const resyncAllSlidingPills = () => {
+      setActiveNav(currentActiveNav);
+      const heroTabs = document.getElementById('hero-unit-tabs');
+      const heroActive = heroTabs ? heroTabs.querySelector('[data-hero-unit].is-active') : null;
+      if (heroTabs && heroActive) syncSlidingPill(heroTabs, heroActive, '.tab-sliding-indicator');
+      const faqTabs = document.getElementById('faq-cat-tabs');
+      const faqActive = faqTabs ? faqTabs.querySelector('[data-faq-cat][aria-pressed="true"]') : null;
+      if (faqTabs && faqActive) syncSlidingPill(faqTabs, faqActive, '.tab-sliding-indicator');
     };
 
     window.addEventListener(
@@ -255,25 +579,49 @@
       },
       { passive: true }
     );
-    window.addEventListener('resize', () => flushVisibleReveals(), { passive: true });
+    window.addEventListener('wheel', cancelSmoothScroll, { passive: true });
+    window.addEventListener('touchstart', cancelSmoothScroll, { passive: true });
+    window.addEventListener(
+      'resize',
+      () => {
+        updateOverlapChoreography();
+        flushVisibleReveals();
+        resyncAllSlidingPills();
+      },
+      { passive: true }
+    );
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(resyncAllSlidingPills);
+    }
+
+    document.addEventListener('click', (e) => {
+      const anchor = e.target.closest('a[href^="#"]');
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (!href || href.length < 2) return;
+      const targetId = href.slice(1);
+      if (targetId === 'main-content') return;
+      const targetEl = document.getElementById(targetId);
+      if (!targetEl) return;
+      e.preventDefault();
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', href);
+      }
+      navigateToSection(targetId);
+    });
+
+    setActiveNav('beranda');
     onFrame();
   }
 
-  function triggerValueFeedback(ids) {
-    if (prefersReducedMotion()) return;
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('calc-updated');
-      void el.offsetWidth;
-      el.classList.add('calc-updated');
-    });
-  }
+  const DOC_KEYS = ['statuta', 'biaya', 'ppdb', 'kurikulum', 'faq'];
 
   function getMasterDocsWithUrls() {
-    const rawFiles = Object.values((KB && KB.drive && KB.drive.files) || {});
+    const files = (KB && KB.drive && KB.drive.files) || {};
     return MASTER_DOCS.map((d, idx) => {
-      const match = rawFiles[idx] || {};
+      const key = DOC_KEYS[idx];
+      const match = (key && files[key]) || {};
       return {
         ...d,
         url: match.url || 'https://drive.google.com/drive/folders/157nEr-14sON96VUaWsNkkpetWrMI_bQs',
@@ -306,13 +654,13 @@
         if (cells.every((c) => /^:?-+:?$/.test(c))) continue;
         if (!inTable) {
           inTable = true;
-          html += '<table><thead><tr>' + cells.map((c) => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>';
+          html += '<div class="chat-table-wrap"><table><thead><tr>' + cells.map((c) => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>';
         } else {
           html += '<tr>' + cells.map((c) => `<td>${inline(c)}</td>`).join('') + '</tr>';
         }
         continue;
       } else if (inTable) {
-        html += '</tbody></table>';
+        html += '</tbody></table></div>';
         inTable = false;
       }
 
@@ -330,7 +678,7 @@
         if (line) html += `<p>${inline(line)}</p>`;
       }
     }
-    if (inTable) html += '</tbody></table>';
+    if (inTable) html += '</tbody></table></div>';
     if (inList) html += '</ul>';
     return html;
   }
@@ -338,7 +686,7 @@
   // =====================================================================
   // A. BERANDA & EKSPLORASI INTERAKTIF LIMA JENJANG
   // =====================================================================
-  function renderHeroUnitShowcase(animatePanel = false) {
+  function renderHeroUnitShowcase(animateDir = null) {
     const tabsEl = document.getElementById('hero-unit-tabs');
     const panelEl = document.getElementById('hero-unit-panel');
     if (!tabsEl || !panelEl || !KB || !KB.units || !KB.units.length) return;
@@ -346,11 +694,16 @@
     const units = KB.units;
     const shortLabels = { PG: 'Playgroup', TK: 'TK Islam', SD: 'SDIT', SMP: 'SMPIT', SMA: 'SMAIT' };
     const activeUnit = units.find((u) => u.code === state.heroUnitCode) || units[0];
+    const currentIdx = units.findIndex((u) => u.code === activeUnit.code);
     state.heroUnitCode = activeUnit.code;
 
-    tabsEl.innerHTML = units
-      .map(
-        (u) => `
+    tabsEl._pillRecreated = true;
+    tabsEl.classList.add('has-sliding-pill');
+    tabsEl.innerHTML =
+      '<span class="tab-sliding-indicator" aria-hidden="true"></span>' +
+      units
+        .map(
+          (u) => `
       <button
         type="button"
         role="tab"
@@ -360,25 +713,30 @@
         ${esc(shortLabels[u.code] || u.code)}
       </button>
     `
-      )
-      .join('');
+        )
+        .join('');
+
+    const activeTabBtn = tabsEl.querySelector('[data-hero-unit].is-active');
+    if (activeTabBtn) syncSlidingPill(tabsEl, activeTabBtn, '.tab-sliding-indicator');
 
     const bindTabs = Array.from(tabsEl.querySelectorAll('[data-hero-unit]'));
     bindTabs.forEach((btn, idx) => {
       btn.addEventListener('click', () => {
         const nextCode = btn.getAttribute('data-hero-unit');
         if (nextCode && nextCode !== state.heroUnitCode) {
+          const dir = idx >= currentIdx ? 'next' : 'prev';
           state.heroUnitCode = nextCode;
-          renderHeroUnitShowcase(true);
+          renderHeroUnitShowcase(dir);
         }
       });
       btn.addEventListener('keydown', (e) => {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
         e.preventDefault();
-        const nextIdx = e.key === 'ArrowRight' ? (idx + 1) % bindTabs.length : (idx - 1 + bindTabs.length) % bindTabs.length;
+        const dir = e.key === 'ArrowRight' ? 'next' : 'prev';
+        const nextIdx = dir === 'next' ? (idx + 1) % bindTabs.length : (idx - 1 + bindTabs.length) % bindTabs.length;
         const target = bindTabs[nextIdx];
         state.heroUnitCode = target.getAttribute('data-hero-unit');
-        renderHeroUnitShowcase(true);
+        renderHeroUnitShowcase(dir);
         const refocused = tabsEl.querySelector(`[data-hero-unit="${state.heroUnitCode}"]`);
         if (refocused) refocused.focus();
       });
@@ -390,19 +748,19 @@
           <h3 class="text-base sm:text-lg font-semibold text-ink-primary">${esc(activeUnit.nama)}</h3>
           <p class="text-xs text-ink-muted mt-0.5">Usia Masuk: ${esc(activeUnit.statuta.usia)}</p>
         </div>
-        <span class="badge-pill max-w-full">${esc(activeUnit.kuota.rombel)}</span>
+        <span class="badge-accent max-w-full">${esc(activeUnit.kuota.rombel)}</span>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
-        <div class="p-3 rounded-lg border border-hairline bg-[var(--bg-surface)] space-y-1">
+        <div class="p-3.5 rounded-2xl border border-hairline bg-[var(--bg-surface)] space-y-1">
           <span class="text-ink-muted font-medium block">Jam Belajar Efektif</span>
           <strong class="text-ink-primary font-semibold block">${esc(activeUnit.statuta.jam)}</strong>
         </div>
-        <div class="p-3 rounded-lg border border-hairline bg-[var(--bg-surface)] space-y-1">
-          <span class="text-accent-emerald font-semibold block">Target Hafalan</span>
+        <div class="p-3.5 rounded-2xl border border-[var(--accent-brand-border)] bg-[var(--accent-brand-soft)] space-y-1">
+          <span class="text-accent-brand font-semibold block">Target Hafalan</span>
           <strong class="text-ink-primary font-semibold block">${esc(TAHFIDZ_TARGETS[activeUnit.code] || activeUnit.statuta.target)}</strong>
         </div>
-        <div class="p-3 rounded-lg border border-hairline bg-[var(--bg-surface)] space-y-1">
+        <div class="p-3.5 rounded-2xl border border-hairline bg-[var(--bg-surface)] space-y-1">
           <span class="text-ink-muted font-medium block">Muatan Unggulan</span>
           <strong class="text-ink-primary font-semibold block">${esc(UNGGULAN_PROGRAMS[activeUnit.code])}</strong>
         </div>
@@ -413,27 +771,16 @@
           <span class="text-ink-muted">SPP Bulanan: </span>
           <strong class="font-mono font-semibold text-ink-primary">${R(activeUnit.biaya.spp)}</strong>
         </div>
-        <a href="#ppdb" id="hero-calc-jump" class="font-semibold text-accent-emerald hover:underline">
-          Hitung Estimasi Biaya ${esc(shortLabels[activeUnit.code] || activeUnit.code)} &rarr;
+        <a href="#ppdb" class="font-semibold text-accent-brand hover:underline">
+          Lihat Rincian Biaya &amp; Jadwal PPDB &rarr;
         </a>
       </div>
     `;
 
-    if (animatePanel && !prefersReducedMotion()) {
-      panelEl.classList.remove('showcase-swap');
+    if (animateDir && !prefersReducedMotion()) {
+      panelEl.classList.remove('showcase-slide-next', 'showcase-slide-prev');
       void panelEl.offsetWidth;
-      panelEl.classList.add('showcase-swap');
-    }
-
-    const jumpBtn = document.getElementById('hero-calc-jump');
-    if (jumpBtn) {
-      jumpBtn.addEventListener('click', () => {
-        const sel = document.getElementById('calc-unit');
-        if (sel) {
-          sel.value = activeUnit.code;
-          runCalculator(true);
-        }
-      });
+      panelEl.classList.add(animateDir === 'prev' ? 'showcase-slide-prev' : 'showcase-slide-next');
     }
   }
 
@@ -444,7 +791,7 @@
     const visiEl = document.getElementById('hero-visi');
     if (skEl && y.sk) skEl.textContent = y.sk;
     if (visiEl && y.visi) visiEl.textContent = y.visi;
-    renderHeroUnitShowcase(false);
+    renderHeroUnitShowcase(null);
   }
 
   // =====================================================================
@@ -470,15 +817,18 @@
       .map((s, idx) => {
         const isKepala = /^Kepala|^Koordinator/i.test(s.jabatan);
         const delay = (idx % 3) * 60;
+        const badgeClass = isKepala
+          ? 'badge-accent'
+          : 'badge-pill !border-[var(--accent-brand-border)] !text-[var(--accent-brand-ink)]';
         return `
         <article class="nextra-card flex flex-col justify-between gap-4 reveal-on-scroll" style="--stagger-delay: ${delay}ms;">
-          <div class="space-y-1.5">
-            <span class="text-xs font-semibold ${isKepala ? 'text-accent-emerald' : 'text-ink-muted'} block">
+          <div class="space-y-2.5">
+            <span class="${badgeClass} w-fit">
               ${esc(s.jabatan)}
             </span>
             <h3 class="text-base font-semibold text-ink-primary">${esc(s.nama)}</h3>
           </div>
-          <p class="text-xs text-ink-secondary leading-relaxed border-t border-hairline pt-3">${esc(s.tugas)}</p>
+          <p class="text-xs text-ink-secondary leading-relaxed border-t border-[var(--accent-brand-border)] pt-3">${esc(s.tugas)}</p>
         </article>
       `;
       })
@@ -513,21 +863,21 @@
               <h3 class="typo-h3">${esc(u.nama)}</h3>
               <p class="text-xs text-ink-muted mt-1">Usia Masuk: ${esc(u.statuta.usia)}</p>
             </div>
-            <span class="badge-pill max-w-full">${esc(u.kuota.rombel)}</span>
+            <span class="badge-accent max-w-full">${esc(u.kuota.rombel)}</span>
           </div>
 
-          <dl class="divide-y divide-[var(--border-subtle)] border-t border-hairline text-xs">
-            <div class="py-3 space-y-1">
+          <dl class="space-y-2.5 border-t border-hairline pt-4 text-xs">
+            <div class="sub-surface p-3.5 space-y-1">
               <dt class="font-semibold text-ink-muted">1. Jam Belajar Efektif</dt>
               <dd class="text-sm font-semibold text-ink-primary">${esc(u.statuta.jam)}</dd>
             </div>
 
-            <div class="py-3 space-y-1">
-              <dt class="font-semibold text-accent-emerald">2. Target Hafalan Al-Qur'an</dt>
+            <div class="notice-accent rounded-2xl p-3.5 space-y-1">
+              <dt class="font-semibold">2. Target Hafalan Al-Qur'an</dt>
               <dd class="text-sm font-semibold text-ink-primary">${esc(TAHFIDZ_TARGETS[u.code] || u.statuta.target)}</dd>
             </div>
 
-            <div class="py-3 space-y-1">
+            <div class="sub-surface p-3.5 space-y-1">
               <dt class="font-semibold text-ink-muted">3. Muatan Unggulan</dt>
               <dd class="text-sm font-semibold text-ink-primary">${esc(UNGGULAN_PROGRAMS[u.code])}</dd>
             </div>
@@ -539,8 +889,16 @@
             <span class="text-ink-muted block">SPP Bulanan</span>
             <strong class="text-sm font-mono font-semibold text-ink-primary">${R(u.biaya.spp)}</strong>
           </div>
-          <a href="#ppdb" data-select-unit="${esc(u.code)}" class="btn-secondary !py-2 !px-4 !text-xs">
-            <span>Hitung Biaya PPDB</span>
+          <a href="#ppdb" class="btn-with-icon btn-with-icon-sm group no-underline" title="Lihat Biaya &amp; Jadwal ${esc(u.nama)}">
+            <span class="relative z-10 transition-all duration-500 whitespace-nowrap">
+              Lihat Biaya &amp; Jadwal
+            </span>
+            <div class="btn-icon-circle" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </div>
           </a>
         </div>
       </article>
@@ -548,70 +906,13 @@
       })
       .join('');
 
-    gridEl.querySelectorAll('[data-select-unit]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const code = btn.getAttribute('data-select-unit');
-        const sel = document.getElementById('calc-unit');
-        if (sel && code) {
-          sel.value = code;
-          runCalculator(true);
-        }
-      });
-    });
-
     bindCardSpotlights(gridEl);
     observeReveals(gridEl);
   }
 
   // =====================================================================
-  // D. INFORMASI PPDB (Tabel Biaya Rata Kanan, Kalkulator, Kuota)
+  // D. INFORMASI PPDB (Tabel Biaya, Timeline 3 Gelombang, Checklist Berkas, Kuota)
   // =====================================================================
-  function runCalculator(animateNumbers = false) {
-    if (!KB) return;
-    const unitEl = document.getElementById('calc-unit');
-    const waveEl = document.getElementById('calc-wave');
-    const tahfidzEl = document.getElementById('calc-tahfidz');
-    const alumniEl = document.getElementById('calc-alumni');
-    const siblingEl = document.getElementById('calc-sibling');
-    const yatimEl = document.getElementById('calc-yatim');
-    if (!unitEl || !waveEl) return;
-
-    const opts = {
-      unit: unitEl.value,
-      gelombang: waveEl.value,
-      alumni: Boolean(alumniEl && alumniEl.checked),
-      sibling: Boolean(siblingEl && siblingEl.checked),
-      tahfidz: Number(tahfidzEl && tahfidzEl.value) || 0,
-      yatim: Boolean(yatimEl && yatimEl.checked),
-    };
-
-    const res = window.YPIACore.simulate(KB, opts);
-    if (!res) return;
-
-    const c = res.cicilan;
-    const l = res.lunas;
-
-    const setTxt = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    };
-
-    setTxt('calc-res-formulir', R(res.formulir));
-    setTxt('calc-cicilan-pct', `Diskon ${c.dppPct}% DPP`);
-    setTxt('calc-cicilan-total', R(c.daftarUlang));
-    setTxt('calc-cicilan-dpp', R(c.dppNet));
-    setTxt('calc-spp-nett', `${R(c.spp)}${c.sppPct ? ` (-${c.sppPct}%)` : ''}`);
-
-    setTxt('calc-lunas-pct', `Diskon ${l.dppPct}% DPP`);
-    setTxt('calc-lunas-total', R(l.daftarUlang));
-    setTxt('calc-lunas-dpp', R(l.dppNet));
-    setTxt('calc-lunas-hemat', R(l.hemat));
-
-    if (animateNumbers) {
-      triggerValueFeedback(['calc-cicilan-total', 'calc-lunas-total']);
-    }
-  }
-
   function renderLiveQuotaChart() {
     const chartEl = document.getElementById('ppdb-quota-chart');
     if (!chartEl) return;
@@ -642,7 +943,7 @@
             </div>
             <div class="text-right">
               <span class="font-mono font-semibold text-ink-primary block">${q.filled} / ${q.total} Kursi</span>
-              <span class="text-xs text-accent-emerald font-medium">Tersedia ${remaining} Kursi</span>
+              <span class="text-xs text-accent-brand font-medium">Tersedia ${remaining} Kursi</span>
             </div>
           </div>
           <div class="quota-bar-track" role="progressbar" aria-label="Keterisian kuota ${esc(q.label)}" aria-valuenow="${q.filled}" aria-valuemin="0" aria-valuemax="${q.total}">
@@ -667,23 +968,23 @@
       } else {
         tbody.innerHTML = units
           .map(
-            (u) => `
-          <tr>
+            (u, idx) => `
+          <tr class="reveal-row" style="--stagger-delay: ${idx * 55}ms;">
             <td class="font-semibold text-ink-primary">${esc(u.nama)}</td>
             <td class="text-right font-mono text-ink-secondary">${R(u.formulir)}</td>
             <td class="text-right font-mono font-semibold text-ink-primary">${R(u.dpp)}</td>
             <td class="text-right font-mono text-ink-secondary">${R(u.paket)}</td>
             <td class="text-right font-mono text-ink-secondary">${R(u.spp)}</td>
-            <td class="text-right font-mono font-bold text-accent-emerald">${R(u.awalMasuk)}</td>
+            <td class="text-right font-mono font-bold text-accent-brand">${R(u.awalMasuk)}</td>
           </tr>
         `
           )
           .join('');
+        observeReveals(tbody);
       }
     }
 
     renderLiveQuotaChart();
-    runCalculator(false);
   }
 
   // =====================================================================
@@ -704,7 +1005,7 @@
 
     wrap.innerHTML = `
       <div class="w-8 h-8 rounded-full ${
-        isUser ? 'bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)]' : 'bg-emerald-700 text-white'
+        isUser ? 'bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)]' : 'chat-avatar-bot'
       } flex items-center justify-center shrink-0 mt-0.5 text-xs">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${
           isUser
@@ -712,7 +1013,7 @@
             : '<path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>'
         }</svg>
       </div>
-      <div class="max-w-[82%] ${bubbleClass}">
+      <div class="max-w-[82%] min-w-0 ${bubbleClass}">
         ${isUser ? esc(markdownText) : renderMarkdown(markdownText)}
       </div>
     `;
@@ -739,10 +1040,12 @@
     appendChatBubble('user', msg);
     const inputEl = document.getElementById('chat-input');
     const submitBtn = document.getElementById('chat-submit');
+    const submitTextEl = submitBtn ? submitBtn.querySelector('.chat-btn-text') : null;
     if (inputEl) inputEl.value = '';
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Mengirim...';
+      if (submitTextEl) submitTextEl.textContent = 'Mengirim...';
+      else submitBtn.textContent = 'Mengirim...';
     }
 
     const loadingBubble = appendChatBubble('assistant', 'Sedang memeriksa rujukan resmi yayasan...');
@@ -775,12 +1078,13 @@
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Kirim Pesan';
+        if (submitTextEl) submitTextEl.textContent = 'Kirim Pesan';
+        else submitBtn.textContent = 'Kirim Pesan';
       }
     }
   }
 
-  function renderFAQ() {
+  function renderFAQ(cascade = false) {
     const listEl = document.getElementById('faq-items-list');
     if (!KB || !KB.faq) {
       if (listEl) listEl.innerHTML = `<div class="text-xs text-ink-secondary py-6 text-center">Daftar pertanyaan umum belum tersedia.</div>`;
@@ -802,22 +1106,29 @@
 
     const tabWrap = document.getElementById('faq-cat-tabs');
     if (tabWrap) {
-      tabWrap.innerHTML = cats
-        .map(
-          (c) => `
+      tabWrap._pillRecreated = true;
+      tabWrap.classList.add('has-sliding-pill');
+      tabWrap.innerHTML =
+        '<span class="tab-sliding-indicator" aria-hidden="true"></span>' +
+        cats
+          .map(
+            (c) => `
         <button type="button" data-faq-cat="${esc(c.code)}" aria-pressed="${state.faqCategory === c.code}" class="tab-btn ${
-            state.faqCategory === c.code ? 'is-active' : ''
-          }">
+              state.faqCategory === c.code ? 'is-active' : ''
+            }">
           ${esc(c.label)}
         </button>
       `
-        )
-        .join('');
+          )
+          .join('');
+
+      const activeFaqBtn = tabWrap.querySelector('[data-faq-cat][aria-pressed="true"]');
+      if (activeFaqBtn) syncSlidingPill(tabWrap, activeFaqBtn, '.tab-sliding-indicator');
 
       tabWrap.querySelectorAll('[data-faq-cat]').forEach((b) => {
         b.addEventListener('click', () => {
           state.faqCategory = b.getAttribute('data-faq-cat');
-          renderFAQ();
+          renderFAQ(true);
         });
       });
     }
@@ -835,7 +1146,7 @@
     if (!listEl) return;
     if (!items.length) {
       listEl.innerHTML = `
-        <div class="sub-surface p-5 text-center space-y-3 text-xs">
+        <div class="sub-surface p-5 text-center space-y-3 text-xs faq-cascade">
           <p class="text-ink-secondary">Tidak ada pertanyaan yang sesuai dengan kata kunci pencarian Anda.</p>
           <button type="button" id="btn-reset-faq" class="btn-secondary !py-1.5 !px-3.5 !text-xs">Tampilkan Semua Pertanyaan</button>
         </div>
@@ -847,16 +1158,17 @@
           state.faqCategory = 'ALL';
           const faqSearchEl = document.getElementById('faq-search');
           if (faqSearchEl) faqSearchEl.value = '';
-          renderFAQ();
+          renderFAQ(true);
         });
       }
       return;
     }
 
+    const useCascade = cascade && !prefersReducedMotion();
     listEl.innerHTML = items
       .map(
-        (it) => `
-      <details class="faq-detail text-xs">
+        (it, idx) => `
+      <details class="faq-detail text-xs ${useCascade ? 'faq-cascade' : ''}" style="--faq-delay: ${Math.min(idx, 6) * 32}ms;">
         <summary class="font-semibold text-ink-primary cursor-pointer list-none flex items-center justify-between gap-3">
           <span class="leading-relaxed">${esc(it.q)}</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="faq-chevron text-ink-muted shrink-0" aria-hidden="true">
@@ -872,7 +1184,7 @@
 
   function renderKonsultasi() {
     resetChat();
-    renderFAQ();
+    renderFAQ(false);
   }
 
   // =====================================================================
@@ -888,8 +1200,8 @@
     if (!listEl) return;
     listEl.innerHTML = masterDocs
       .map(
-        (d) => `
-      <div class="sub-surface sub-surface-interactive p-4 flex items-center justify-between gap-4">
+        (d, idx) => `
+      <div class="modal-doc-item sub-surface sub-surface-interactive p-4 flex items-center justify-between gap-4" style="--doc-delay: ${idx * 48}ms;">
         <div>
           <div class="font-semibold text-ink-primary text-sm">${esc(d.title)}</div>
           <div class="text-xs text-ink-secondary mt-0.5">${esc(d.subtitle)}</div>
@@ -956,11 +1268,6 @@
     bindCardSpotlights();
     observeReveals();
     initScrollEngine();
-
-    ['calc-unit', 'calc-wave', 'calc-tahfidz', 'calc-alumni', 'calc-sibling', 'calc-yatim'].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('change', () => runCalculator(true));
-    });
 
     const chatForm = document.getElementById('chat-form');
     if (chatForm) {
@@ -1034,6 +1341,104 @@
         }
       });
     }
+
+    // PPDB Online Form Radio Cards Selection State
+    const ppdbForm = document.getElementById('ppdb-online-form');
+    if (ppdbForm) {
+      ppdbForm.addEventListener('change', (e) => {
+        if (e.target && e.target.type === 'radio') {
+          const radioName = e.target.name;
+          const groupRadios = ppdbForm.querySelectorAll(`input[type="radio"][name="${radioName}"]`);
+          groupRadios.forEach((r) => {
+            const card = r.closest('.form-radio-card');
+            if (card) {
+              if (r.checked) {
+                card.classList.add('is-selected');
+              } else {
+                card.classList.remove('is-selected');
+              }
+            }
+          });
+        }
+      });
+
+      // PPDB Form Submission Handler
+      ppdbForm.addEventListener('submit', () => {
+        const submitBtn = document.getElementById('btn-submit-ppdb');
+        const submitText = document.getElementById('btn-submit-ppdb-text');
+        if (submitBtn) submitBtn.disabled = true;
+        if (submitText) submitText.textContent = 'Mengirim Data Pendaftaran...';
+
+        const studentName = document.getElementById('ppdb-student-name')?.value || '-';
+        const unitRadio = ppdbForm.querySelector('input[name="entry.886746899"]:checked')?.value || '-';
+        const waveRadio = ppdbForm.querySelector('input[name="entry.1502592928"]:checked')?.value || '-';
+        const discountCat = document.getElementById('ppdb-discount-cat')?.value || '-';
+        const tahfidzCat = document.getElementById('ppdb-tahfidz-cat')?.value || '-';
+        const parentName = document.getElementById('ppdb-parent-name')?.value || '-';
+        const parentPhone = document.getElementById('ppdb-parent-phone')?.value || '-';
+
+        setTimeout(() => {
+          if (submitBtn) submitBtn.disabled = false;
+          if (submitText) submitText.textContent = 'Kirim Formulir Pendaftaran Sekarang';
+
+          const successBanner = document.getElementById('ppdb-success-banner');
+          const summaryEl = document.getElementById('ppdb-success-summary');
+          const waBtn = document.getElementById('ppdb-wa-confirm-btn');
+
+          if (summaryEl) {
+            summaryEl.innerHTML = `
+              <div>&bull; Calon Siswa: <strong>${esc(studentName)}</strong></div>
+              <div>&bull; Jenjang: <strong>${esc(unitRadio)}</strong> &middot; Gelombang: <strong>${esc(waveRadio)}</strong></div>
+              <div>&bull; Diskon: <strong>${esc(discountCat)}</strong> &middot; Tahfidz: <strong>${esc(tahfidzCat)}</strong></div>
+              <div>&bull; Orang Tua/Wali: <strong>${esc(parentName)}</strong> (${esc(parentPhone)})</div>
+            `;
+          }
+
+          if (waBtn) {
+            const waMsg = `Assalamu'alaikum Admin PPDB YPIA. Saya telah mengisi formulir online untuk calon siswa: ${studentName} (Jenjang ${unitRadio}, ${waveRadio}). Mohon konfirmasi nomor registrasi & VA resmi. Terima kasih.`;
+            waBtn.href = `https://wa.me/6281122334455?text=${encodeURIComponent(waMsg)}`;
+          }
+
+          if (successBanner) {
+            successBanner.classList.remove('hidden');
+            successBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+
+          ppdbForm.reset();
+          const sdCard = ppdbForm.querySelector('input[value="SD"]')?.closest('.form-radio-card');
+          const g1Card = ppdbForm.querySelector('input[value="Gelombang 1"]')?.closest('.form-radio-card');
+          const lunasCard = ppdbForm.querySelector('input[value="LUNAS"]')?.closest('.form-radio-card');
+          ppdbForm.querySelectorAll('.form-radio-card').forEach((c) => c.classList.remove('is-selected'));
+          if (sdCard) sdCard.classList.add('is-selected');
+          if (g1Card) g1Card.classList.add('is-selected');
+          if (lunasCard) lunasCard.classList.add('is-selected');
+        }, 600);
+      });
+    }
+
+    const resetBannerBtn = document.getElementById('btn-reset-ppdb-banner');
+    if (resetBannerBtn) {
+      resetBannerBtn.addEventListener('click', () => {
+        const successBanner = document.getElementById('ppdb-success-banner');
+        if (successBanner) successBanner.classList.add('hidden');
+      });
+    }
+
+    // Toggle Google Forms Fallback Frame
+    const toggleFrameBtn = document.getElementById('btn-toggle-google-frame');
+    const fallbackWrapper = document.getElementById('google-forms-fallback-wrapper');
+    const googleIframe = document.getElementById('google-forms-iframe-el');
+    if (toggleFrameBtn && fallbackWrapper) {
+      toggleFrameBtn.addEventListener('click', () => {
+        const isHidden = fallbackWrapper.classList.toggle('hidden');
+        if (!isHidden && googleIframe && (!googleIframe.src || googleIframe.src === 'about:blank')) {
+          googleIframe.src = googleIframe.dataset.src || '';
+        }
+        toggleFrameBtn.textContent = isHidden
+          ? 'Lihat Tampilan Google Forms Asli ↗'
+          : 'Sembunyikan Google Forms Asli ↖';
+      });
+    }
   }
 
   let eventsBound = false;
@@ -1060,10 +1465,19 @@
       renderDriveModal();
       bindCardSpotlights();
       observeReveals();
+      window.requestAnimationFrame(() => {
+        updateOverlapChoreography();
+        flushVisibleReveals();
+        animateQuotaBars();
+      });
     } catch (err) {
       renderErrorState(err && err.message ? err.message : 'Koneksi ke berkas data gagal.');
     }
   }
 
-  document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();

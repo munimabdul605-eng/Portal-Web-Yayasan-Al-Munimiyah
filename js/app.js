@@ -13,16 +13,16 @@
 
   let KB = null;
   const state = {
-    unitGroup: 'DIKDASMEN', // 'PAUD' (PG & TK) | 'DIKDASMEN' (SDIT, SMPIT, SMAIT) | 'ALL'
+    unitGroup: 'ALL', // 'PAUD' (PG & TK) | 'DIKDASMEN' (SDIT, SMPIT, SMAIT) | 'ALL'
     faqCategory: 'ALL',
     faqQuery: '',
     chatHistory: [],
     liveQuotaStats: [
-      { code: 'PG', label: "Playgroup (PG) Al-Mun'imiyah", rombel: '2 Rombel (@15)', filled: 22, total: 30 },
-      { code: 'TK', label: "TK Islam (TK A & TK B)", rombel: '4 Rombel (@20)', filled: 64, total: 80 },
-      { code: 'SD', label: "SDIT Al-Mun'imiyah", rombel: '4 Rombel (@28)', filled: 94, total: 112 },
-      { code: 'SMP', label: "SMPIT Al-Mun'imiyah", rombel: '4 Rombel (@30)', filled: 98, total: 120 },
-      { code: 'SMA', label: "SMAIT Al-Mun'imiyah", rombel: '4 Rombel (@30)', filled: 92, total: 120 },
+      { code: 'PG', label: "Playgroup (PG) Al-Mun'imiyah", rombel: '2 Rombel (@15)', filled: 1, total: 30 },
+      { code: 'TK', label: "TK Islam (TK A & TK B)", rombel: '4 Rombel (@20)', filled: 2, total: 80 },
+      { code: 'SD', label: "SDIT Al-Mun'imiyah", rombel: '4 Rombel (@28)', filled: 4, total: 112 },
+      { code: 'SMP', label: "SMPIT Al-Mun'imiyah", rombel: '4 Rombel (@30)', filled: 3, total: 120 },
+      { code: 'SMA', label: "SMAIT Al-Mun'imiyah", rombel: '4 Rombel (@30)', filled: 3, total: 120 },
     ],
   };
 
@@ -89,8 +89,18 @@
     const totalQuota = KB.ppdb.kuota.reduce((acc, k) => acc + (parseInt(k.total, 10) || 0), 0);
     document.getElementById('hero-quota').textContent = `${totalQuota || 462} Siswa`;
 
-    // 8 Nilai Dasar 'JUBAEDAH' (Statuta Pasal 3 Ayat 2)
-    document.getElementById('hero-jubaedah-grid').innerHTML = y.values.map((v) => {
+    // 8 Nilai Dasar Resmi: JUBAEDAH (Jujur, Ulet, Bersih, Amanah, Empati, Disiplin, Adaptif, Harmonis)
+    const jubaedahValues = [
+      { name: 'Jujur', meaning: 'Integritas & Shiddiq' },
+      { name: 'Ulet', meaning: 'Tangguh & Istiqamah' },
+      { name: 'Bersih', meaning: 'Suci Hati & Lingkungan' },
+      { name: 'Amanah', meaning: 'Terpercaya & Akuntabel' },
+      { name: 'Empati', meaning: 'Peduli Sosial & Ukhuwah' },
+      { name: 'Disiplin', meaning: 'Tertib Ibadah & Tata Kelola' },
+      { name: 'Adaptif', meaning: 'Inovasi Sains & Teknologi' },
+      { name: 'Harmonis', meaning: 'Kolaboratif & Rahmatan' },
+    ];
+    document.getElementById('hero-jubaedah-grid').innerHTML = jubaedahValues.map((v) => {
       const letter = v.name.charAt(0).toUpperCase();
       return `
         <div class="bg-panel rounded-xl p-3 border border-auralis flex items-start gap-2.5">
@@ -111,21 +121,22 @@
       </li>
     `).join('');
 
-    // Ringkasan 5 Unit Pendidikan (PG, TK, SDIT, SMPIT, SMAIT) & Akreditasi A
+    // Ringkasan 5 Unit Pendidikan (PG, TK, SDIT, SMPIT, SMAIT) & Terakreditasi A (Unggul)
     const techTagByUnit = {
-      PG: 'Sensory & Motorik Play',
-      TK: 'STEAM Anak & Fun Tahfidz',
-      SD: 'Coding Kids SD & Sains',
-      SMP: 'Robotika SMP (Arduino/IoT)',
-      SMA: 'AI / Python SMA & Riset',
+      PG: '15 Surat Pendek & Motorik',
+      TK: '1/2 Juz 30 & STEAM Anak',
+      SD: '2 Juz Mutqin & Coding Kids SD',
+      SMP: '3–5 Juz Mutqin & Robotika SMP',
+      SMA: '5–10 Juz Mutqin & AI/Python SMA',
     };
+    const unitDisplayCode = { PG: 'PG', TK: 'TK', SD: 'SDIT', SMP: 'SMPIT', SMA: 'SMAIT' };
 
     document.getElementById('hero-units-summary').innerHTML = KB.units.map((u) => `
       <div class="surface-card p-4 flex flex-col justify-between gap-3">
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-1">
-            <span class="badge-pill !py-0.5 !px-2 !text-[10px]">${esc(u.code)}</span>
-            <span class="badge-pill !bg-emerald-50 !text-emerald-800 !border-emerald-200 !py-0.5 !px-2 !text-[10px]">Akreditasi A</span>
+            <span class="badge-pill !py-0.5 !px-2 !text-[10px]">${esc(unitDisplayCode[u.code] || u.code)}</span>
+            <span class="badge-pill !bg-emerald-50 !text-emerald-800 !border-emerald-200 !py-0.5 !px-2 !text-[10px]">Terakreditasi A (Unggul)</span>
           </div>
           <h3 class="text-sm font-semibold text-primary leading-snug">${esc(u.nama.replace(/Al-Mun'imiyah/i, '').trim())}</h3>
           <p class="text-[11px] text-secondary leading-relaxed">${esc(u.statuta.usia)}</p>
@@ -136,8 +147,8 @@
             <strong class="text-primary">${esc(u.kuota.total)}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-secondary">Unggulan</span>
-            <strong class="text-emerald-700 truncate max-w-[125px]" title="${esc(techTagByUnit[u.code])}">${esc(techTagByUnit[u.code])}</strong>
+            <span class="text-secondary">Target &amp; Tech</span>
+            <strong class="text-emerald-700 truncate max-w-[130px]" title="${esc(techTagByUnit[u.code])}">${esc(techTagByUnit[u.code])}</strong>
           </div>
           <button type="button" data-hero-unit="${esc(u.code)}" class="w-full mt-1.5 py-1.5 px-2.5 rounded-lg bg-panel hover:bg-primary hover:text-card text-primary font-medium text-[11px] transition-colors">
             Lihat Detail Unit &rarr;
@@ -250,12 +261,20 @@
       return true;
     });
 
+    const tahfidzTargetByUnit = {
+      PG: 'PG: 15 surat pendek (Juz 30) & doa harian pilihan',
+      TK: 'TK: 1/2 Juz 30 (An-Nas s.d. Al-Infitar / Ad-Dhuha) & hadits adab',
+      SD: 'SDIT: 2 Juz Mutqin (Juz 30 & Juz 29) + tuntas baca Al-Qur\'an tartil',
+      SMP: 'SMPIT: 3–5 Juz Mutqin (Bersanad) + terjemah lafdziyah Juz 30',
+      SMA: 'SMAIT: 5–10 Juz Mutqin (Bersanad) + kajian tafsir tematik',
+    };
+
     const techHighlight = {
       PG: 'Sensory Integration, Motorik Halus & Kasar, Storytelling Islami',
       TK: 'Eksplorasi STEAM Anak, Pengenalan Angka/Huruf Kontekstual, Manasik Cilik',
       SD: 'Coding Kids SD (Scratch/Blockly), Math & Science Club (OSN), Arabic-English Fun Day',
       SMP: 'Robotika SMP (Arduino & IoT), Bilingual Camp (Arab & Inggris), Leadership & Entrepreneur',
-      SMA: 'AI / Python SMA & Data Science, Karya Ilmiah Remaja (KIR), UTBK-SNBT & TOEFL/IELTS Prep',
+      SMA: 'AI/Python SMA & Data Science, Karya Ilmiah Remaja (KIR), UTBK-SNBT & TOEFL/IELTS Prep',
     };
 
     const gridEl = document.getElementById('unit-cards-grid');
@@ -269,7 +288,7 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="badge-pill">
               <span class="dot-indicator bg-emerald-500"></span>
-              <span>Unit ${esc(u.code)} · Akreditasi A</span>
+              <span>Unit ${esc(u.code)} · Terakreditasi A (Unggul)</span>
             </span>
             <span class="badge-pill">${esc(u.kuota.rombel)} (${esc(u.kuota.total)})</span>
           </div>
@@ -293,7 +312,7 @@
 
           <div class="bg-panel rounded-2xl p-4 border border-auralis text-xs space-y-1.5">
             <span class="typo-label-caps text-emerald-700">Target Hafalan Tahfidz &amp; Metode</span>
-            <p class="font-semibold text-primary">${esc(u.statuta.target)}</p>
+            <p class="font-semibold text-primary">${esc(tahfidzTargetByUnit[u.code] || u.statuta.target)}</p>
             <p class="text-secondary leading-relaxed">${esc(u.kurikulum.tahfidz)}</p>
           </div>
 
@@ -341,7 +360,7 @@
         <td class="py-3 px-3 text-secondary">${esc(u.statuta.usia)}</td>
         <td class="py-3 px-3 font-medium text-primary">${esc(u.statuta.jam)}</td>
         <td class="py-3 px-3">${esc(u.kuota.rombel)} (${esc(u.kuota.total)})</td>
-        <td class="py-3 px-3 font-medium text-emerald-800">${esc(u.statuta.target)}</td>
+        <td class="py-3 px-3 font-medium text-emerald-800">${esc(tahfidzTargetByUnit[u.code] || u.statuta.target)}</td>
         <td class="py-3 px-3 font-medium text-primary">${esc(techHighlight[u.code])}</td>
       </tr>
     `).join('');
@@ -409,10 +428,20 @@
     const chartEl = document.getElementById('ppdb-quota-chart');
     if (!chartEl) return;
 
+    const totalAll = state.liveQuotaStats.reduce((s, q) => s + q.total, 0);
+    const filledAll = state.liveQuotaStats.reduce((s, q) => s + q.filled, 0);
+    const remAll = Math.max(0, totalAll - filledAll);
+    const elTotal = document.getElementById('quota-summary-total');
+    const elFilled = document.getElementById('quota-summary-filled');
+    const elRem = document.getElementById('quota-summary-remaining');
+    if (elTotal) elTotal.textContent = `${totalAll} Kursi`;
+    if (elFilled) elFilled.textContent = `${filledAll} Siswa`;
+    if (elRem) elRem.textContent = `${remAll} Kursi`;
+
     chartEl.innerHTML = state.liveQuotaStats.map((q) => {
-      const pct = Math.min(100, Math.round((q.filled / q.total) * 100));
+      const pct = Math.min(100, Math.max(3, Math.round((q.filled / q.total) * 100)));
+      const realPct = Math.round((q.filled / q.total) * 100);
       const remaining = Math.max(0, q.total - q.filled);
-      const barColor = pct >= 85 ? 'bg-rose-500' : pct >= 70 ? 'bg-emerald-600' : 'bg-blue-600';
       return `
         <div class="bg-panel rounded-2xl p-3.5 border border-auralis space-y-2 text-xs">
           <div class="flex items-center justify-between gap-2">
@@ -421,12 +450,12 @@
               <span class="text-[11px] text-secondary block">${esc(q.rombel)}</span>
             </div>
             <div class="text-right">
-              <span class="font-semibold text-primary">${q.filled} / ${q.total} Terisi (${pct}%)</span>
-              <span class="text-[11px] text-emerald-700 font-medium block">Sisa ${remaining} Kursi</span>
+              <span class="font-semibold text-primary">Terisi ${q.filled} / ${q.total} Kursi (${realPct}%)</span>
+              <span class="text-[11px] text-emerald-700 font-medium block">Tersedia ${remaining} Kursi</span>
             </div>
           </div>
           <div class="w-full h-2.5 rounded-full bg-card border border-auralis overflow-hidden">
-            <div class="h-full ${barColor} rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+            <div class="h-full bg-emerald-600 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
           </div>
         </div>
       `;
@@ -676,9 +705,11 @@
       btn.addEventListener('click', () => {
         const target = btn.getAttribute(attrName);
         wrap.querySelectorAll(`[${attrName}]`).forEach((b) => b.classList.toggle('active', b === btn));
-        document.querySelectorAll(`[id^="${panePrefix}-"]`).forEach((pane) => {
-          pane.classList.toggle('hidden', pane.id !== `${panePrefix}-${target}`);
-        });
+        const targetPane = document.getElementById(`${panePrefix}-${target}`);
+        if (targetPane) {
+          targetPane.classList.remove('hidden');
+          targetPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       });
     });
   }
@@ -720,33 +751,6 @@
     });
 
     document.getElementById('doc-filter-unit').addEventListener('change', renderPPDBDocs);
-
-    // Formulir Registrasi PPDB Online (Mode Native vs Google Forms Embed)
-    const btnModeNative = document.getElementById('btn-form-mode-native');
-    const btnModeGdrive = document.getElementById('btn-form-mode-gdrive');
-    const wrapNative = document.getElementById('ppdb-form-native-wrap');
-    const wrapIframe = document.getElementById('ppdb-form-iframe-wrap');
-
-    btnModeNative.addEventListener('click', () => {
-      btnModeNative.classList.add('active');
-      btnModeGdrive.classList.remove('active');
-      wrapNative.classList.remove('hidden');
-      wrapIframe.classList.add('hidden');
-    });
-    btnModeGdrive.addEventListener('click', () => {
-      btnModeGdrive.classList.add('active');
-      btnModeNative.classList.remove('active');
-      wrapIframe.classList.remove('hidden');
-      wrapNative.classList.add('hidden');
-    });
-
-    document.getElementById('btn-load-gform').addEventListener('click', () => {
-      const url = document.getElementById('custom-gform-url').value.trim();
-      const container = document.getElementById('gform-iframe-container');
-      if (!url) return;
-      const embedUrl = url.includes('embedded=true') ? url : `${url}${url.includes('?') ? '&' : '?'}embedded=true`;
-      container.innerHTML = `<iframe src="${esc(embedUrl)}" class="w-full h-full rounded-2xl border-0" loading="lazy" title="Google Forms PPDB YPIA">Memuat Formulir Google Forms...</iframe>`;
-    });
 
     // Submit Formulir Registrasi Online Terpadu -> Generate Nomor Registrasi & VA Resmi + Update Grafik Kuota Live
     document.getElementById('ppdb-online-form').addEventListener('submit', (e) => {

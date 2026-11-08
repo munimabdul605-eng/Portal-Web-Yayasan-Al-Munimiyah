@@ -37,7 +37,7 @@
     const notes = [];
     if (opts.alumni && !alumniOk) notes.push('Potongan Alumni hanya berlaku untuk lanjutan TK→SD, SD→SMP, SMP→SMA.');
     if (Number(opts.tahfidz) >= 5 && !upper) notes.push('Beasiswa Tahfidz khusus jenjang SMP & SMA.');
-    if (eligible.length > 2) notes.push(`Sesuai Statuta Pasal 9 ayat (5), potongan Statuta tidak dapat digabung — dipilih yang tertinggi: ${best.nama} (${best.dpp}%).`);
+    if (eligible.length > 2) notes.push(`Sesuai Statuta Pasal 9 ayat (5), potongan Statuta tidak dapat digabung, sehingga dipilih yang tertinggi: ${best.nama} (${best.dpp}%).`);
     if (opts.yatim) notes.push('Afirmasi Yatim/Dhuafa terbatas kuota 5% per angkatan & wajib verifikasi (SKTM, Akta Kematian, Survei Rumah).');
 
     const calc = (extra) => {
@@ -99,8 +99,8 @@
     });
   }
 
-  const STATUS_LABEL = { upcoming: 'Akan Dibuka', open: 'Pendaftaran Dibuka', process: 'Proses Seleksi', closed: 'Selesai', unknown: '—' };
-  const fmtDate = (d) => (d ? d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '—');
+  const STATUS_LABEL = { upcoming: 'Akan Dibuka', open: 'Pendaftaran Dibuka', process: 'Proses Seleksi', closed: 'Selesai', unknown: '-' };
+  const fmtDate = (d) => (d ? d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-');
 
   return { formatRp, simulate, parseIdDates, waveStatuses, STATUS_LABEL, fmtDate };
 });

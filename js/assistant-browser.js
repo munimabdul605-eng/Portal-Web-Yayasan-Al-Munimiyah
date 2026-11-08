@@ -1,10 +1,6 @@
 /**
  * YPIA Assistant (Universal Browser + Node.js)
- * Mesin konsultasi AI "Ustadzah Fatimah" (Gem Model A, Dokumen 06) yang 100%
- * ter-grounding pada Knowledge Base folder Google Drive "data masukan".
- *
- * Berjalan langsung di browser (untuk GitHub Pages / hosting statis) maupun
- * dipanggil dari backend Node.js (`lib/assistant.js`).
+ * Mesin konsultasi "Ustadzah Fatimah" berbasis Knowledge Base resmi YPIA.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -15,6 +11,7 @@
 })(typeof self !== 'undefined' ? self : this, function (Core) {
   const norm = (s) => String(s || '').toLowerCase().replace(/[’']/g, '').replace(/\s+/g, ' ');
   const R = Core.formatRp;
+  const sanitize = (s) => String(s || '').replace(/\s*—\s*/g, ': ');
 
   const UNIT_RE = [
     ['PG', /\b(pg|playgroup|play group|kelompok bermain)\b/],
@@ -62,9 +59,9 @@
     if (!r) return '';
     const c = r.cicilan, l = r.lunas;
     const lines = [
-      `**Simulasi biaya ${r.fee.nama}** — ${r.gel.nama}${o.gelombang ? '' : ' *(gelombang belum disebutkan, dihitung tarif normal)*'}`,
+      `**Simulasi biaya ${r.fee.nama}** (${r.gel.nama})${o.gelombang ? '' : ' *(gelombang belum disebutkan, dihitung tarif normal)*'}`,
       '',
-      `Potongan Statuta terpilih: **${r.best.nama} (${r.best.dpp}%)**, digabung Diskon Gelombang **${r.gel.dpp}%** → total potongan DPP **${c.dppPct}%**${r.lunasScheme.dpp ? ` (atau **${l.dppPct}%** jika lunas)` : ''}.`,
+      `Potongan Statuta terpilih: **${r.best.nama} (${r.best.dpp}%)**, digabung Diskon Gelombang **${r.gel.dpp}%** sehingga total potongan DPP **${c.dppPct}%**${r.lunasScheme.dpp ? ` (atau **${l.dppPct}%** jika lunas di awal)` : ''}.`,
       '',
       '| Komponen | Skema Cicilan 3x | Skema Lunas |',
       '|---|---|---|',
@@ -94,7 +91,7 @@
       test: (t) => /titip|rekening pribadi|ke rekening (panitia|guru|staf|ustad)|diamankan|jalur khusus|sumbangan (lebih|ke panitia)|uang pelicin|tanpa (perlu )?(ikut )?(observasi|tes|seleksi)|pasti lulus|nyogok|sogok|suap/.test(t),
       run: (kb) => {
         const va = faqById(kb, 'FAQ-D05');
-        return `Mohon maaf Ayah/Bunda, dengan penuh hormat kami **tidak dapat** menerima permintaan tersebut. Demi menjaga keberkahan ilmu ananda, seluruh penerimaan murni berdasarkan hasil observasi/tes dan ketersediaan kuota sesuai **Statuta Pasal 8**, dan **Statuta Pasal 12 ayat (3)** menegaskan: ${kb.yayasan.digital[2] || ''}\n\n${va ? va.a : ''}\n\nAyah/Bunda tidak perlu khawatir — silakan mengikuti alur resmi 7 langkah PPDB. Untuk jenjang PG, TK, dan SD **tidak ada tes calistung** sama sekali.`;
+        return `Mohon maaf Ayah/Bunda, dengan penuh hormat kami **tidak dapat** menerima permintaan tersebut. Demi menjaga keberkahan ilmu ananda, seluruh penerimaan murni berdasarkan hasil observasi atau tes dan ketersediaan kuota sesuai **Statuta Pasal 8**, serta **Statuta Pasal 12 ayat (3)** menegaskan: ${kb.yayasan.digital[2] || ''}\n\n${va ? va.a : ''}\n\nAyah/Bunda dapat mengikuti alur resmi 7 langkah PPDB. Untuk jenjang PG, TK, dan SDIT **tidak ada tes calistung** sama sekali.`;
       },
     },
     {
@@ -114,14 +111,14 @@
           const months = y * 12 + mo;
           let verdict = '';
           if (unit === 'SD') {
-            if (months >= 72) verdict = '✅ **Memenuhi** syarat usia prioritas SDIT (≥ 6 tahun 0 bulan per 1 Juli).';
-            else if (months >= 68) verdict = `✅ **Bisa mendaftar** dengan syarat kondisional. ${(faqById(kb, 'FAQ-B01') || {}).a || ''}`;
-            else verdict = '⚠️ Belum memenuhi batas usia SDIT. Ananda dapat dipertimbangkan untuk jenjang TK terlebih dahulu.';
-          } else if (unit === 'PG') verdict = months >= 36 ? '✅ **Memenuhi** syarat usia Playgroup (minimal 3 tahun 0 bulan).' : '⚠️ Belum memenuhi usia minimal Playgroup (3 tahun 0 bulan).';
-          else if (unit === 'TK') verdict = months >= 60 ? '✅ Memenuhi syarat **TK B** (minimal 5 tahun).' : months >= 48 ? '✅ Memenuhi syarat **TK A** (minimal 4 tahun).' : '⚠️ Belum memenuhi usia minimal TK A (4 tahun). Ananda dapat mendaftar Playgroup.';
-          else if (unit === 'SMP') verdict = y <= 15 ? '✅ Memenuhi batas usia SMPIT (maksimal 15 tahun) — dengan syarat lulus SD/MI sederajat.' : '⚠️ Melebihi batas usia maksimal SMPIT (15 tahun).';
-          else if (unit === 'SMA') verdict = y <= 18 ? '✅ Memenuhi batas usia SMAIT (maksimal 18 tahun) — dengan syarat lulus SMP/MTs sederajat.' : '⚠️ Melebihi batas usia maksimal SMAIT (18 tahun).';
-          out.push(`**${q.nama || unit} — usia ${y} tahun${mo ? ` ${mo} bulan` : ''}:** ${verdict}\n*Ketentuan resmi: ${q.syarat || '-'}*`);
+            if (months >= 72) verdict = '**Memenuhi** syarat usia prioritas SDIT (>= 6 tahun 0 bulan per 1 Juli).';
+            else if (months >= 68) verdict = `**Dapat mendaftar** dengan syarat kondisional. ${(faqById(kb, 'FAQ-B01') || {}).a || ''}`;
+            else verdict = '**Belum memenuhi** batas usia SDIT. Ananda dapat dipertimbangkan untuk jenjang TK terlebih dahulu.';
+          } else if (unit === 'PG') verdict = months >= 36 ? '**Memenuhi** syarat usia Playgroup (minimal 3 tahun 0 bulan).' : '**Belum memenuhi** usia minimal Playgroup (3 tahun 0 bulan).';
+          else if (unit === 'TK') verdict = months >= 60 ? '**Memenuhi** syarat TK B (minimal 5 tahun).' : months >= 48 ? '**Memenuhi** syarat TK A (minimal 4 tahun).' : '**Belum memenuhi** usia minimal TK A (4 tahun). Ananda dapat mendaftar Playgroup.';
+          else if (unit === 'SMP') verdict = y <= 15 ? '**Memenuhi** batas usia SMPIT (maksimal 15 tahun), dengan syarat lulus SD/MI sederajat.' : '**Melebihi** batas usia maksimal SMPIT (15 tahun).';
+          else if (unit === 'SMA') verdict = y <= 18 ? '**Memenuhi** batas usia SMAIT (maksimal 18 tahun), dengan syarat lulus SMP/MTs sederajat.' : '**Melebihi** batas usia maksimal SMAIT (18 tahun).';
+          out.push(`**${q.nama || unit} (usia ${y} tahun${mo ? ` ${mo} bulan` : ''}):** ${verdict}\n*Ketentuan resmi: ${q.syarat || '-'}*`);
         }
         return out.join('\n\n');
       },
@@ -147,15 +144,15 @@
     {
       name: 'fullday',
       test: (t) => /stres|stress|capek|cape|lelah|kelelahan|pulang sore|full ?day|kecapekan/.test(t),
-      run: (kb) => `Kami sangat memahami kekhawatiran Ayah/Bunda. Kurikulum dan jadwal *Full Day School* di ${kb.yayasan.shortName} telah dirancang sesuai psikologi perkembangan anak — kegiatan tidak berisi pelajaran akademik terus-menerus, melainkan diselingi istirahat cukup, makan siang bersama (Katering Sehat Halal-Thayyiban), shalat berjamaah, proyek eksperimen, serta olahraga. Metode menghafal Al-Qur'an dilakukan pada pagi hari (07.00–08.15 WIB) saat otak masih segar tanpa beban PR menghafal berlebihan di rumah. Kami juga mengundang Ayah/Bunda dan ananda mengikuti *Trial Class / Open House Gratis* pada hari Sabtu.`,
+      run: (kb) => `Kami sangat memahami kekhawatiran Ayah/Bunda. Kurikulum dan jadwal *Full Day School* di ${kb.yayasan.shortName} dirancang sesuai psikologi perkembangan anak. Kegiatan diselingi istirahat cukup, makan siang bersama (Katering Sehat Halal-Thayyiban), shalat berjamaah, proyek eksperimen, dan olahraga. Menghafal Al-Qur'an dilakukan pada pagi hari (07.00 s.d. 08.15 WIB) tanpa beban PR menghafal berlebihan di rumah. Kami juga mengundang Ayah/Bunda mengikuti *Trial Class / Open House Gratis* pada hari Sabtu.`,
     },
     {
       name: 'mahal',
       test: (t) => /mahal|kemahalan|terlalu tinggi|cukup tinggi|berat (biaya|bayar)|keringanan|tidak mampu|kurang mampu/.test(t),
       run: (kb) => {
         const sch = kb.biaya.schemes.filter((s) => s.dpp > 0 || s.spp > 0)
-          .map((s) => `- **${s.nama}** — DPP ${s.dpp}%${s.spp ? `, SPP ${s.spp}%` : ''}. ${s.syarat}`).join('\n');
-        return `Kami sangat memahami pertimbangan Ayah/Bunda. Investasi pendidikan di ${kb.yayasan.name} telah mencakup nilai tambah ekosistem terpadu: **Halaqah Tahfidz rasio 1:10 setiap pagi (75 menit)**, **Klinik Intensif Tahsin Sore GRATIS**, lisensi pembelajaran digital (Coding Kids SD / Robotika SMP / AI & Python SMA), serta fasilitas lengkap tanpa pungutan ujian tersembunyi.\n\nBerikut pilihan keringanan & beasiswa resmi yang dapat dimanfaatkan:\n${sch}\n\n${(faqById(kb, 'FAQ-D03') || {}).a || ''}`;
+          .map((s) => `- **${s.nama}:** DPP ${s.dpp}%${s.spp ? `, SPP ${s.spp}%` : ''}. ${s.syarat}`).join('\n');
+        return `Kami memahami pertimbangan Ayah/Bunda. Investasi pendidikan di ${kb.yayasan.name} sudah mencakup **Halaqah Tahfidz rasio 1:10 setiap pagi (75 menit)**, **Klinik Intensif Tahsin Sore gratis**, lisensi pembelajaran digital (Coding Dasar SD / Robotika SMP / AI & Python SMA), serta fasilitas lengkap tanpa pungutan ujian tersembunyi.\n\nBerikut pilihan keringanan dan beasiswa resmi yang tersedia:\n${sch}\n\n${(faqById(kb, 'FAQ-D03') || {}).a || ''}`;
       },
     },
     {
@@ -167,7 +164,7 @@
         if (unit) return costTable(kb, unit, costOptions(t));
         if (/refund|kembali|batal|mengundurkan/.test(t)) return '';
         const rows = kb.biaya.units.map((u) => `| ${u.nama} | ${R(u.formulir)} | ${R(u.dpp)} | ${R(u.paket)} | ${R(u.spp)} |`).join('\n');
-        return `Berikut ringkasan tarif normal sesuai SK Keuangan ${kb.biaya.sk} (TA ${kb.biaya.tahunAjaran}):\n\n| Jenjang | Formulir | Uang Pangkal (DPP) | Paket Seragam-Buku-Kegiatan | SPP/bulan |\n|---|---|---|---|---|\n${rows}\n\nSebutkan jenjang, gelombang, dan kriteria ananda (alumni, saudara kandung, hafalan Al-Qur'an) agar kami bantu hitungkan simulasi potongannya.`;
+        return `Berikut ringkasan tarif normal sesuai SK Keuangan ${kb.biaya.sk} (TA ${kb.biaya.tahunAjaran}):\n\n| Jenjang | Formulir | Uang Pangkal (DPP) | Paket Seragam-Buku-Kegiatan | SPP/bulan |\n|---|---|---|---|---|\n${rows}\n\nSebutkan jenjang, gelombang, dan kriteria ananda (alumni, saudara kandung, atau hafalan Al-Qur'an) agar kami bantu hitungkan simulasi potongannya.`;
       },
     },
     {
@@ -175,10 +172,10 @@
       test: (t) => /kapan|jadwal|timeline|gelombang|dibuka|ditutup|tanggal|pengumuman|mpls|masih (buka|bisa daftar)/.test(t) && !/biaya|diskon|berapa|rincian/.test(t),
       run: (kb) => {
         const st = Core.waveStatuses(kb.ppdb.timeline, new Date());
-        const rows = st.map((w) => `| ${w.name} | ${Core.fmtDate(w.start)} – ${Core.fmtDate(w.formEnd)} | ${Core.fmtDate(w.announce)} | **${Core.STATUS_LABEL[w.status]}** |`).join('\n');
+        const rows = st.map((w) => `| ${w.name} | ${Core.fmtDate(w.start)} s.d. ${Core.fmtDate(w.formEnd)} | ${Core.fmtDate(w.announce)} | **${Core.STATUS_LABEL[w.status]}** |`).join('\n');
         const allClosed = st.length && st.every((w) => w.status === 'closed');
         const mpls = kb.ppdb.timeline.rows.find((r) => /MPLS/i.test(r.tahap));
-        return `Jadwal PPDB TA ${kb.biaya.tahunAjaran}:\n\n| Gelombang | Pendaftaran | Pengumuman | Status |\n|---|---|---|---|\n${rows}\n\n${mpls ? `Hari pertama KBM/MPLS: **${mpls.cells[0]}**.` : ''}${allClosed ? `\n\nSeluruh gelombang PPDB TA ${kb.biaya.tahunAjaran} telah selesai. Informasi PPDB tahun ajaran berikutnya akan diumumkan melalui portal ini; Ayah/Bunda juga dapat menanyakan kursi mutasi/daftar tunggu ke WhatsApp ${wa(kb)}.` : ''}`;
+        return `Jadwal PPDB TA ${kb.biaya.tahunAjaran}:\n\n| Gelombang | Pendaftaran | Pengumuman | Status |\n|---|---|---|---|\n${rows}\n\n${mpls ? `Hari pertama KBM/MPLS: **${mpls.cells[0]}**.` : ''}${allClosed ? `\n\nSeluruh gelombang PPDB TA ${kb.biaya.tahunAjaran} telah selesai. Informasi PPDB tahun ajaran berikutnya akan diumumkan melalui portal ini, atau Ayah/Bunda dapat menanyakan kursi mutasi/daftar tunggu ke WhatsApp ${wa(kb)}.` : ''}`;
       },
     },
     {
@@ -187,7 +184,7 @@
       run: (kb, t) => {
         const unit = targetUnit(t);
         const list = kb.ppdb.dokumen.filter((d) => !unit || /semua/i.test(d.jenjang) || new RegExp(`\\b${unit}\\b`).test(d.jenjang) || (unit === 'SD' && /PG-SD|PG, TK, dan SD/.test(d.jenjang)));
-        return `Daftar berkas ${unit ? `untuk jenjang **${unit}**` : 'PPDB'}:\n\n${list.map((d) => `${d.no}. **${d.nama}** — ${d.status}. ${d.ketentuan}`).join('\n')}`;
+        return `Daftar berkas ${unit ? `untuk jenjang **${unit}**` : 'PPDB'}:\n\n${list.map((d) => `${d.no}. **${d.nama}:** ${d.status}. ${d.ketentuan}`).join('\n')}`;
       },
     },
     {
@@ -196,15 +193,15 @@
       run: (kb, t) => {
         const unit = targetUnit(t);
         const us = unit ? kb.units.filter((u) => u.code === unit) : kb.units;
-        if (!unit) return `${kb.kurikulum.intro}\n\n${us.map((u) => `- **${u.nama}** — ${u.kurikulum.tahfidz}`).join('\n')}`;
+        if (!unit) return `${kb.kurikulum.intro}\n\n${us.map((u) => `- **${u.nama}:** ${u.kurikulum.tahfidz}`).join('\n')}`;
         const u = us[0];
-        return `**${u.nama}**\n\n- **Proporsi kurikulum:** ${u.kurikulum.proporsi}\n- **Tahsin/Tahfidz:** ${u.kurikulum.tahfidz}\n- **Pembiasaan adab & ibadah:** ${u.kurikulum.adab}\n- **Unggulan sains, bahasa & teknologi:** ${u.kurikulum.unggulan}\n- **Jam belajar:** ${u.statuta.jam}`;
+        return `**${u.nama}**\n\n- **Proporsi kurikulum:** ${u.kurikulum.proporsi}\n- **Tahsin dan Tahfidz:** ${u.kurikulum.tahfidz}\n- **Pembiasaan adab dan ibadah:** ${u.kurikulum.adab}\n- **Unggulan sains, bahasa, dan teknologi:** ${u.kurikulum.unggulan}\n- **Jam belajar:** ${u.statuta.jam}`;
       },
     },
     {
       name: 'kontak',
       test: (t) => /kontak|alamat|lokasi|hubungi|whatsapp|\bwa\b|telepon|nomor (hp|telp)|email/.test(t),
-      run: (kb) => `📍 **Alamat:** ${kb.contact.address}\n🏢 **Sekretariat PPDB:** ${kb.contact.sekretariat}\n💬 **WhatsApp Center:** ${kb.contact.whatsapp}\n✉️ **Email Kurikulum:** ${kb.contact.email}`,
+      run: (kb) => `- **Alamat:** ${kb.contact.address}\n- **Sekretariat PPDB:** ${kb.contact.sekretariat}\n- **WhatsApp Center:** ${kb.contact.whatsapp}\n- **Email Kurikulum:** ${kb.contact.email}`,
     },
   ];
 
@@ -216,11 +213,11 @@
     for (const c of kb.faq.categories) for (const it of c.items) docs.push({ id: it.id, text: `${it.q} ${it.q} ${it.a}`, answer: it.a, title: it.q });
     for (const k of kb.ppdb.kasusKhusus) docs.push({ id: k.title, text: `${k.title} ${k.text}`, answer: `**${k.title}:** ${k.text}` });
     for (const h of kb.kurikulum.halaqah) docs.push({ id: h.title, text: `${h.title} ${h.text}`, answer: `**${h.title}:** ${h.text}` });
-    for (const p of kb.yayasan.pasal) docs.push({ id: `Pasal ${p.no}`, text: `${p.title} ${p.ayat.join(' ')}`, answer: `**Statuta Pasal ${p.no} — ${p.title}:**\n${p.ayat.map((a, i) => `(${i + 1}) ${a}`).join('\n')}` });
+    for (const p of kb.yayasan.pasal) docs.push({ id: `Pasal ${p.no}`, text: `${p.title} ${p.ayat.join(' ')}`, answer: `**Statuta Pasal ${p.no} (${p.title}):**\n${p.ayat.map((a, i) => `(${i + 1}) ${a}`).join('\n')}` });
     docs.push({ id: 'visi', text: `visi misi ${kb.yayasan.visi} ${kb.yayasan.misi.join(' ')}`, answer: `**Visi:** ${kb.yayasan.visi}\n\n**Misi:**\n${kb.yayasan.misi.map((m, i) => `${i + 1}. ${m}`).join('\n')}` });
     docs.push({ id: 'struktur', text: `struktur pengurus ketua kepala sekolah pimpinan pembina pengawas ${kb.yayasan.struktur.map((s) => s.jabatan + ' ' + s.nama).join(' ')}`, answer: `**Struktur Pimpinan ${kb.yayasan.shortName}:**\n${kb.yayasan.struktur.map((s) => `- **${s.jabatan}:** ${s.nama}`).join('\n')}` });
-    docs.push({ id: 'alur', text: `alur cara langkah mendaftar pendaftaran prosedur ${kb.ppdb.steps.map((s) => s.title).join(' ')}`, answer: `**Alur Pendaftaran Online (7 Langkah):**\n${kb.ppdb.steps.map((s) => `${s.no}. **${s.title}** — ${s.text}`).join('\n')}` });
-    for (const ins of kb.ppdb.instrumen) docs.push({ id: `seleksi ${ins.jenjang}`, text: `tes seleksi observasi ujian masuk ${ins.jenjang} ${ins.metode} ${ins.asesmen.join(' ')} ${ins.kriteria}`, answer: `**Seleksi ${ins.jenjang}** — ${ins.metode}\n${ins.asesmen.map((a) => `- ${a}`).join('\n')}\n\n*Kriteria kelulusan:* ${ins.kriteria}` });
+    docs.push({ id: 'alur', text: `alur cara langkah mendaftar pendaftaran prosedur ${kb.ppdb.steps.map((s) => s.title).join(' ')}`, answer: `**Alur Pendaftaran Online (7 Langkah):**\n${kb.ppdb.steps.map((s) => `${s.no}. **${s.title}:** ${s.text}`).join('\n')}` });
+    for (const ins of kb.ppdb.instrumen) docs.push({ id: `seleksi ${ins.jenjang}`, text: `tes seleksi observasi ujian masuk ${ins.jenjang} ${ins.metode} ${ins.asesmen.join(' ')} ${ins.kriteria}`, answer: `**Seleksi ${ins.jenjang}** (${ins.metode})\n${ins.asesmen.map((a) => `- ${a}`).join('\n')}\n\n*Kriteria kelulusan:* ${ins.kriteria}` });
     const N = docs.length, df = {};
     docs.forEach((d) => { d.tokens = new Set(tokenize(d.text)); d.tokens.forEach((w) => { df[w] = (df[w] || 0) + 1; }); });
     return { docs, idf: (w) => Math.log(1 + N / ((df[w] || 0) + 0.5)) };
@@ -260,17 +257,16 @@
     const greetOnly = /^(assalamu.?alaikum|asalamualaikum|halo|hai|hi|hello|selamat (pagi|siang|sore|malam)|permisi)\b/.test(t) && t.length < 60;
     let body;
     if (!parts.length && greetOnly) {
-      body = `Saya **${kb.ai.personaName}**, Konsultan PPDB ${kb.yayasan.name}. Ada yang bisa saya bantu terkait jenjang **PG, TK, SDIT, SMPIT, atau SMAIT**? Ayah/Bunda dapat menanyakan syarat usia, kurikulum & tahfidz, jadwal PPDB, maupun simulasi biaya dan beasiswa.`;
+      body = `Saya **${kb.ai.personaName}**, Konsultan PPDB ${kb.yayasan.name}. Ada yang bisa saya bantu terkait jenjang **PG, TK, SDIT, SMPIT, atau SMAIT**? Ayah/Bunda dapat menanyakan syarat usia, kurikulum dan tahfidz, jadwal PPDB, maupun simulasi biaya dan beasiswa.`;
     } else if (!parts.length) {
       const o = objByCode(kb, 'OBJ-04');
-      body = `Mohon maaf Ayah/Bunda, pertanyaan tersebut di luar cakupan informasi resmi yang dapat saya sampaikan${o ? '' : ''}. Saya hanya dapat membantu seputar layanan pendidikan ${kb.yayasan.name}: profil & tata kelola, unit pendidikan, kurikulum & tahfidz, PPDB, serta biaya dan beasiswa. Untuk keputusan khusus Pimpinan Yayasan, silakan menghubungi **WhatsApp Resmi Panitia ${wa(kb)}**.`;
+      body = `Mohon maaf Ayah/Bunda, pertanyaan tersebut di luar cakupan informasi resmi yang dapat saya sampaikan${o ? '' : ''}. Saya hanya dapat membantu seputar layanan pendidikan ${kb.yayasan.name}: profil dan tata kelola, unit pendidikan, kurikulum dan tahfidz, PPDB, serta biaya dan beasiswa. Untuk keputusan khusus Pimpinan Yayasan, silakan menghubungi **WhatsApp Resmi Panitia ${wa(kb)}**.`;
     } else body = parts.join('\n\n');
 
-    const greet = isFirst ? 'Assalamu\'alaikum Warahmatullahi Wabarakatuh, Ayah/Bunda yang dirahmati Allah.\n\n' : '';
-    const closing = parts.length ? `\n\nSemoga membantu, Ayah/Bunda. Bila ada yang ingin dikonsultasikan lebih lanjut, silakan hubungi WhatsApp Center **${wa(kb)}**.` : '';
-    return { reply: greet + body + closing, mode: 'local', topics: [...ctx.done] };
+    const greet = isFirst ? "Assalamu'alaikum Warahmatullahi Wabarakatuh, Ayah/Bunda yang dirahmati Allah.\n\n" : '';
+    const closing = parts.length ? `\n\nUntuk konfirmasi lebih lanjut terkait pendaftaran atau verifikasi berkas, silakan menghubungi WhatsApp Center **${wa(kb)}**.` : '';
+    return { reply: sanitize(greet + body + closing), mode: 'local', topics: [...ctx.done] };
   }
 
   return { localAnswer };
 });
-

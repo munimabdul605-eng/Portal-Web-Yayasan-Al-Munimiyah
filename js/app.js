@@ -1580,3 +1580,58 @@
     init();
   }
 })();
+// ===============================================================
+// FITUR LIVE REALTIME AUTO-SYNC KUOTA PPDB DARI GOOGLE SPREADSHEET
+// ===============================================================
+async function syncLiveQuotaFromSheets() {
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1GzdjUBtnrKXPgZvCebYhQ6iAU0jkhgFNKDWeN6wzMa4/gviz/tq?tqx=out:csv&sheet=Form%20Responses%201";
+
+  try {
+    const response = await fetch(SHEET_CSV_URL);
+    if (!response.ok) throw new Error("Gagal mengambil data Spreadsheet");
+    const csvText = await response.text();
+
+    // Memecah baris CSV
+    const rows = csvText.trim().split("\n");
+    if (rows.length <= 1) return; // Belum ada data respon
+
+    // Hitung pendaftar per jenjang dari Form Responses 1
+    const counts = { PG: 0, TK: 0, SD: 0, SMP: 0, SMA: 0 };
+    
+    // Looping dari baris ke-2 (lewati header)
+    for (let i = 1; i < rows.length; i++) {
+      const cols = rows[i].split(",");
+      if (cols.length >= 3) {
+        // Kolom C (indeks 2) adalah Jenjang Pendidikan
+        const jenjang = cols[2].replace(/"/g, "").trim().toUpperCase();
+        if (counts.hasOwnProperty(jenjang)) {
+          counts[jenjang]++;
+        }
+      }
+    }
+
+    // Update nilai filled pada state lokal secara dinamis
+    let totalFilled = 0;
+    state.liveQuotaStats.forEach(item => {
+      if (counts.hasOwnProperty(item.code)) {
+        item.filled = counts[item.code];
+        totalFilled += item.filled;
+      }
+    });
+
+    // Render ulang grafik batang kuota di layar
+    if (typeof animateQuotaBars === "function") {
+      animateQuotaBars(true);
+    }
+
+    // Update teks badge kuota di header PPDB jika ada
+    const badge = document.querySelector(".badge-accent");
+    if (badge && badge.textContent.includes("Kursi")) {
+      badge.textContent = `Total 462 Kursi · ${totalFilled} Terisi`;
+    }
+
+    console.log(`[PPDB Live Sync] Sukses! Terbaca ${totalFilled} pendaftar realtime dari Google Form.`);
+  } catch (error) {
+    console.warn("[PPDB Live Sync] Menggunakan fallback data lokal:", error);
+  }
+}

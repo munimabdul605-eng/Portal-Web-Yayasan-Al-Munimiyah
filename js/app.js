@@ -44,7 +44,7 @@
       { code: 'TK', label: 'TK Islam (TK A & TK B)', rombel: '4 Rombel (@20 Siswa)', filled: 3, total: 80 },
       { code: 'SD', label: "SDIT Al-Mun'imiyah", rombel: '4 Rombel (@28 Siswa)', filled: 6, total: 112 },
       { code: 'SMP', label: "SMPIT Al-Mun'imiyah", rombel: '4 Rombel (@30 Siswa)', filled: 5, total: 120 },
-      { code: 'SMA', label: "SMAIT Al-Mun'imiyah", rombel: '4 Rombel (@30 Siswa)', filled: 4, total: 120 },
+      { code: 'SMA', label: "SMAIT Al-Mun'imiyah", rombel: '4 Rombel (@30 Siswa)', filled: 5, total: 120 },
     ],
   };
 
@@ -961,103 +961,129 @@
   }
 
   // =====================================================================
-  // D.1 AUTO-SYNC LIVE KUOTA DARI GOOGLE SHEETS RESPON FORM AKTIF
+  // D.1 AUTO-SYNC LIVE KUOTA DARI GOOGLE SHEETS DASHBOARD / DATABASE
   // =====================================================================
-  async function syncLiveQuotaFromSheets() {
+  function loadGoogleSheetsJsonp(sheetName) {
     const SPREADSHEET_ID = '1GzdjUBtnrKXPgZvCebYhQ6iAU0jkhgFNKDWeN6wzMa4';
-    // Endpoint respon Google Form aktif (cache-busting timestamp agar data selalu real-time)
-    const FORM_RESPONSES_CSV = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`;
-    const FALLBACK_DASHBOARD_CSV = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=3_Dashboard_Kuota&t=${Date.now()}`;
+    const callbackName = 'gvizCallback_' + Math.random().toString(36).substring(2, 9);
+    const sheetParam = sheetName ? `&sheet=${encodeURIComponent(sheetName)}` : '';
+    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=responseHandler:${callbackName}${sheetParam}&t=${Date.now()}`;
 
+    // Fallback untuk lingkungan non-browser (misalnya pengujian Node.js)
+    if (typeof window === 'undefined' || typeof document === 'undefined' || !document.createElement) {
+      return fetch(url.replace(`tqx=responseHandler:${callbackName}`, 'tqx=out:json'))
+        .then((r) => r.text())
+        .then((txt) => {
+          const match = txt.match(/setResponse\(([\s\S]+)\);/);
+          if (match) return JSON.parse(match[1]);
+          throw new Error('Gviz parse error');
+        });
+    }
+
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+      const script = document.createElement('script');
+
+      const cleanup = () => {
+        try {
+          delete window[callbackName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+        } catch (_) {}
+      };
+
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          cleanup();
+          reject(new Error('JSONP Timeout'));
+        }
+      }, 7000);
+
+      window[callbackName] = (data) => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          cleanup();
+          resolve(data);
+        }
+      };
+
+      script.src = url;
+      script.async = true;
+      script.onerror = () => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          cleanup();
+          reject(new Error('Script load error'));
+        }
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
+  async function syncLiveQuotaFromSheets() {
     const refreshIcon = document.getElementById('refresh-quota-icon');
     if (refreshIcon) refreshIcon.classList.add('animate-spin');
 
-    // Parser CSV sederhana berkoma dengan quotes ganda
-    const parseCsvLine = (line) => {
-      const values = [];
-      let current = '';
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          if (inQuotes && line[i + 1] === '"') {
-            current += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          values.push(current.trim().replace(/^"|"$/g, ''));
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-      values.push(current.trim().replace(/^"|"$/g, ''));
-      return values;
-    };
-
     try {
-      // 1. Prioritas Utama: Tarik langsung sheet respon pendaftar Google Form yang aktif
-      const res = await fetch(FORM_RESPONSES_CSV, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const csvText = await res.text();
-      const lines = csvText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-
       let parsedSuccessfully = false;
+      const liveCounts = { PG: 0, TK: 0, SD: 0, SMP: 0, SMA: 0 };
 
-      // Verifikasi format header sheet respon (memuat Jenjang & Nama Calon Siswa)
-      if (lines.length > 0 && lines[0].toLowerCase().includes('jenjang')) {
-        const liveCounts = { PG: 0, TK: 0, SD: 0, SMP: 0, SMA: 0 };
-        let validRows = 0;
+      // 1. Prioritas Utama: Tarik langsung respon pendaftar dari sheet Form Responses 1 (Data Acuan Utama)
+      try {
+        const formData = await loadGoogleSheetsJsonp('Form Responses 1');
+        if (formData && formData.table && Array.isArray(formData.table.rows)) {
+          formData.table.rows.forEach((r) => {
+            if (!r || !r.c) return;
+            const nama = (r.c[1]?.v || '').toString().trim();
+            const rawJenjang = (r.c[2]?.v || '').toString().trim().toUpperCase();
+            if (!nama || !rawJenjang) return;
 
-        for (let i = 1; i < lines.length; i++) {
-          const cols = parseCsvLine(lines[i]);
-          const nama = (cols[1] || '').trim();
-          const rawJenjang = (cols[2] || '').trim().toUpperCase();
+            let code = null;
+            if (rawJenjang === 'PG' || rawJenjang.includes('PLAYGROUP')) code = 'PG';
+            else if (rawJenjang === 'TK' || rawJenjang.includes('TK')) code = 'TK';
+            else if (rawJenjang === 'SD' || rawJenjang.includes('SD')) code = 'SD';
+            else if (rawJenjang === 'SMP' || rawJenjang.includes('SMP')) code = 'SMP';
+            else if (rawJenjang === 'SMA' || rawJenjang.includes('SMA')) code = 'SMA';
 
-          if (!nama || !rawJenjang) continue;
-
-          let code = null;
-          if (rawJenjang === 'PG' || rawJenjang.includes('PLAYGROUP')) code = 'PG';
-          else if (rawJenjang === 'TK' || rawJenjang.includes('TK')) code = 'TK';
-          else if (rawJenjang === 'SD' || rawJenjang.includes('SD')) code = 'SD';
-          else if (rawJenjang === 'SMP' || rawJenjang.includes('SMP')) code = 'SMP';
-          else if (rawJenjang === 'SMA' || rawJenjang.includes('SMA')) code = 'SMA';
-
-          if (code && liveCounts[code] !== undefined) {
-            liveCounts[code]++;
-            validRows++;
-          }
-        }
-
-        if (validRows > 0) {
-          state.liveQuotaStats.forEach((stat) => {
-            if (liveCounts[stat.code] !== undefined) {
-              stat.filled = liveCounts[stat.code];
+            if (code && liveCounts[code] !== undefined) {
+              liveCounts[code]++;
+              parsedSuccessfully = true;
             }
           });
-          parsedSuccessfully = true;
+        }
+      } catch (formErr) {
+        console.warn('[PPDB Quota] Form Responses JSONP gagal, beralih ke Dashboard:', formErr && formErr.message);
+      }
+
+      // 2. Fallback: Jika tab respon form belum terbaca, baca dari 3_Dashboard_Kuota
+      if (!parsedSuccessfully) {
+        try {
+          const dashData = await loadGoogleSheetsJsonp('3_Dashboard_Kuota');
+          if (dashData && dashData.table && Array.isArray(dashData.table.rows)) {
+            dashData.table.rows.forEach((r) => {
+              if (!r || !r.c) return;
+              const code = (r.c[0]?.v || '').toString().toUpperCase().trim();
+              const filledVal = parseInt(r.c[3]?.v || r.c[3]?.f || '0', 10);
+              if (['PG', 'TK', 'SD', 'SMP', 'SMA'].includes(code) && !isNaN(filledVal)) {
+                liveCounts[code] = filledVal;
+                parsedSuccessfully = true;
+              }
+            });
+          }
+        } catch (dashErr) {
+          console.warn('[PPDB Quota] Dashboard tab JSONP gagal:', dashErr && dashErr.message);
         }
       }
 
-      // 2. Fallback: Jika sheet respon belum aktif atau berformat lain, baca dari sheet dashboard rekapitulasi
-      if (!parsedSuccessfully) {
-        const fbRes = await fetch(FALLBACK_DASHBOARD_CSV, { cache: 'no-store' });
-        if (fbRes.ok) {
-          const fbCsv = await fbRes.text();
-          const fbLines = fbCsv.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-          fbLines.forEach((line) => {
-            const cols = parseCsvLine(line);
-            if (!cols || cols.length < 4) return;
-            const code = (cols[0] || '').toUpperCase().trim();
-            const stat = state.liveQuotaStats.find((q) => q.code === code);
-            if (stat) {
-              const filledVal = parseInt((cols[3] || '').replace(/[^\d]/g, ''), 10);
-              if (!isNaN(filledVal)) stat.filled = filledVal;
-            }
-          });
-        }
+      if (parsedSuccessfully) {
+        state.liveQuotaStats.forEach((stat) => {
+          if (liveCounts[stat.code] !== undefined) {
+            stat.filled = liveCounts[stat.code];
+          }
+        });
       }
 
       renderLiveQuotaChart();
@@ -1065,9 +1091,19 @@
 
       const totalAll = state.liveQuotaStats.reduce((s, q) => s + q.total, 0);
       const filledAll = state.liveQuotaStats.reduce((s, q) => s + q.filled, 0);
+      const remainingAll = Math.max(0, totalAll - filledAll);
+
       const elBadge = document.getElementById('quota-badge-summary');
       if (elBadge) {
         elBadge.innerHTML = `Total ${totalAll} Kursi &middot; ${filledAll} Terisi`;
+      }
+      const elFilled = document.getElementById('quota-summary-filled');
+      if (elFilled) {
+        elFilled.textContent = `${filledAll} Siswa`;
+      }
+      const elRemaining = document.getElementById('quota-summary-remaining');
+      if (elRemaining) {
+        elRemaining.textContent = `${remainingAll} Kursi`;
       }
     } catch (err) {
       console.warn('[PPDB Quota Realtime Sync] Menggunakan data lokal:', err && err.message ? err.message : err);

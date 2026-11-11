@@ -644,6 +644,10 @@
               target="ppdb-hidden-iframe"
               class="space-y-5"
             >
+              <!-- Parameter Protokol Google Forms Multi-Page/Section (Wajib agar seluruh kolom terisi di Database) -->
+              <input type="hidden" name="fvv" value="1" />
+              <input type="hidden" name="pageHistory" value="0,1" />
+
               <!-- Grup 1: Data Calon Siswa & Satuan Pendidikan -->
               <div class="form-section-card space-y-4">
                 <div class="flex items-center justify-between border-b border-hairline pb-2.5">
@@ -882,7 +886,7 @@
                 <h3 class="typo-h3 mt-1">Monitoring Kuota Kursi</h3>
               </div>
               <div class="flex items-center gap-2">
-                <span id="quota-badge-summary" class="badge-accent">Total 462 Kursi &middot; 21 Terisi</span>
+                <span id="quota-badge-summary" class="badge-accent">Total 462 Kursi &middot; 22 Terisi</span>
                 <button id="btn-refresh-quota" type="button" class="btn-secondary !p-1.5 !rounded-full !h-8 !w-8 flex items-center justify-center shrink-0 cursor-pointer" title="Perbarui Data Kuota dari Google Sheets Respon Form" aria-label="Perbarui Kuota Realtime">
                   <svg id="refresh-quota-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500">
                     <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
@@ -898,11 +902,11 @@
               </div>
               <div class="notice-accent rounded-2xl p-3.5">
                 <span class="text-xs block">Terisi</span>
-                <strong id="quota-summary-filled" class="text-sm font-mono font-semibold">21 Siswa</strong>
+                <strong id="quota-summary-filled" class="text-sm font-mono font-semibold">22 Siswa</strong>
               </div>
               <div class="sub-surface p-3.5 col-span-2 sm:col-span-1">
                 <span class="text-xs text-ink-muted block">Tersedia</span>
-                <strong id="quota-summary-remaining" class="text-sm font-mono font-semibold text-ink-primary">441 Kursi</strong>
+                <strong id="quota-summary-remaining" class="text-sm font-mono font-semibold text-ink-primary">440 Kursi</strong>
               </div>
             </div>
 
@@ -911,7 +915,7 @@
             </div>
 
             <div class="pt-2">
-              <a href="https://docs.google.com/spreadsheets/d/1GzdjUBtnrKXPgZvCebYhQ6iAU0jkhgFNKDWeN6wzMa4/edit" target="_blank" rel="noopener" class="btn-with-icon group w-full justify-center no-underline">
+              <a href="https://docs.google.com/spreadsheets/d/1GzdjUBtnrKXPgZvCebYhQ6iAU0jkhgFNKDWeN6wzMa4/edit#gid=1003" target="_blank" rel="noopener noreferrer" class="btn-with-icon group w-full justify-center no-underline" title="Buka Tab 3_Dashboard_Kuota di Google Sheets">
                 <span class="relative z-10 whitespace-nowrap">
                   Akses Buku Kendali Pendaftaran ↗
                 </span>

@@ -1740,6 +1740,23 @@ html body textarea.input-auralis:focus,
   border-radius: 14px;
 }
 
+/* Animations for Live Quota Sync */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.9); }
+}
+.animate-pulse {
+  animation: livePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 /* Mobile Viewport Optimizations (viewport <= 640px) */
 @media (max-width: 640px) {
   /* A. Floating Action Button (FAB) Minimalis Bulat */

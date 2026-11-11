@@ -872,10 +872,23 @@
           <div class="lg:col-span-5 nextra-card glass-card lg:sticky lg:top-[92px] space-y-6 reveal-on-scroll" style="--stagger-delay: 80ms;">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="typo-label-caps">Ketersediaan Daya Tampung</span>
+                <span class="typo-label-caps flex items-center gap-2">
+                  <span>Ketersediaan Daya Tampung</span>
+                  <span class="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-1.5 py-0.5 rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Live Form Sync
+                  </span>
+                </span>
                 <h3 class="typo-h3 mt-1">Monitoring Kuota Kursi</h3>
               </div>
-              <span id="quota-badge-summary" class="badge-accent">Total 462 Kursi &middot; 20 Terisi</span>
+              <div class="flex items-center gap-2">
+                <span id="quota-badge-summary" class="badge-accent">Total 462 Kursi &middot; 21 Terisi</span>
+                <button id="btn-refresh-quota" type="button" class="btn-secondary !p-1.5 !rounded-full !h-8 !w-8 flex items-center justify-center shrink-0 cursor-pointer" title="Perbarui Data Kuota dari Google Sheets Respon Form" aria-label="Perbarui Kuota Realtime">
+                  <svg id="refresh-quota-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
@@ -885,11 +898,11 @@
               </div>
               <div class="notice-accent rounded-2xl p-3.5">
                 <span class="text-xs block">Terisi</span>
-                <strong id="quota-summary-filled" class="text-sm font-mono font-semibold">20 Siswa</strong>
+                <strong id="quota-summary-filled" class="text-sm font-mono font-semibold">21 Siswa</strong>
               </div>
               <div class="sub-surface p-3.5 col-span-2 sm:col-span-1">
                 <span class="text-xs text-ink-muted block">Tersedia</span>
-                <strong id="quota-summary-remaining" class="text-sm font-mono font-semibold text-ink-primary">442 Kursi</strong>
+                <strong id="quota-summary-remaining" class="text-sm font-mono font-semibold text-ink-primary">441 Kursi</strong>
               </div>
             </div>
 
@@ -929,9 +942,9 @@
             </p>
           </div>
           <div class="shrink-0 reveal-on-scroll" style="--stagger-delay: 140ms;">
-            <a href="https://opal.google/app/1Fcx8FWLODRfkcwePXtgp0wEpHFsROI2w" target="_blank" rel="noopener" class="btn-with-icon group no-underline">
+            <a href="https://gemini.google.com/gem/1EbvEx9ZESqYhA6Ty5HFyuintqHlsGUp2?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-with-icon group no-underline" title="Buka AI Advisor: Ustadzah Fatimah">
               <span class="relative z-10 whitespace-nowrap">
-                Buka Layanan Konsultasi Mandiri ↗
+                Buka AI Advisor: Ustadzah Fatimah ↗
               </span>
               <div class="btn-icon-circle" aria-hidden="true">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">

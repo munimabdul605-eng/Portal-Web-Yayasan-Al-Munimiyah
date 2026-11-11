@@ -1712,3 +1712,54 @@ if (document.readyState === "loading") {
 } else {
   syncLiveQuotaFromSheets();
 }
+// ===============================================================
+// FITUR REALTIME AUTO-SYNC VIA GOOGLE APPS SCRIPT WEB APP
+// ===============================================================
+async function syncLiveQuotaFromSheets() {
+  const API_URL = "https://script.google.com/macros/s/AKfycbzUu7d7mYQu-L4gzWtWESdoQBTmCWcAvrAPYFOwg_78S7N71koRsscJVNHG4hqPTTAo0w/exec";
+
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    
+    if (!data || !data.counts) return;
+
+    // 1. Update kuota terisi tiap jenjang di state lokal
+    if (typeof state !== "undefined" && state.liveQuotaStats) {
+      state.liveQuotaStats.forEach(item => {
+        if (data.counts[item.code] !== undefined) {
+          item.filled = data.counts[item.code];
+        }
+      });
+    }
+
+    // 2. Render ulang grafik batang kuota di layar
+    if (typeof animateQuotaBars === "function") {
+      animateQuotaBars(true);
+    }
+
+    // 3. Update kartu ringkasan kuota atas
+    const elFilled = document.getElementById("quota-summary-filled");
+    if (elFilled) elFilled.textContent = `${data.total} Siswa`;
+
+    const elRem = document.getElementById("quota-summary-remaining");
+    if (elRem) elRem.textContent = `${Math.max(0, 462 - data.total)} Kursi`;
+
+    // 4. Update teks badge pill di header PPDB
+    const badge = document.querySelector(".badge-accent");
+    if (badge && badge.textContent.includes("Kursi")) {
+      badge.textContent = `Total 462 Kursi · ${data.total} Terisi`;
+    }
+
+    console.log(`✅ [Realtime Sync] Berhasil! Terbaca ${data.total} pendaftar live dari Google Form.`);
+  } catch (err) {
+    console.warn("⚠️ [Realtime Sync Gagal, gunakan data default]:", err);
+  }
+}
+
+// Jalankan otomatis begitu web selesai dimuat
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", syncLiveQuotaFromSheets);
+} else {
+  syncLiveQuotaFromSheets();
+}

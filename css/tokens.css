@@ -1,0 +1,203 @@
+/* ==========================================================================
+   Sistem Madrasah (MDTA) - MDTA ASY SYIFA AL MUSRI'
+   Design Tokens: Luminous Cream-Lime & Botanical Olive Palette
+   Semua pasangan teks memenuhi WCAG AA >= 4.5:1 (termasuk Light & Dark Mode)
+   ========================================================================== */
+
+:root,
+html.light {
+  color-scheme: light;
+
+  /* Permukaan & Latar Mesh Palet Lime-Chartreuse Lembut + Kaca Transparan Berbintik */
+  --bg-canvas: #f2fed8;
+  --bg-mesh-gradient:
+    radial-gradient(54% 46% at 84% 12%, rgba(176, 246, 38, 0.62) 0%, rgba(193, 250, 85, 0.38) 38%, rgba(214, 252, 141, 0.14) 66%, rgba(242, 254, 216, 0) 84%),
+    radial-gradient(48% 48% at 10% 48%, rgba(102, 224, 1, 0.44) 0%, rgba(153, 235, 0, 0.30) 36%, rgba(209, 250, 118, 0.14) 64%, rgba(242, 254, 216, 0) 82%),
+    radial-gradient(58% 48% at 74% 88%, rgba(127, 228, 0, 0.48) 0%, rgba(173, 241, 60, 0.34) 38%, rgba(230, 254, 144, 0.18) 66%, rgba(242, 254, 216, 0) 84%),
+    radial-gradient(46% 42% at 22% 14%, rgba(214, 252, 141, 0.50) 0%, rgba(248, 255, 219, 0) 76%),
+    linear-gradient(160deg, #f8ffdb 0%, #f2fed8 52%, #e9fdbe 100%);
+  --bg-band: rgba(248, 255, 224, 0.54);
+  --bg-surface: #f8fde8;
+  --bg-subsurface: #edfad0;
+  --bg-subsurface-hover: #e0f7b2;
+  --bg-header: rgba(248, 255, 224, 0.60);
+  --bg-hover: rgba(15, 31, 5, 0.06);
+
+  /* Token Kaca Frosted Transparan Berbintik (Light) */
+  --glass-card-bg: rgba(255, 255, 250, 0.44);
+  --glass-subcard-bg: rgba(255, 255, 248, 0.34);
+  --glass-subcard-hover: rgba(255, 255, 250, 0.56);
+  --glass-control-bg: rgba(255, 255, 252, 0.68);
+  --glass-input-bg: rgba(255, 255, 252, 0.78);
+  --glass-table-bg: rgba(255, 255, 250, 0.54);
+  --glass-table-head-bg: rgba(242, 254, 216, 0.62);
+  --glass-border: rgba(47, 99, 10, 0.22);
+  --glass-inner-border: rgba(47, 99, 10, 0.16);
+  --glass-card-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.58) 0%, rgba(242, 254, 216, 0.14) 48%, rgba(160, 237, 0, 0.14) 100%);
+  --glass-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.20'/%3E%3C/svg%3E");
+
+  /* Teks & Kontras Tinggi (WCAG >= 4.5:1 di atas kaca transparan & mesh lime) */
+  --text-primary: #0f1f05;
+  --text-secondary: #1d330c;
+  --text-muted: #2c4914;
+
+  /* Garis & Batas Kontrol (>= 3:1 non-teks) */
+  --border-subtle: rgba(15, 31, 5, 0.14);
+  --border-strong: rgba(15, 31, 5, 0.26);
+  --border-control: #3b5e1d;
+  --border-hover: rgba(29, 59, 8, 0.48);
+
+  /* Tombol Utama & Aksen Botanical Olive + Electric Lime */
+  --btn-primary-bg: #1d3b08;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #2a520d;
+
+  --accent-brand: #2f630a;
+  --accent-brand-hover: #234b07;
+  --accent-brand-text: #ffffff;
+  --accent-brand-soft: #e9fdc4;
+  --accent-brand-ink: #1d3b08;
+  --accent-brand-border: #7ad90b;
+  --accent-lime: #99eb00;
+
+  --focus-ring: #1d3b08;
+
+  /* Status Presensi & Penilaian Semantik */
+  --status-hadir-fg: #065f46;
+  --status-hadir-bg: #ecfdf5;
+  --status-hadir-bd: #a7f3d0;
+
+  --status-izin-fg: #1e40af;
+  --status-izin-bg: #eff6ff;
+  --status-izin-bd: #bfdbfe;
+
+  --status-sakit-fg: #92400e;
+  --status-sakit-bg: #fffbeb;
+  --status-sakit-bd: #fde68a;
+
+  --status-alpa-fg: #991b1b;
+  --status-alpa-bg: #fef2f2;
+  --status-alpa-bd: #fecaca;
+
+  /* Modal, Sorot & Bayangan */
+  --modal-backdrop: rgba(12, 22, 4, 0.78);
+  --shadow-card:
+    0 12px 30px rgba(29, 59, 8, 0.11),
+    0 2px 8px rgba(29, 59, 8, 0.06),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.88),
+    inset 1px 0 0 rgba(255, 255, 255, 0.56),
+    inset 0 -1px 0 rgba(47, 99, 10, 0.10);
+  --shadow-card-hover:
+    0 18px 40px rgba(29, 59, 8, 0.15),
+    0 4px 12px rgba(29, 59, 8, 0.08),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.94),
+    inset 1px 0 0 rgba(255, 255, 255, 0.68);
+  --shadow-subcard:
+    0 4px 14px rgba(29, 59, 8, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  --shadow-modal: 0 24px 64px rgba(12, 22, 4, 0.28);
+  --spotlight-color: rgba(255, 255, 255, 0.42);
+
+  /* Skala Font, Radius & Spasi */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Montserrat', 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'Montserrat', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.dark {
+  color-scheme: dark;
+
+  /* Permukaan & Latar Mesh Gelap Olive + Sorot Electric Lime */
+  --bg-canvas: #0c1604;
+  --bg-mesh-gradient:
+    radial-gradient(56% 48% at 84% 10%, rgba(176, 246, 38, 0.24) 0%, rgba(153, 235, 0, 0.14) 38%, rgba(20, 36, 7, 0) 76%),
+    radial-gradient(52% 52% at 8% 48%, rgba(102, 224, 1, 0.22) 0%, rgba(127, 228, 0, 0.12) 40%, rgba(20, 36, 7, 0) 76%),
+    radial-gradient(60% 48% at 76% 90%, rgba(193, 250, 85, 0.20) 0%, rgba(160, 237, 0, 0.10) 40%, rgba(20, 36, 7, 0) 76%),
+    radial-gradient(50% 48% at 16% 12%, rgba(97, 212, 0, 0.18) 0%, rgba(12, 22, 4, 0) 72%),
+    linear-gradient(155deg, #0c1604 0%, #142407 52%, #0e1a05 100%);
+  --bg-band: rgba(13, 24, 5, 0.58);
+  --bg-surface: #122106;
+  --bg-subsurface: #1a2f09;
+  --bg-subsurface-hover: #24400e;
+  --bg-header: rgba(13, 24, 5, 0.62);
+  --bg-hover: rgba(246, 253, 230, 0.10);
+
+  /* Token Kaca Frosted Smoked Berbintik (Dark) */
+  --glass-card-bg: rgba(16, 29, 7, 0.50);
+  --glass-subcard-bg: rgba(21, 38, 9, 0.38);
+  --glass-subcard-hover: rgba(30, 52, 13, 0.56);
+  --glass-control-bg: rgba(20, 36, 8, 0.68);
+  --glass-input-bg: rgba(14, 26, 6, 0.78);
+  --glass-table-bg: rgba(16, 29, 7, 0.56);
+  --glass-table-head-bg: rgba(24, 42, 10, 0.66);
+  --glass-border: rgba(176, 246, 38, 0.24);
+  --glass-inner-border: rgba(176, 246, 38, 0.16);
+  --glass-card-sheen: linear-gradient(135deg, rgba(193, 250, 85, 0.10) 0%, rgba(242, 254, 216, 0.03) 48%, rgba(127, 228, 0, 0.09) 100%);
+  --glass-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+
+  /* Teks & Kontras Tinggi Gelap (WCAG >= 4.5:1) */
+  --text-primary: #f6fde6;
+  --text-secondary: #dcf2b5;
+  --text-muted: #b7d689;
+
+  /* Garis & Batas Kontrol Gelap (>= 3:1 non-teks) */
+  --border-subtle: rgba(220, 242, 181, 0.15);
+  --border-strong: rgba(220, 242, 181, 0.26);
+  --border-control: #8ab352;
+  --border-hover: rgba(176, 246, 38, 0.50);
+
+  /* Tombol Utama & Aksen Electric Lime (Dark) */
+  --btn-primary-bg: #b0f626;
+  --btn-primary-text: #0e1d04;
+  --btn-primary-hover: #c7fa5e;
+
+  --accent-brand: #99eb00;
+  --accent-brand-hover: #b8f53e;
+  --accent-brand-text: #0e1d04;
+  --accent-brand-soft: #1b3309;
+  --accent-brand-ink: #c1fa55;
+  --accent-brand-border: rgba(176, 246, 38, 0.36);
+  --accent-lime: #b0f626;
+
+  --focus-ring: #c1fa55;
+
+  /* Status Presensi & Penilaian Semantik Gelap */
+  --status-hadir-fg: #6ee7b7;
+  --status-hadir-bg: #052e22;
+  --status-hadir-bd: #065f46;
+
+  --status-izin-fg: #93c5fd;
+  --status-izin-bg: #102347;
+  --status-izin-bd: #1e3a8a;
+
+  --status-sakit-fg: #fcd34d;
+  --status-sakit-bg: #332005;
+  --status-sakit-bd: #78350f;
+
+  --status-alpa-fg: #fca5a5;
+  --status-alpa-bg: #351014;
+  --status-alpa-bd: #7f1d1d;
+
+  /* Modal, Sorot & Bayangan Gelap */
+  --modal-backdrop: rgba(4, 8, 2, 0.86);
+  --shadow-card:
+    0 14px 36px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(176, 246, 38, 0.20),
+    inset 1px 0 0 rgba(255, 255, 255, 0.08);
+  --shadow-card-hover:
+    0 20px 46px rgba(0, 0, 0, 0.62),
+    inset 0 1px 0 rgba(176, 246, 38, 0.32);
+  --shadow-subcard:
+    0 6px 16px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(176, 246, 38, 0.14);
+  --shadow-modal: 0 28px 72px rgba(0, 0, 0, 0.88);
+  --spotlight-color: rgba(176, 246, 38, 0.10);
+}

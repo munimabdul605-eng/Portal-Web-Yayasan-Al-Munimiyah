@@ -2,1152 +2,1703 @@
 <html lang="id" class="light">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yayasan Pendidikan Islam Al-Mun'imiyah (YPIA): Portal Resmi</title>
-  <meta name="description" content="Portal Resmi Yayasan Pendidikan Islam Al-Mun'imiyah (YPIA) Bandung: Beranda, Profil dan Tata Kelola, Unit Pendidikan, Informasi PPDB, serta Konsultasi dan Layanan Informasi." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MDTA ASY SYIFA AL MUSRI': Portal Digital Madrasah &amp; Penilaian Raport</title>
+  <meta name="description" content="Portal Digital MDTA ASY SYIFA AL MUSRI' (Bojongsoang, Kab. Bandung): Presensi Santri QR, Pelaporan Guru ke Kepala Madrasah, Database Santri, Rekap Laporan, Kalkulator UAS, dan Penilaian Raport." />
+  <link rel="icon" type="image/png" href="./assets/logo-mdta-asy-syifa.png" />
+
   <script>
     (function () {
       try {
-        var t = localStorage.getItem('ypia-theme');
-        if (t === 'dark') {
+        var saved = localStorage.getItem('mdta_theme');
+        if (saved === 'dark') {
           document.documentElement.classList.remove('light');
           document.documentElement.classList.add('dark');
         }
       } catch (e) {}
     })();
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/jpeg" href="./assets/logo-ypia.jpg" />
-  <link rel="stylesheet" href="./css/auralis.css" />
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
-            display: ['"Montserrat"', '"Plus Jakarta Sans"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#fafafa',
-              100: '#f4f4f5',
-              200: '#e4e4e7',
-              300: '#d4d4d8',
-              400: '#a1a1aa',
-              500: '#71717a',
-              600: '#52525b',
-              700: '#27272a',
-              800: '#18181b',
-              900: '#09090b',
-            }
-          }
-        }
-      }
-    };
-  </script>
-</head>
-<body class="min-h-screen flex flex-col typo-body-md selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- R-32: Skip Link untuk Navigasi Keyboard -->
+  <link rel="stylesheet" href="./css/tokens.css?v=20261123-32" />
+  <link rel="stylesheet" href="./css/style.css?v=20261123-32" />
+
+  <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script defer src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script defer src="./js/config.js?v=20261123-32"></script>
+  <script defer src="./js/api.js?v=20261123-32"></script>
+  <script defer src="./js/calculators.js?v=20261123-32"></script>
+  <script defer src="./js/admin.js?v=20261123-32"></script>
+  <script defer src="./js/guru.js?v=20261123-32"></script>
+  <script defer src="./js/auth.js?v=20261123-32"></script>
+</head>
+<body>
   <a href="#main-content" class="skip-link">Langsung ke konten utama</a>
 
-  <!-- =====================================================================
-       NAVIGASI UTAMA (Nextra Translucent Header + Progress Bar + 5 Menu Utama)
-       ===================================================================== -->
-  <header class="fixed top-0 inset-x-0 z-50 site-header">
-    <div class="header-container h-[72px] flex items-center justify-between gap-2 sm:gap-4">
-      <a href="#beranda" class="flex items-center gap-2.5 sm:gap-3 shrink-0 no-underline group">
-        <div class="header-logo-frame w-8 h-9 sm:w-9 sm:h-10 flex items-center justify-center shrink-0">
-          <img
-            src="./assets/logo-ypia-transparent.png"
-            alt="Logo Yayasan Pendidikan Islam Al-Mun'imiyah"
-            width="419"
-            height="657"
-            decoding="async"
-            class="header-logo-img"
-          />
-        </div>
-        <div>
-          <span class="text-[13px] sm:text-base font-bold tracking-tight text-ink-primary block leading-none whitespace-nowrap">Al-Mun'imiyah</span>
-          <span class="hidden md:block text-[11px] text-ink-muted mt-1 whitespace-nowrap">Yayasan Pendidikan Islam</span>
-        </div>
-      </a>
-
-      <nav id="desktop-nav" class="relative hidden lg:flex items-center gap-0.5 xl:gap-1 shrink-0" aria-label="Navigasi Utama">
-        <span id="nav-active-indicator" class="nav-active-indicator" aria-hidden="true"></span>
-        <a href="#beranda" data-nav="beranda" class="nav-link active">Beranda</a>
-        <a href="#profil" data-nav="profil" class="nav-link">Profil &amp; Tata Kelola</a>
-        <a href="#unit" data-nav="unit" class="nav-link">Unit Pendidikan</a>
-        <a href="#ppdb" data-nav="ppdb" class="nav-link">Informasi PPDB</a>
-        <a href="#konsultasi" data-nav="konsultasi" class="nav-link">Konsultasi &amp; Layanan</a>
-      </nav>
-
-      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <button id="btn-theme-toggle" type="button" class="btn-secondary !py-2 !px-2.5 xl:!px-3 !min-w-[44px] !text-xs" aria-pressed="false" aria-label="Ubah tema ke mode gelap">
-          <svg id="theme-toggle-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-          </svg>
-          <span id="theme-toggle-label" class="hidden xl:inline">Gelap</span>
-        </button>
-        <button id="btn-drive-status" type="button" class="btn-secondary !py-2 !px-2.5 sm:!px-3.5 !text-xs" aria-haspopup="dialog" aria-controls="drive-modal">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-accent-brand shrink-0" aria-hidden="true">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-          </svg>
-          <span id="drive-status-label">Arsip<span class="hidden sm:inline"> Dokumen Resmi</span></span>
-        </button>
-        <!-- antislop-layoutmobile: Hamburger berlabel teks "Menu" yang jelas -->
-        <button id="btn-mobile-menu" type="button" class="lg:hidden btn-secondary !py-2 !px-2.5 !text-xs" aria-expanded="false" aria-controls="mobile-menu">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" aria-hidden="true">
-            <line x1="4" y1="6" x2="20" y2="6"></line>
-            <line x1="4" y1="12" x2="20" y2="12"></line>
-            <line x1="4" y1="18" x2="20" y2="18"></line>
-          </svg>
-          <span>Menu</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Bilah Progres Gulir Halaman -->
+  <!-- ===================================================================
+       STICKY HEADER + INDIKATOR PROGRESS BAR GULIR DI ATAS HEADER
+       =================================================================== -->
+  <header class="site-header">
     <div class="scroll-progress-track" aria-hidden="true">
       <div id="scroll-progress-bar"></div>
     </div>
 
-    <!-- Menu Seluler -->
-    <nav id="mobile-menu" class="hidden lg:hidden mobile-drawer px-5 py-4" aria-label="Navigasi Seluler">
-      <div class="flex flex-col gap-1">
-        <a href="#beranda" data-nav="beranda" class="nav-link active">Beranda</a>
-        <a href="#profil" data-nav="profil" class="nav-link">Profil &amp; Tata Kelola</a>
-        <a href="#unit" data-nav="unit" class="nav-link">Unit Pendidikan</a>
-        <a href="#ppdb" data-nav="ppdb" class="nav-link">Informasi PPDB</a>
-        <a href="#konsultasi" data-nav="konsultasi" class="nav-link">Konsultasi &amp; Layanan Informasi</a>
+    <div class="header-inner">
+      <div class="brand-group">
+        <button id="btn-nav-drawer" type="button" class="btn btn-secondary btn-icon drawer-trigger-btn" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="app-nav-drawer" hidden>
+          <i data-lucide="menu" aria-hidden="true"></i>
+        </button>
+        <div class="header-logo-frame">
+          <img
+            src="./assets/logo-mdta-asy-syifa.png"
+            alt="Logo MDTA ASY SYIFA AL MUSRI'"
+            width="375"
+            height="375"
+            class="header-logo-img"
+          />
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">MDTA ASY SYIFA AL MUSRI'</span>
+          <span class="brand-subtitle">Portal Digital Madrasah &amp; Penilaian Raport</span>
+        </div>
       </div>
-    </nav>
+
+      <div class="header-actions">
+        <button id="btn-theme-toggle" type="button" class="btn btn-secondary" aria-pressed="false" aria-label="Aktifkan mode gelap">
+          <span id="theme-toggle-icon-wrap" style="display:inline-flex;align-items:center;">
+            <i data-lucide="moon" aria-hidden="true"></i>
+          </span>
+          <span id="theme-toggle-label">Gelap</span>
+        </button>
+
+        <div id="header-user-chip" class="user-session-chip" hidden>
+          <span id="header-user-avatar" class="user-avatar-circle" aria-hidden="true">U</span>
+          <span id="header-user-name" class="header-chip-name">-</span>
+          <span id="header-user-role" class="user-role-tag">-</span>
+        </div>
+      </div>
+    </div>
   </header>
 
-  <!-- =====================================================================
-       KONTEN UTAMA (5 Seksi Mengalir Bergaya Nextra)
-       ===================================================================== -->
-  <main id="main-content" class="flex-grow pt-[72px]">
+  <!-- ===================================================================
+       SLIDE-OUT DRAWER NAVIGASI (280px, HAMBURGER MENU)
+       =================================================================== -->
+  <div id="app-drawer-backdrop" class="drawer-backdrop no-print" hidden></div>
+  <aside id="app-nav-drawer" class="nav-drawer no-print" role="dialog" aria-modal="true" aria-label="Menu Navigasi Portal" hidden>
+    <div class="drawer-head">
+      <div class="drawer-profile-card">
+        <div id="drawer-user-avatar" class="drawer-avatar-box" aria-hidden="true">U</div>
+        <div style="min-width:0;flex:1;">
+          <div id="drawer-user-name" class="drawer-profile-name">-</div>
+          <div id="drawer-user-role" class="drawer-profile-role">-</div>
+          <div id="drawer-user-kelas" class="drawer-profile-kelas" hidden></div>
+        </div>
+      </div>
+      <button id="btn-close-nav-drawer" type="button" class="btn btn-secondary btn-icon modal-close-touch" aria-label="Tutup menu navigasi">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+    </div>
 
-    <!-- ===================================================================
-         A. BERANDA (Nextra Hero Tipografi Lapang + Pita Eksposisi Interaktif)
-         =================================================================== -->
-    <section id="beranda" class="section-canvas !pt-0 !pb-0">
-      <div class="hero-banner-shell">
-        <div class="hero-backdrop" aria-hidden="true">
+    <div class="drawer-body">
+      <div id="drawer-menu-admin" class="drawer-menu-group" hidden>
+        <div class="drawer-section-label">Menu Kepala Madrasah &amp; Admin</div>
+        <div id="admin-tablist" class="portal-tablist drawer-nav-list" role="tablist" aria-label="Menu Portal Kepala Madrasah">
+          <span class="tab-sliding-indicator" aria-hidden="true"></span>
+          <button type="button" role="tab" id="admin-tab-dashboard" class="tab-btn drawer-nav-item" data-tab="dashboard" aria-selected="true" aria-controls="admin-panel-dashboard" tabindex="0">
+            <i data-lucide="layout-dashboard" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Beranda Laporan</span>
+            <span class="tab-label-mobile">Beranda Laporan</span>
+          </button>
+          <button type="button" role="tab" id="admin-tab-santri" class="tab-btn drawer-nav-item" data-tab="santri" aria-selected="false" aria-controls="admin-panel-santri" tabindex="-1">
+            <i data-lucide="users" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Data Santri</span>
+            <span class="tab-label-mobile">Data Santri</span>
+          </button>
+          <button type="button" role="tab" id="admin-tab-rekap" class="tab-btn drawer-nav-item" data-tab="rekap" aria-selected="false" aria-controls="admin-panel-rekap" tabindex="-1">
+            <i data-lucide="file-bar-chart-2" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Rekap Bulanan</span>
+            <span class="tab-label-mobile">Rekap Bulanan</span>
+          </button>
+          <button type="button" role="tab" id="admin-tab-kelas" class="tab-btn drawer-nav-item" data-tab="kelas" aria-selected="false" aria-controls="admin-panel-kelas" tabindex="-1">
+            <i data-lucide="book-open" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Kelas &amp; Guru</span>
+            <span class="tab-label-mobile">Kelas &amp; Guru</span>
+          </button>
+          <button type="button" role="tab" id="admin-tab-akun" class="tab-btn drawer-nav-item" data-tab="akun" aria-selected="false" aria-controls="admin-panel-akun" tabindex="-1">
+            <i data-lucide="user-cog" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Akun Guru</span>
+            <span class="tab-label-mobile">Akun Guru</span>
+          </button>
+        </div>
+
+        <div class="drawer-section-label" style="margin-top:12px;">Alat Hitung &amp; Arsip</div>
+        <div class="drawer-nav-list">
+          <button id="btn-drawer-admin-uas" type="button" class="drawer-nav-item" data-admin-calc-drawer="uas">
+            <i data-lucide="calculator" aria-hidden="true"></i>
+            <span>Kalkulator UAS</span>
+          </button>
+          <button id="btn-drawer-admin-raport" type="button" class="drawer-nav-item" data-admin-calc-drawer="raport">
+            <i data-lucide="clipboard-list" aria-hidden="true"></i>
+            <span>Kalkulator Raport</span>
+          </button>
+          <button id="btn-arsip-drive" type="button" class="drawer-nav-item" aria-haspopup="dialog" aria-controls="modal-arsip-drive" aria-label="Arsip Dokumen Drive" hidden>
+            <i data-lucide="folder-archive" aria-hidden="true"></i>
+            <span>Arsip Dokumen Drive</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="drawer-menu-guru" class="drawer-menu-group" hidden>
+        <div class="drawer-section-label">Menu Portal Guru</div>
+        <div id="guru-tablist" class="portal-tablist drawer-nav-list" role="tablist" aria-label="Menu Portal Guru">
+          <span class="tab-sliding-indicator" aria-hidden="true"></span>
+          <button type="button" role="tab" id="guru-tab-presensi" class="tab-btn drawer-nav-item" data-tab="presensi" aria-selected="true" aria-controls="guru-panel-presensi" tabindex="0">
+            <i data-lucide="qr-code" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Presensi Santri</span>
+            <span class="tab-label-mobile">Presensi Santri</span>
+          </button>
+          <button type="button" role="tab" id="guru-tab-absen-guru" class="tab-btn drawer-nav-item" data-tab="absen-guru" aria-selected="false" aria-controls="guru-panel-absen-guru" tabindex="-1">
+            <i data-lucide="book-check" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Absen &amp; Materi Guru</span>
+            <span class="tab-label-mobile">Absen &amp; Materi Guru</span>
+          </button>
+          <button type="button" role="tab" id="guru-tab-uas" class="tab-btn drawer-nav-item" data-tab="uas" aria-selected="false" aria-controls="guru-panel-uas" tabindex="-1">
+            <i data-lucide="calculator" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Kalkulator UAS</span>
+            <span class="tab-label-mobile">Kalkulator UAS</span>
+          </button>
+          <button type="button" role="tab" id="guru-tab-raport" class="tab-btn drawer-nav-item" data-tab="raport" aria-selected="false" aria-controls="guru-panel-raport" tabindex="-1">
+            <i data-lucide="clipboard-list" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Kalkulator Raport</span>
+            <span class="tab-label-mobile">Kalkulator Raport</span>
+          </button>
+          <button type="button" role="tab" id="guru-tab-profil" class="tab-btn drawer-nav-item" data-tab="profil" aria-selected="false" aria-controls="guru-panel-profil" tabindex="-1">
+            <i data-lucide="user-circle" aria-hidden="true"></i>
+            <span class="tab-label-desktop">Profil Saya</span>
+            <span class="tab-label-mobile">Profil Saya</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button id="btn-logout" type="button" class="btn btn-danger" style="width:100%;" aria-label="Keluar dari akun" hidden>
+        <i data-lucide="log-out" aria-hidden="true"></i>
+        <span>Keluar</span>
+      </button>
+    </div>
+  </aside>
+
+  <main id="main-content" class="main-shell" tabindex="-1">
+    <!-- =================================================================
+         HALAMAN LOGIN
+         ================================================================= -->
+    <section id="view-login" class="view-panel login-shell" aria-labelledby="login-heading">
+      <div class="surface-card login-card">
+        <div class="card-spotlight-layer" aria-hidden="true"></div>
+
+        <div class="login-header">
           <img
-            src="./assets/hero-classroom.jpg"
-            alt=""
-            width="736"
-            height="736"
-            fetchpriority="high"
-            decoding="async"
-            class="hero-bg-img"
+            src="./assets/logo-mdta-asy-syifa.png"
+            alt="Lambang MDTA ASY SYIFA AL MUSRI'"
+            width="375"
+            height="375"
+            class="login-emblem"
           />
-          <div class="hero-bg-scrim"></div>
-          <div class="hero-bg-fade"></div>
-        </div>
-
-        <div class="hero-depth-stage relative z-[2] container-1100 pt-12 pb-24 sm:pt-16 sm:pb-28 lg:pt-20 lg:pb-32 text-center space-y-5">
-          <p class="hero-anim-meta hero-meta-ink text-xs sm:text-sm font-medium">
-            Terakreditasi A (Unggul) BAN-PDM &middot; <span id="hero-sk" class="font-semibold text-accent-brand">SK Kemenkumham RI No. AHU-0019283.AH.01.04.Tahun 2015</span>
-          </p>
-
-          <h1 class="hero-anim-headline nextra-headline max-w-5xl mx-auto">
-            YAYASAN PENDIDIKAN ISLAM <span class="whitespace-nowrap">AL-MUN'IMIYAH</span>
-          </h1>
-
-          <p id="hero-visi" class="hero-anim-copy hero-body-ink typo-body-lg max-w-2xl mx-auto">
-            Menjadi lembaga pendidikan Islam terpadu unggulan yang melahirkan generasi penghafal Al-Qur'an bersanad, berakhlak mulia, serta menguasai sains dan teknologi modern.
-          </p>
-
-          <div class="hero-anim-cta flex flex-wrap items-center justify-center gap-4 pt-2">
-            <a href="#ppdb" class="btn-with-icon group no-underline">
-              <span class="relative z-10 whitespace-nowrap">
-                Pendaftaran Siswa Baru
-              </span>
-              <div class="btn-icon-circle" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </div>
-            </a>
-            <a href="#konsultasi" class="btn-secondary !px-5">
-              <span>Konsultasi Layanan</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pita Eksposisi Nextra: Eksplorasi Interaktif Jenjang + Ikhtisar Kelembagaan -->
-      <div class="nextra-hero-band">
-        <div class="container-1100">
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            <!-- Kiri (7 Cols): Eksplorasi Interaktif 5 Jenjang (Model Nextra Switcher + Glassmorphism) -->
-            <div class="lg:col-span-7 nextra-card glass-card flex flex-col justify-between gap-6 reveal-on-scroll" style="--stagger-delay: 40ms;">
-              <div class="space-y-4">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <span class="typo-label-caps">Eksplorasi Lima Jenjang Pendidikan</span>
-                    <h2 class="typo-h3 mt-0.5">Pratinjau Kurikulum &amp; Target Hafalan</h2>
-                  </div>
-                  <span class="badge-accent">Akreditasi A (Unggul)</span>
-                </div>
-
-                <div id="hero-unit-tabs" class="relative flex flex-wrap gap-2" role="tablist" aria-label="Pilih jenjang pendidikan untuk pratinjau">
-                  <span class="text-xs text-ink-muted">Memuat pilihan jenjang...</span>
-                </div>
-              </div>
-
-              <div id="hero-unit-panel" class="sub-surface p-5 sm:p-6 space-y-4" role="tabpanel" aria-live="polite">
-                <div class="text-xs text-ink-muted">Memuat ringkasan satuan pendidikan...</div>
-              </div>
-            </div>
-
-            <!-- Kanan (5 Cols): Ikhtisar Resmi Lembaga (Glassmorphism) -->
-            <div class="lg:col-span-5 nextra-card glass-card flex flex-col justify-between gap-5 reveal-on-scroll" style="--stagger-delay: 110ms;">
-              <div class="space-y-4">
-                <div class="border-b border-hairline pb-3">
-                  <span class="typo-label-caps">Ikhtisar Resmi Lembaga</span>
-                  <h2 class="typo-h3 mt-0.5">Data Penyelenggaraan Pendidikan</h2>
-                </div>
-
-                <dl class="divide-y divide-[var(--border-subtle)] text-xs">
-                  <div class="py-2.5 flex justify-between gap-4">
-                    <dt class="text-ink-muted">Tanggal Pendirian</dt>
-                    <dd class="font-semibold text-ink-primary text-right">12 Rabiul Awal 1436 H / 3 Januari 2015</dd>
-                  </div>
-                  <div class="py-2.5 flex justify-between gap-4">
-                    <dt class="text-ink-muted">Satuan Pendidikan</dt>
-                    <dd class="font-semibold text-ink-primary text-right">Playgroup, TK Islam, SDIT, SMPIT, SMAIT</dd>
-                  </div>
-                  <div class="py-2.5 flex justify-between gap-4">
-                    <dt class="text-ink-muted">Program Al-Qur'an</dt>
-                    <dd class="font-semibold text-accent-brand text-right">Halaqah Bersanad (Rasio 1 : 10 s.d. 12)</dd>
-                  </div>
-                  <div class="py-2.5 flex justify-between gap-4">
-                    <dt class="text-ink-muted">Daya Tampung TA 2026/2027</dt>
-                    <dd class="font-mono font-semibold text-ink-primary text-right">462 Kursi (18 Rombel)</dd>
-                  </div>
-                  <div class="py-2.5 flex justify-between gap-4">
-                    <dt class="text-ink-muted">Kampus Terpadu</dt>
-                    <dd class="font-medium text-ink-secondary text-right">Arcamanik, Kota Bandung</dd>
-                  </div>
-                </dl>
-              </div>
-
-              <div class="pt-2 border-t border-hairline flex items-center justify-between gap-3 text-xs">
-                <span class="text-ink-muted">Pembayaran Satu Pintu VA Bank Syariah</span>
-                <a href="#unit" class="font-semibold text-accent-brand hover:underline">Lihat 5 Jenjang &rarr;</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================================================================
-         B. PROFIL & TATA KELOLA (Lapisan Tumpang Tindih + Struktur & Pusat Rujukan)
-         =================================================================== -->
-    <section id="profil" class="stack-section section-canvas">
-      <div class="stack-inner container-1100 space-y-12">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-          <div class="lg:col-span-7 space-y-2.5">
-            <span class="typo-label-caps block reveal-text" style="--stagger-delay: 0ms;">Profil &amp; Tata Kelola Lembaga</span>
-            <h2 class="typo-h2 reveal-text" style="--stagger-delay: 70ms;">Legalitas Badan Hukum &amp; Struktur Kepemimpinan</h2>
-            <p class="text-sm text-ink-secondary reveal-on-scroll" style="--stagger-delay: 140ms;">
-              Tata kelola Yayasan Pendidikan Islam Al-Mun'imiyah diselenggarakan berdasarkan Statuta Yayasan dengan pemisahan wewenang antara Dewan Pembina, Dewan Pengawas, Pengurus Harian, dan Kepala Satuan Pendidikan.
+          <div>
+            <span class="eyebrow-label">MDTA ASY SYIFA AL MUSRI' · Bojongsoang, Kab. Bandung</span>
+            <h1 id="login-heading" class="heading-xl" style="font-size:1.55rem;">Masuk Portal MDTA</h1>
+            <p class="text-muted" style="margin:6px 0 0;font-size:0.875rem;">
+              Gunakan akun Kepala Madrasah / Admin atau Guru untuk mengakses presensi santri, pelaporan harian, dan penilaian raport.
             </p>
           </div>
-          <div class="lg:col-span-5 reveal-on-scroll" style="--stagger-delay: 100ms;">
-            <div class="nextra-card glass-card !p-6 text-xs space-y-2.5">
-              <div class="flex justify-between gap-3">
-                <span class="text-ink-muted">SK Kemenkumham RI</span>
-                <strong class="text-ink-primary text-right">No. AHU-0019283.AH.01.04.Tahun 2015</strong>
-              </div>
-              <div class="flex justify-between gap-3">
-                <span class="text-ink-muted">Status Akreditasi</span>
-                <strong class="text-accent-brand text-right">Terakreditasi A (Unggul) BAN-PDM</strong>
-              </div>
-              <div class="flex justify-between gap-3">
-                <span class="text-ink-muted">Kedudukan</span>
-                <span id="profil-address" class="text-ink-secondary text-right">Jl. Pendidikan Terpadu No. 99, Arcamanik, Bandung</span>
-              </div>
+        </div>
+
+        <div id="api-status-banner" class="inline-alert inline-alert-info" role="status" style="margin-bottom:16px;flex-direction:column;gap:8px;" hidden>
+          <div style="display:flex;align-items:flex-start;gap:10px;width:100%;">
+            <span id="api-status-icon" style="display:inline-flex;flex-shrink:0;margin-top:2px;"></span>
+            <span id="api-status-text" style="font-size:0.8125rem;line-height:1.45;"></span>
+          </div>
+          <button id="btn-recheck-api" type="button" class="btn btn-secondary btn-sm" style="align-self:flex-start;" hidden>
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+            <span>Cek Ulang Koneksi Sistem</span>
+          </button>
+        </div>
+
+        <div id="login-error-box" class="inline-alert inline-alert-error" role="alert" style="margin-bottom:16px;" hidden>
+          <i data-lucide="alert-circle" aria-hidden="true" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;"></i>
+          <span id="login-error-msg"></span>
+        </div>
+
+        <form id="form-login" class="login-form" novalidate>
+          <div class="field-group">
+            <label class="field-label" for="login-username">Username</label>
+            <input
+              id="login-username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              class="input-control"
+              placeholder="Masukkan username akun"
+              required
+            />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="login-password">Kata Sandi</label>
+            <div class="input-with-action">
+              <input
+                id="login-password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                class="input-control"
+                placeholder="Masukkan kata sandi"
+                required
+              />
+              <button
+                id="btn-toggle-password"
+                type="button"
+                class="input-action-btn"
+                aria-pressed="false"
+                aria-label="Tampilkan kata sandi"
+              >
+                <i data-lucide="eye" aria-hidden="true"></i>
+              </button>
             </div>
           </div>
-        </div>
 
-        <!-- Struktur Pimpinan dalam Grid 3 Kolom -->
-        <div id="profil-struktur-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" aria-live="polite">
-          <div class="nextra-card text-sm text-ink-muted">Memuat data struktur kepemimpinan yayasan...</div>
-        </div>
-
-        <!-- 1 Kartu Horizontal Elegan: Pusat Rujukan Regulasi & Pengetahuan Terpadu (Glassmorphism) -->
-        <div class="nextra-card glass-card notice-accent flex flex-col lg:flex-row lg:items-center justify-between gap-8 reveal-on-scroll">
-          <div class="space-y-2 max-w-2xl">
-            <span class="typo-label-caps">Rujukan Internal Pimpinan &amp; Tenaga Pendidik</span>
-            <h3 class="typo-h3">Pusat Rujukan Regulasi &amp; Pengetahuan Terpadu</h3>
-            <p class="text-sm text-ink-secondary">
-              Akses repositori terpadu yang memuat Statuta Yayasan, Tabel Master Biaya, Petunjuk Teknis PPDB, serta Kurikulum Khas untuk mendukung ketepatan tata kelola akademik.
-            </p>
-          </div>
-          <div class="shrink-0">
-            <a href="https://notebook.google.com/notebook/d91f8286-480c-4d3b-882a-c13c6ee5fb55?authuser=2" target="_blank" rel="noopener" class="btn-with-icon group no-underline" title="Buka Pusat Rujukan Regulasi Terpadu di Google NotebookLM">
-              <span class="relative z-10 whitespace-nowrap">
-                Buka Pusat Rujukan Regulasi Terpadu
-              </span>
-              <div class="btn-icon-circle" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </div>
-            </a>
-          </div>
-        </div>
+          <button id="btn-login-submit" type="submit" class="btn btn-primary" style="width:100%;margin-top:4px;">
+            <i data-lucide="log-in" aria-hidden="true"></i>
+            <span>Masuk ke Sistem</span>
+          </button>
+        </form>
       </div>
     </section>
 
-    <!-- ===================================================================
-         C. UNIT PENDIDIKAN (Lapisan Tumpang Tindih + 5 Jenjang Seragam)
-         =================================================================== -->
-    <section id="unit" class="stack-section section-band">
-      <div class="stack-inner container-1100 space-y-12">
-        <div class="max-w-2xl space-y-2.5">
-          <span class="typo-label-caps block reveal-text" style="--stagger-delay: 0ms;">Satuan Pendidikan Terpadu</span>
-          <h2 class="typo-h2 reveal-text" style="--stagger-delay: 70ms;">Lima Jenjang Pendidikan Berakreditasi A (Unggul)</h2>
-          <p class="text-sm text-ink-secondary reveal-on-scroll" style="--stagger-delay: 140ms;">
-            Setiap jenjang dirancang dengan jam belajar efektif yang proporsional, target capaian tahfidz Al-Qur'an bersanad, serta muatan sains dan teknologi terapan.
-          </p>
+    <!-- =================================================================
+         PORTAL KEPALA MADRASAH / ADMIN (5 TAB UTAMA + 2 KALKULATOR)
+         ================================================================= -->
+    <section id="view-admin" class="view-panel" aria-labelledby="admin-portal-heading" hidden>
+      <div class="page-header page-header-row no-print">
+        <div class="page-header-title-wrap">
+          <div class="admin-eyebrow-row">
+            <span class="eyebrow-label">Kepala Madrasah &amp; Tata Usaha</span>
+            <span id="admin-live-sync-badge" class="live-sync-badge is-active" role="status" aria-live="polite" title="Pembaruan otomatis setiap 5 detik">
+              <span class="live-sync-dot" aria-hidden="true"></span>
+              <span id="admin-live-sync-label">Live Sync Aktif</span>
+            </span>
+          </div>
+          <h1 id="admin-portal-heading" class="heading-xl">Portal Kepala Madrasah MDTA</h1>
         </div>
-
-        <!-- Grid 5 Kartu Unit Pendidikan -->
-        <div id="unit-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" aria-live="polite">
-          <div class="nextra-card text-sm text-ink-muted">Memuat informasi lima satuan pendidikan...</div>
+        <div id="admin-calc-switcher" class="admin-calc-switcher" role="group" aria-label="Alat Hitung Penilaian">
+          <button id="btn-open-admin-uas" type="button" class="btn btn-secondary btn-sm admin-calc-btn" data-admin-calc="uas" aria-pressed="false">
+            <i data-lucide="calculator" aria-hidden="true"></i>
+            <span>Kalkulator UAS</span>
+          </button>
+          <button id="btn-open-admin-raport" type="button" class="btn btn-secondary btn-sm admin-calc-btn" data-admin-calc="raport" aria-pressed="false">
+            <i data-lucide="clipboard-list" aria-hidden="true"></i>
+            <span>Kalkulator Raport</span>
+          </button>
         </div>
       </div>
-    </section>
 
-    <!-- ===================================================================
-         D. INFORMASI PPDB (Lapisan Tumpang Tindih + Tabel Biaya, Simulator, Form, Kuota)
-         =================================================================== -->
-    <section id="ppdb" class="stack-section section-canvas">
-      <div class="stack-inner container-1100 space-y-14">
-        <div class="max-w-2xl space-y-2.5">
-          <span class="typo-label-caps block reveal-text" style="--stagger-delay: 0ms;">Penerimaan Peserta Didik Baru (TA 2026/2027)</span>
-          <h2 class="typo-h2 reveal-text" style="--stagger-delay: 70ms;">Biaya Pendidikan, Beasiswa, dan Pendaftaran Online</h2>
-          <p class="text-sm text-ink-secondary reveal-on-scroll" style="--stagger-delay: 140ms;">
-            Informasi resmi rincian biaya masuk, ketentuan keringanan sesuai Statuta Pasal 9 Ayat (5), serta layanan formulir pendaftaran daring.
-          </p>
-        </div>
-
-        <!-- 1. Tabel Biaya Pendidikan TA 2026/2027 -->
-        <div class="nextra-card !p-0 overflow-hidden reveal-on-scroll">
-          <div class="p-6 sm:p-8 border-b border-hairline flex flex-wrap items-center justify-between gap-4">
+      <!-- TAB 1: BERANDA KEPALA MADRASAH -->
+      <div id="admin-panel-dashboard" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="admin-tab-dashboard">
+        <!-- Bar Kontrol Tanggal, Kelas & Mode Laporan -->
+        <section class="surface-card stack-gap kepsek-control-card no-print">
+          <div class="card-spotlight-layer" aria-hidden="true"></div>
+          <div class="section-toolbar" style="margin-bottom:0;">
             <div>
-              <h3 class="typo-h3">Tabel Biaya Pendidikan Tahun Ajaran 2026/2027</h3>
-              <p class="text-xs text-ink-muted mt-1">SK Pengurus Yayasan No. 002/SK-KEU/YPIA/I/2026 &middot; SPP bulanan mencakup kegiatan KBM Full Day, ekstrakurikuler wajib, dan Klinik Tahsin</p>
+              <h2 class="heading-lg">Beranda Laporan</h2>
+              <p id="dashboard-last-updated" class="text-muted kepsek-subtitle"></p>
             </div>
-            <span class="badge-accent">Tahun Ajaran 2026/2027</span>
+            <div class="toolbar-actions">
+              <button id="btn-refresh-dashboard" type="button" class="btn btn-primary btn-sm">
+                <i data-lucide="refresh-cw" aria-hidden="true"></i>
+                <span>Perbarui</span>
+              </button>
+            </div>
           </div>
-          <div class="overflow-x-auto table-responsive-wrapper px-3 sm:px-6 py-2">
-            <table class="table-modern min-w-[580px]">
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label" for="kepsek-filter-tanggal">Tanggal</label>
+              <input id="kepsek-filter-tanggal" type="date" class="input-control" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="kepsek-filter-kelas">Kelas</label>
+              <select id="kepsek-filter-kelas" class="select-control">
+                <option value="">Semua Kelas</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="kepsek-program-pills" class="filter-chip-row" role="group" aria-label="Filter kategori program">
+            <button type="button" class="filter-chip" data-program-filter="" aria-pressed="true">Semua Program</button>
+            <button type="button" class="filter-chip" data-program-filter="Diniyyah" aria-pressed="false">Diniyyah (Resmi)</button>
+            <button type="button" class="filter-chip" data-program-filter="Tahfidz" aria-pressed="false">Tahfidz</button>
+            <button type="button" class="filter-chip" data-program-filter="Tarikh" aria-pressed="false">Tarikh</button>
+            <button type="button" class="filter-chip" data-program-filter="Wustho" aria-pressed="false">Wustho</button>
+          </div>
+
+          <div id="kepsek-report-tabs" class="report-mode-tabs" role="group" aria-label="Jenis laporan harian">
+            <button id="btn-kepsek-mode-absensi" type="button" class="report-mode-btn" data-kepsek-mode="absensi" aria-pressed="true">
+              <i data-lucide="calendar-check-2" aria-hidden="true"></i>
+              <span>Laporan Absensi</span>
+              <span id="kepsek-absensi-count" class="mode-count-pill mono-num">0</span>
+            </button>
+            <button id="btn-kepsek-mode-nilai" type="button" class="report-mode-btn" data-kepsek-mode="nilai" aria-pressed="false">
+              <i data-lucide="award" aria-hidden="true"></i>
+              <span>Laporan Nilai</span>
+              <span id="kepsek-nilai-count" class="mode-count-pill mono-num">0</span>
+            </button>
+            <button id="btn-kepsek-mode-guru" type="button" class="report-mode-btn" data-kepsek-mode="guru" aria-pressed="false">
+              <i data-lucide="user-check" aria-hidden="true"></i>
+              <span>Monitoring Guru</span>
+              <span id="kepsek-guru-count" class="mode-count-pill mono-num">0</span>
+            </button>
+          </div>
+
+          <div id="kepsek-kelas-subtabs" class="kelas-subtabs-bar" role="group" aria-label="Filter cepat kelas" hidden></div>
+        </section>
+
+        <div id="kepsek-backend-notice" class="inline-alert inline-alert-warn no-print" role="status" hidden>
+          <i data-lucide="info" aria-hidden="true" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;"></i>
+          <span id="kepsek-backend-notice-msg"></span>
+        </div>
+
+        <!-- A. PANEL TERPISAH: LAPORAN ABSENSI HARIAN -->
+        <div id="kepsek-absensi-panel" class="stack-gap no-print">
+          <section id="kepsek-overview-section" class="surface-card stack-gap" hidden>
+            <div class="card-spotlight-layer" aria-hidden="true"></div>
+            <div class="section-toolbar" style="margin-bottom:0;">
+              <h3 class="heading-md">Ringkasan Kehadiran</h3>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom:0;" aria-label="Ringkasan absensi harian">
+              <article class="sub-surface stat-card">
+                <div class="stat-card-top">
+                  <span class="stat-label">Hadir</span>
+                  <span class="stat-icon-pill status-hadir">
+                    <i data-lucide="check-circle-2" aria-hidden="true" style="width:18px;height:18px;"></i>
+                  </span>
+                </div>
+                <div id="stat-hadir" class="stat-value">-</div>
+                <div id="stat-hadir-foot" class="stat-foot"></div>
+              </article>
+
+              <article class="sub-surface stat-card">
+                <div class="stat-card-top">
+                  <span class="stat-label">Sakit</span>
+                  <span class="stat-icon-pill status-sakit">
+                    <i data-lucide="thermometer" aria-hidden="true" style="width:18px;height:18px;"></i>
+                  </span>
+                </div>
+                <div id="stat-sakit" class="stat-value">-</div>
+                <div id="stat-sakit-foot" class="stat-foot"></div>
+              </article>
+
+              <article class="sub-surface stat-card">
+                <div class="stat-card-top">
+                  <span class="stat-label">Izin</span>
+                  <span class="stat-icon-pill status-izin">
+                    <i data-lucide="file-check-2" aria-hidden="true" style="width:18px;height:18px;"></i>
+                  </span>
+                </div>
+                <div id="stat-izin" class="stat-value">-</div>
+                <div id="stat-izin-foot" class="stat-foot"></div>
+              </article>
+
+              <article class="sub-surface stat-card">
+                <div class="stat-card-top">
+                  <span class="stat-label">Alpa</span>
+                  <span class="stat-icon-pill status-alpa">
+                    <i data-lucide="x-circle" aria-hidden="true" style="width:18px;height:18px;"></i>
+                  </span>
+                </div>
+                <div id="stat-alpa" class="stat-value">-</div>
+                <div id="stat-alpa-foot" class="stat-foot"></div>
+              </article>
+            </div>
+          </section>
+
+          <section id="kepsek-absensi-section" class="surface-card stack-gap">
+            <div class="card-spotlight-layer" aria-hidden="true"></div>
+            <div class="section-toolbar" style="margin-bottom:0;">
+              <h3 class="heading-md">Laporan Absensi Per Kelas</h3>
+              <div class="toolbar-actions">
+                <button id="btn-admin-clear-presensi-harian" type="button" class="btn btn-danger btn-sm">
+                  <i data-lucide="trash-2" aria-hidden="true"></i>
+                  <span>Bersihkan Log Harian</span>
+                </button>
+              </div>
+            </div>
+            <div id="kepsek-absensi-container" class="stack-gap"></div>
+          </section>
+
+          <section id="kepsek-riwayat-section" class="surface-card stack-gap" hidden>
+            <div class="card-spotlight-layer" aria-hidden="true"></div>
+            <div class="section-toolbar" style="margin-bottom:0;">
+              <h3 class="heading-md">Riwayat Absensi</h3>
+              <div id="admin-riwayat-status-filters" class="filter-chip-row" role="group" aria-label="Filter status absensi">
+                <button type="button" class="filter-chip" data-status-filter="Semua" aria-pressed="true">Semua</button>
+                <button type="button" class="filter-chip" data-status-filter="Hadir" aria-pressed="false">Hadir</button>
+                <button type="button" class="filter-chip" data-status-filter="Sakit" aria-pressed="false">Sakit</button>
+                <button type="button" class="filter-chip" data-status-filter="Izin" aria-pressed="false">Izin</button>
+                <button type="button" class="filter-chip" data-status-filter="Alpa" aria-pressed="false">Alpa</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label sr-only" for="admin-riwayat-search">Cari riwayat absensi</label>
+              <input id="admin-riwayat-search" type="search" class="input-control" placeholder="Cari nama santri, kelas, atau guru..." />
+            </div>
+
+            <div class="table-scroll mobile-cards-wrap">
+              <table class="data-table mobile-cards-table mobile-cards-generic">
+                <thead>
+                  <tr>
+                    <th>Nama Santri</th>
+                    <th>Kelas</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-riwayat-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- B. PANEL TERPISAH: LAPORAN NILAI HARIAN -->
+        <div id="kepsek-nilai-panel" class="stack-gap no-print" hidden>
+          <section id="kepsek-nilai-section" class="surface-card stack-gap">
+            <div class="card-spotlight-layer" aria-hidden="true"></div>
+            <div class="section-toolbar" style="margin-bottom:0;">
+              <h3 class="heading-md">Laporan Nilai Per Kelas</h3>
+            </div>
+            <div id="kepsek-nilai-container" class="stack-gap"></div>
+          </section>
+        </div>
+
+        <!-- C. PANEL TERPISAH: MONITORING GURU & MATERI HARIAN -->
+        <div id="kepsek-guru-panel" class="stack-gap no-print" hidden>
+          <section class="surface-card stack-gap">
+            <div class="card-spotlight-layer" aria-hidden="true"></div>
+            <div class="section-toolbar" style="margin-bottom:0;">
+              <div>
+                <h3 class="heading-md">Monitoring Kehadiran &amp; Materi Guru</h3>
+                <p class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Pantau jam masuk, materi yang diajarkan hari ini, dan berikan catatan evaluasi Kepala Madrasah.</p>
+              </div>
+            </div>
+            <div id="kepsek-guru-container" class="guru-monitoring-grid"></div>
+          </section>
+        </div>
+      </div>
+
+      <!-- TAB 2: DATABASE SANTRI -->
+      <div id="admin-panel-santri" class="tab-panel" role="tabpanel" aria-labelledby="admin-tab-santri" hidden>
+        <section class="surface-card stack-gap">
+          <div class="card-spotlight-layer" aria-hidden="true"></div>
+          <div class="section-toolbar" style="margin-bottom:0;">
+            <div>
+              <h2 class="heading-lg">Database Santri MDTA</h2>
+              <p id="santri-count-label" class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Memuat data santri...</p>
+            </div>
+            <div class="toolbar-actions">
+              <button id="btn-refresh-santri" type="button" class="btn btn-secondary">
+                <i data-lucide="refresh-cw" aria-hidden="true"></i>
+                <span>Muat Ulang</span>
+              </button>
+              <button id="btn-add-santri" type="button" class="btn btn-accent">
+                <i data-lucide="plus" aria-hidden="true"></i>
+                <span>Tambah Santri</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label" for="santri-search-input">Pencarian Real-Time</label>
+              <input id="santri-search-input" type="search" class="input-control" placeholder="Ketik nama santri, nama ayah kandung, ID, NIS, NIK, TTL, kelas, no WA, atau QR token..." />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="santri-kelas-filter">Filter Kelas</label>
+              <select id="santri-kelas-filter" class="select-control">
+                <option value="">Semua Kelas</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="santri-bulk-bar" class="santri-bulk-bar" hidden>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <i data-lucide="check-square" aria-hidden="true" style="width:18px;height:18px;"></i>
+              <strong id="santri-bulk-count">0 santri dipilih</strong>
+            </div>
+            <div class="toolbar-actions" style="flex:1 1 auto;justify-content:flex-end;">
+              <select id="santri-bulk-target-kelas" class="select-control" aria-label="Pilih kelas tujuan pemindahan" style="max-width:220px;"></select>
+              <button id="btn-bulk-move-kelas" type="button" class="btn btn-primary btn-sm">
+                <i data-lucide="arrow-right-left" aria-hidden="true"></i>
+                <span>Pindahkan Kelas</span>
+              </button>
+              <button id="btn-bulk-clear-select" type="button" class="btn btn-secondary btn-sm">Batal</button>
+            </div>
+          </div>
+
+          <div class="table-scroll mobile-cards-wrap">
+            <table class="data-table mobile-cards-table mobile-cards-santri">
               <thead>
                 <tr>
-                  <th scope="col" class="text-left">Jenjang Pendidikan</th>
-                  <th scope="col" class="text-right">Biaya Formulir</th>
-                  <th scope="col" class="text-right">Uang Pangkal (DPP)</th>
-                  <th scope="col" class="text-right">Perlengkapan &amp; Kegiatan</th>
-                  <th scope="col" class="text-right">SPP Bulanan</th>
-                  <th scope="col" class="text-right">Total Awal Masuk</th>
+                  <th style="width:42px;"><input id="santri-select-all" type="checkbox" aria-label="Pilih semua santri" /></th>
+                  <th>Nama Lengkap</th>
+                  <th>Nama Ayah Kandung</th>
+                  <th>Kelas</th>
+                  <th>Status</th>
+                  <th style="width:200px;">Aksi</th>
                 </tr>
               </thead>
-              <tbody id="fee-master-tbody">
-                <tr>
-                  <td colspan="6" class="text-center text-ink-muted py-6">Memuat tabel rincian biaya pendidikan...</td>
-                </tr>
-              </tbody>
+              <tbody id="admin-santri-tbody"></tbody>
             </table>
           </div>
-        </div>
+        </section>
+      </div>
 
-        <!-- 2. Ringkasan Ketentuan Beasiswa & Diskon Statuta Pasal 9 Ayat (5) -->
-        <div class="space-y-6">
-          <div class="flex flex-wrap items-end justify-between gap-4">
+      <!-- TAB 3: REKAP LAPORAN -->
+      <div id="admin-panel-rekap" class="tab-panel" role="tabpanel" aria-labelledby="admin-tab-rekap" hidden>
+        <section class="surface-card stack-gap">
+          <div class="card-spotlight-layer" aria-hidden="true"></div>
+
+          <div class="section-toolbar no-print" style="margin-bottom:0;">
             <div>
-              <span class="typo-label-caps block reveal-text" style="--stagger-delay: 0ms;">Statuta Yayasan Pasal 9 Ayat (5)</span>
-              <h3 class="typo-h3 mt-1 reveal-text" style="--stagger-delay: 60ms;">Ketentuan Beasiswa &amp; Diskon Biaya Pendidikan</h3>
+              <h2 class="heading-lg">Rekap Laporan Presensi Bulanan</h2>
+              <p id="rekap-period-label" class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Gunakan pencarian atau filter untuk menampilkan rekap presensi bulanan.</p>
             </div>
-            <span class="text-xs text-ink-secondary reveal-on-scroll" style="--stagger-delay: 100ms;">Kategori khusus bersifat <em>mutually exclusive</em> (diambil 1 persentase tertinggi) dan dapat digabung dengan diskon gelombang</span>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div class="nextra-card space-y-2 reveal-on-scroll" style="--stagger-delay: 0ms;">
-              <span class="badge-accent">20% DPP</span>
-              <h4 class="text-base font-semibold text-ink-primary pt-1">Alumni Satuan Pendidikan YPIA</h4>
-              <p class="text-xs text-ink-secondary leading-relaxed">
-                Potongan 20% Uang Pangkal (DPP) bagi lulusan internal PG, TK, SDIT, atau SMPIT Al-Mun'imiyah yang melanjutkan ke jenjang berikutnya.
-              </p>
-            </div>
-
-            <div class="nextra-card space-y-2 reveal-on-scroll" style="--stagger-delay: 55ms;">
-              <span class="badge-accent">10% DPP + 5% SPP</span>
-              <h4 class="text-base font-semibold text-ink-primary pt-1">Saudara Kandung Siswa Aktif</h4>
-              <p class="text-xs text-ink-secondary leading-relaxed">
-                Potongan 10% DPP dan 5% SPP bulanan bagi calon peserta didik yang memiliki kakak atau adik kandung berstatus siswa aktif di YPIA.
-              </p>
-            </div>
-
-            <div class="nextra-card space-y-2 reveal-on-scroll" style="--stagger-delay: 110ms;">
-              <span class="badge-accent">50% s.d. 100% DPP</span>
-              <h4 class="text-base font-semibold text-ink-primary pt-1">Prestasi Tahfidz (5 &amp; 10 Juz)</h4>
-              <p class="text-xs text-ink-secondary leading-relaxed">
-                Khusus pendaftar SMPIT dan SMAIT: keringanan 50% DPP untuk hafalan mutqin 5 Juz, atau bebas 100% DPP + 50% SPP untuk hafalan 10 Juz.
-              </p>
-            </div>
-
-            <div class="nextra-card space-y-2 reveal-on-scroll" style="--stagger-delay: 165ms;">
-              <span class="badge-accent">Gelombang &amp; Pelunasan</span>
-              <h4 class="text-base font-semibold text-ink-primary pt-1">Diskon Gelombang &amp; Pelunasan Awal</h4>
-              <p class="text-xs text-ink-secondary leading-relaxed">
-                Gelombang 1 (15% DPP), Gelombang 2 (8% DPP), Gelombang 3 (Normal), ditambah potongan 3% DPP untuk pelunasan langsung di awal.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. Jadwal 3 Gelombang & Checklist Dokumen Persyaratan PPDB -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <!-- Kolom Kiri: Timeline & Jadwal 3 Gelombang (Doc 03 Bagian I) -->
-          <div class="lg:col-span-6 nextra-card space-y-5 reveal-on-scroll">
-            <div class="border-b border-hairline pb-4 flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <span class="typo-label-caps">Timeline Resmi PPDB (SOP Dokumen 03)</span>
-                <h3 class="typo-h3 mt-1">Jadwal &amp; Tahapan Seleksi Tiga Gelombang</h3>
-              </div>
-              <span class="badge-accent">Tahun Ajaran 2026/2027</span>
-            </div>
-
-            <div class="space-y-3.5 text-xs">
-              <div class="sub-surface p-4 space-y-1.5">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary text-sm font-semibold">Gelombang 1 (Early Bird)</strong>
-                  <span class="badge-accent">Diskon 15% DPP</span>
-                </div>
-                <p class="text-ink-secondary"><strong>Pendaftaran:</strong> 1 Oktober &ndash; 12 Desember 2025</p>
-                <p class="text-ink-secondary"><strong>Observasi / Seleksi:</strong> Sabtu, 15 November &amp; 14 Desember 2025 (2 Sesi)</p>
-                <p class="text-ink-secondary"><strong>Pengumuman:</strong> 19 Desember 2025 &middot; <strong>Daftar Ulang:</strong> 19 &ndash; 30 Desember 2025</p>
-              </div>
-
-              <div class="sub-surface p-4 space-y-1.5">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary text-sm font-semibold">Gelombang 2 (Reguler I)</strong>
-                  <span class="badge-accent">Diskon 8% DPP</span>
-                </div>
-                <p class="text-ink-secondary"><strong>Pendaftaran:</strong> 5 Januari &ndash; 13 Maret 2026</p>
-                <p class="text-ink-secondary"><strong>Observasi / Seleksi:</strong> Sabtu, 14 Februari &amp; 15 Maret 2026 (2 Sesi)</p>
-                <p class="text-ink-secondary"><strong>Pengumuman:</strong> 20 Maret 2026 &middot; <strong>Daftar Ulang:</strong> 20 &ndash; 31 Maret 2026</p>
-              </div>
-
-              <div class="sub-surface p-4 space-y-1.5">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary text-sm font-semibold">Gelombang 3 (Reguler II)</strong>
-                  <span class="badge-pill">Tarif Normal</span>
-                </div>
-                <p class="text-ink-secondary"><strong>Pendaftaran:</strong> 1 April &ndash; 12 Juni 2026 (ditutup otomatis jika kuota 100% penuh)</p>
-                <p class="text-ink-secondary"><strong>Observasi / Seleksi:</strong> Sabtu, 16 Mei &amp; 14 Juni 2026 (2 Sesi)</p>
-                <p class="text-ink-secondary"><strong>Pengumuman:</strong> 18 Juni 2026 &middot; <strong>Daftar Ulang:</strong> 18 &ndash; 26 Juni 2026</p>
-              </div>
-
-              <div class="notice-accent rounded-2xl p-4 space-y-1.5">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary text-sm font-semibold">Jalur Khusus Inden &amp; Awal KBM</strong>
-                  <span class="badge-accent">Alumni &amp; Prestasi</span>
-                </div>
-                <p><strong>Pendaftaran Inden:</strong> 1 &ndash; 30 September 2025 &middot; <strong>Daftar Ulang:</strong> 10 &ndash; 20 Oktober 2025</p>
-                <p><strong>Pengukuran Seragam:</strong> Mei &ndash; Juni 2026 &middot; <strong>MPLS &amp; Hari Pertama KBM:</strong> Senin, 13 Juli 2026</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Kolom Kanan: Checklist 12 Berkas Administrasi (Doc 03 Bagian V) -->
-          <div class="lg:col-span-6 nextra-card glass-card space-y-5 reveal-on-scroll" style="--stagger-delay: 80ms;">
-            <div class="border-b border-hairline pb-4 flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <span class="typo-label-caps">Checklist Dokumen PPDB (SOP Dokumen 03)</span>
-                <h3 class="typo-h3 mt-1">12 Persyaratan Berkas Administrasi</h3>
-              </div>
-              <span class="badge-accent">SOP No. 003/SOP-PPDB/2026</span>
-            </div>
-
-            <div class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1 text-xs">
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">1. Scan Akta Kelahiran Asli</strong>
-                  <span class="badge-accent">Wajib Mutlak (Semua Jenjang)</span>
-                </div>
-                <p class="text-ink-secondary">Validasi batas usia calon peserta didik per 1 Juli 2026.</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">2. Scan Kartu Keluarga (KK) Terbaru</strong>
-                  <span class="badge-accent">Wajib Mutlak (Semua Jenjang)</span>
-                </div>
-                <p class="text-ink-secondary">Data domisili calon siswa &amp; bukti klaim Diskon Saudara Kandung (Sibling).</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">3. Scan KTP Orang Tua / Wali Sah</strong>
-                  <span class="badge-accent">Wajib Mutlak (Semua Jenjang)</span>
-                </div>
-                <p class="text-ink-secondary">Identitas penanggung jawab finansial &amp; penerbitan Virtual Account resmi.</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">4. Pasfoto Berwarna Terbaru (3x4)</strong>
-                  <span class="badge-accent">Wajib Mutlak (Semua Jenjang)</span>
-                </div>
-                <p class="text-ink-secondary">Latar merah/biru, berpakaian rapi &amp; sopan (putri SD-SMA wajib berjilbab).</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">5. Kartu Imunisasi / Riwayat Kesehatan</strong>
-                  <span class="badge-pill">Wajib PG, TK, SD</span>
-                </div>
-                <p class="text-ink-secondary">Data rekam medis Unit Kesehatan Sekolah (UKS) &amp; pemantauan tumbuh kembang.</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">6. Surat Rekomendasi Tertulis Psikolog</strong>
-                  <span class="badge-pill">Kondisional SDIT</span>
-                </div>
-                <p class="text-ink-secondary">Wajib bagi calon siswa SDIT berusia 5 tahun 8 bulan s.d. 5 tahun 11 bulan per 1 Juli 2026.</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">7. Scan Rapor 2 Semester Terakhir</strong>
-                  <span class="badge-pill">Wajib SMP &amp; SMA</span>
-                </div>
-                <p class="text-ink-secondary">Rapor Kelas 5 &amp; 6 (untuk SMPIT) atau Rapor Kelas 8 &amp; 9 (untuk SMAIT).</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">8. Surat Keterangan NISN Aktif</strong>
-                  <span class="badge-pill">Wajib SMP &amp; SMA</span>
-                </div>
-                <p class="text-ink-secondary">Validasi data NISN siswa pada sistem Dapodik Kemendikdasmen.</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">9. Scan Ijazah / Surat Keterangan Lulus (SKL)</strong>
-                  <span class="badge-pill">SMP &amp; SMA (Menyusul)</span>
-                </div>
-                <p class="text-ink-secondary">Diserahkan maksimal 30 Juni 2026 setelah pengumuman kelulusan sekolah asal.</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">10. Sertifikat Tahfidz / Piagam Prestasi</strong>
-                  <span class="badge-pill">Jalur Beasiswa Tahfidz</span>
-                </div>
-                <p class="text-ink-secondary">Bukti awal hafalan mutqin &ge; 5 Juz sebelum Uji Tasmi' Sekali Duduk YPIA.</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">11. Nomor Induk Siswa (NIS) Internal YPIA</strong>
-                  <span class="badge-pill">Jalur Alumni YPIA</span>
-                </div>
-                <p class="text-ink-secondary">Syarat verifikasi otomatis potongan 20% Uang Pangkal (DPP) Alumni.</p>
-              </div>
-
-              <div class="sub-surface p-3 space-y-1">
-                <div class="flex items-center justify-between gap-2">
-                  <strong class="text-ink-primary font-semibold">12. SKTM Kelurahan &amp; Akta Kematian</strong>
-                  <span class="badge-pill">Jalur Afirmasi Yatim</span>
-                </div>
-                <p class="text-ink-secondary">Syarat beasiswa penuh 100% Yatim/Dhuafa (kuota 5% didanai ZISWAF Yayasan).</p>
-              </div>
-            </div>
-
-            <div class="pt-3 border-t border-hairline text-xs text-ink-secondary">
-              <p>Amanat Statuta Pasal 8 Ayat (2): Seleksi masuk PG, TK, dan SDIT <strong class="text-ink-primary">Dilarang Menggunakan Tes Calistung</strong>.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Bagian Pendaftaran Online (Formulir Daring Terpadu + Monitoring Kuota Kursi) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div class="lg:col-span-7 nextra-card glass-card space-y-6 reveal-on-scroll">
-            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-hairline pb-4">
-              <div>
-                <span class="typo-label-caps">Formulir Daring Terpadu PPDB TA 2026/2027</span>
-                <h3 class="typo-h3 mt-1">Pendaftaran Siswa Baru Online</h3>
-                <p class="text-xs text-ink-muted mt-1">Tersinkronisasi otomatis ke Basis Data &amp; Buku Kendali Kuota Yayasan</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <a href="https://docs.google.com/forms/d/1yXFsxZxj3GBaQZ253uA516KGcuKR0bjGobmQpNedj_Y/viewform" target="_blank" rel="noopener" class="btn-secondary !py-2 !px-3.5 !text-xs" title="Buka formulir di tab baru Google Forms">
-                  <span>Buka Formulir Penuh ↗</span>
-                </a>
-              </div>
-            </div>
-
-            <!-- Banner Konfirmasi Berhasil Kirim Form (Monochrome Minimalist Glass) -->
-            <div id="ppdb-success-banner" class="hidden notice-accent glass-card rounded-2xl p-5 border border-zinc-300 dark:border-zinc-700 space-y-3.5 transition-all">
-              <div class="flex items-start gap-3">
-                <div class="w-9 h-9 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0 shadow-sm">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </div>
-                <div class="space-y-1">
-                  <span class="text-[11px] font-bold text-ink-primary uppercase tracking-wider">Pendaftaran Berhasil Dikirim</span>
-                  <h4 class="text-base font-bold text-ink-primary">Data Calon Siswa Telah Masuk ke Sistem PPDB</h4>
-                  <p class="text-xs text-ink-secondary leading-relaxed">
-                    Data formulir pendaftaran telah berhasil dicatat ke basis data Google Forms &amp; Spreadsheet panitia PPDB Yayasan Pendidikan Islam Al-Mun'imiyah.
-                  </p>
-                </div>
-              </div>
-              <div id="ppdb-success-summary" class="sub-surface p-3.5 rounded-xl text-xs space-y-1.5 font-mono"></div>
-              <div class="flex flex-wrap items-center gap-2 pt-1">
-                <a id="ppdb-wa-confirm-btn" href="#" target="_blank" rel="noopener" class="btn-secondary !py-2 !px-3.5 !text-xs !bg-black !text-white dark:!bg-white dark:!text-black border-0 flex items-center gap-1.5 shadow-sm">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                  </svg>
-                  <span>Konfirmasi via WhatsApp Panitia ↗</span>
-                </a>
-                <button type="button" id="btn-reset-ppdb-banner" class="btn-secondary !py-2 !px-3 !text-xs">
-                  <span>Daftarkan Siswa Lain</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Form Native Terpadu -->
-            <form
-              id="ppdb-online-form"
-              action="https://docs.google.com/forms/d/e/1FAIpQLSeYFTTWE3y8D9O_Q3IXDNZ6x7QxFB_02IMNyntsuNkB8jAoHA/formResponse"
-              method="POST"
-              target="ppdb-hidden-iframe"
-              class="space-y-5"
-            >
-              <!-- Parameter Protokol Google Forms Multi-Page/Section (Wajib agar seluruh kolom terisi di Database) -->
-              <input type="hidden" name="fvv" value="1" />
-              <input type="hidden" name="pageHistory" value="0,1" />
-
-              <!-- Grup 1: Data Calon Siswa & Satuan Pendidikan -->
-              <div class="form-section-card space-y-4">
-                <div class="flex items-center justify-between border-b border-hairline pb-2.5">
-                  <span class="text-xs font-bold text-accent-brand uppercase tracking-wider">Bagian 1 &middot; Identitas Calon Siswa &amp; Jenjang</span>
-                  <span class="text-[11px] text-ink-muted font-mono">Wajib Diisi</span>
-                </div>
-
-                <div>
-                  <label for="ppdb-student-name" class="form-label">
-                    Nama Lengkap Calon Siswa <span class="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="ppdb-student-name"
-                    name="entry.8597841"
-                    required
-                    placeholder="Sesuai Akta Kelahiran (Contoh: Muhammad Fatih Rabbani)"
-                    class="form-control-modern"
-                  />
-                </div>
-
-                <div>
-                  <label class="form-label">
-                    Jenjang Pendidikan Tujuan <span class="text-rose-500">*</span>
-                  </label>
-                  <div class="grid grid-cols-5 gap-2" id="ppdb-unit-selector">
-                    <label class="form-radio-card" data-val="PG">
-                      <input type="radio" name="entry.886746899" value="PG" required />
-                      <span>PG</span>
-                    </label>
-                    <label class="form-radio-card" data-val="TK">
-                      <input type="radio" name="entry.886746899" value="TK" />
-                      <span>TK</span>
-                    </label>
-                    <label class="form-radio-card is-selected" data-val="SD">
-                      <input type="radio" name="entry.886746899" value="SD" checked />
-                      <span>SDIT</span>
-                    </label>
-                    <label class="form-radio-card" data-val="SMP">
-                      <input type="radio" name="entry.886746899" value="SMP" />
-                      <span>SMPIT</span>
-                    </label>
-                    <label class="form-radio-card" data-val="SMA">
-                      <input type="radio" name="entry.886746899" value="SMA" />
-                      <span>SMAIT</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="form-label">
-                    Gelombang Pendaftaran <span class="text-rose-500">*</span>
-                  </label>
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="ppdb-wave-selector">
-                    <label class="form-radio-card is-selected" data-val="Gelombang 1">
-                      <input type="radio" name="entry.1502592928" value="Gelombang 1" checked />
-                      <div class="text-left">
-                        <span class="block">Gelombang 1</span>
-                        <span class="text-[10px] opacity-75 font-normal">Diskon 15% DPP</span>
-                      </div>
-                    </label>
-                    <label class="form-radio-card" data-val="Gelombang 2">
-                      <input type="radio" name="entry.1502592928" value="Gelombang 2" />
-                      <div class="text-left">
-                        <span class="block">Gelombang 2</span>
-                        <span class="text-[10px] opacity-75 font-normal">Diskon 8% DPP</span>
-                      </div>
-                    </label>
-                    <label class="form-radio-card" data-val="Gelombang 3">
-                      <input type="radio" name="entry.1502592928" value="Gelombang 3" />
-                      <div class="text-left">
-                        <span class="block">Gelombang 3</span>
-                        <span class="text-[10px] opacity-75 font-normal">Tarif Normal</span>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Grup 2: Kebijakan Diskon Statuta & Skema Pembayaran -->
-              <div class="form-section-card space-y-4">
-                <div class="flex items-center justify-between border-b border-hairline pb-2.5">
-                  <span class="text-xs font-bold text-accent-brand uppercase tracking-wider">Bagian 2 &middot; Keringanan Biaya &amp; Skema Pelunasan</span>
-                  <span class="text-[11px] text-ink-muted">Statuta Ps. 9</span>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label for="ppdb-discount-cat" class="form-label">
-                      Kategori Diskon Statuta
-                    </label>
-                    <select id="ppdb-discount-cat" name="entry.1880708247" class="form-control-modern">
-                      <option value="Reguler / Umum" selected>Reguler / Umum</option>
-                      <option value="Alumni Internal TK/SD/SMP YPIA">Alumni Internal YPIA (Diskon 20% DPP)</option>
-                      <option value="Saudara Kandung (Sibling)">Saudara Kandung / Sibling (Diskon 10% DPP)</option>
-                      <option value="Afirmasi Yatim/Dhuafa">Afirmasi Yatim/Dhuafa (Beasiswa 100%)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label for="ppdb-tahfidz-cat" class="form-label">
-                      Klaim Beasiswa Prestasi Tahfidz
-                    </label>
-                    <select id="ppdb-tahfidz-cat" name="entry.447849860" class="form-control-modern">
-                      <option value="Tidak Ada" selected>Tidak Ada</option>
-                      <option value="Prestasi 5 Juz">Prestasi 5 Juz (Potongan 50% DPP)</option>
-                      <option value="Prestasi 10 Juz">Prestasi 10 Juz (Beasiswa Penuh DPP)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="form-label">Rencana Skema Pembayaran</label>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="ppdb-payment-selector">
-                    <label class="form-radio-card is-selected" data-val="LUNAS">
-                      <input type="radio" name="entry.1676886351" value="LUNAS" checked />
-                      <span>Pelunasan Sekaligus (Lunas)</span>
-                    </label>
-                    <label class="form-radio-card" data-val="CICILAN_3X">
-                      <input type="radio" name="entry.1676886351" value="CICILAN_3X" />
-                      <span>Cicilan 3x Termin Resmi</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Grup 3: Identitas Orang Tua / Penanggung Jawab -->
-              <div class="form-section-card space-y-4">
-                <div class="flex items-center justify-between border-b border-hairline pb-2.5">
-                  <span class="text-xs font-bold text-accent-brand uppercase tracking-wider">Bagian 3 &middot; Data Orang Tua / Wali</span>
-                  <span class="text-[11px] text-ink-muted">Kontak VA Resmi</span>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label for="ppdb-parent-name" class="form-label">
-                      Nama Orang Tua / Wali <span class="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="ppdb-parent-name"
-                      name="entry.2102236790"
-                      required
-                      placeholder="Contoh: Ir. H. Ahmad Sudrajat"
-                      class="form-control-modern"
-                    />
-                  </div>
-
-                  <div>
-                    <label for="ppdb-parent-phone" class="form-label">
-                      Nomor WhatsApp Aktif <span class="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      id="ppdb-parent-phone"
-                      name="entry.1381684453"
-                      required
-                      placeholder="081234567890"
-                      class="form-control-modern"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pemberitahuan Resmi -->
-              <div class="notice-accent rounded-xl p-3.5 text-xs text-ink-secondary flex items-start gap-2.5">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-accent-brand mt-0.5" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <p>
-                  Nomor registrasi unik beserta kode Virtual Account (VA) Bank Syariah Indonesia resmi yayasan akan diterbitkan dan dikirimkan secara otomatis ke nomor WhatsApp orang tua terdaftar.
-                </p>
-              </div>
-
-              <!-- Tombol Submit Form (Dengan ButtonWithIcon & Panah Sempurna) -->
-              <div class="pt-2">
-                <button
-                  type="submit"
-                  id="btn-submit-ppdb"
-                  class="btn-with-icon group w-full justify-center !text-sm !font-semibold !shadow-md cursor-pointer"
-                >
-                  <span id="btn-submit-ppdb-text">Kirim Formulir Pendaftaran Sekarang</span>
-                  <div class="btn-icon-circle" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </div>
-                </button>
-              </div>
-            </form>
-
-            <iframe name="ppdb-hidden-iframe" id="ppdb-hidden-iframe" class="hidden" title="Respon Formulir"></iframe>
-
-            <!-- Opsi Toggle Frame Asli Google Forms -->
-            <div class="pt-2 border-t border-hairline flex items-center justify-between text-xs">
-              <span class="text-ink-muted">Preferensi Tampilan:</span>
-              <button
-                type="button"
-                id="btn-toggle-google-frame"
-                class="text-accent-brand hover:underline font-medium"
-              >
-                Lihat Tampilan Google Forms Asli ↗
+            <div id="rekap-toolbar-actions" class="toolbar-actions" hidden>
+              <button id="btn-export-rekap-csv" type="button" class="btn btn-secondary">
+                <i data-lucide="file-spreadsheet" aria-hidden="true"></i>
+                <span>Ekspor CSV</span>
+              </button>
+              <button id="btn-print-rekap-pdf" type="button" class="btn btn-secondary">
+                <i data-lucide="printer" aria-hidden="true"></i>
+                <span>Cetak PDF (Per Halaman)</span>
+              </button>
+              <button id="btn-open-upload-pdf" type="button" class="btn btn-accent">
+                <i data-lucide="upload-cloud" aria-hidden="true"></i>
+                <span>Unggah PDF ke Drive</span>
               </button>
             </div>
+          </div>
 
-            <!-- Kontainer Frame Asli Google Forms (Tersembunyi secara bawaan) -->
-            <div id="google-forms-fallback-wrapper" class="hidden mt-4 pt-4 border-t border-hairline">
-              <div class="sub-surface w-full h-[640px] overflow-hidden rounded-2xl">
-                <iframe
-                  id="google-forms-iframe-el"
-                  data-src="https://docs.google.com/forms/d/1yXFsxZxj3GBaQZ253uA516KGcuKR0bjGobmQpNedj_Y/viewform?embedded=true"
-                  width="100%"
-                  height="640"
-                  class="w-full h-full border-0"
-                  loading="lazy"
-                  title="Formulir Pendaftaran Siswa Baru YPIA Asli">
-                  Memuat Formulir Google Forms...
-                </iframe>
+          <div id="rekap-mode-tabs" class="report-mode-tabs no-print" role="group" aria-label="Jenis rekap bulanan">
+            <button id="btn-rekap-mode-santri" type="button" class="report-mode-btn" data-rekap-mode="santri" aria-pressed="true">
+              <i data-lucide="users" aria-hidden="true"></i>
+              <span>Rekap Santri</span>
+            </button>
+            <button id="btn-rekap-mode-guru" type="button" class="report-mode-btn" data-rekap-mode="guru" aria-pressed="false">
+              <i data-lucide="book-check" aria-hidden="true"></i>
+              <span>Rekap Kehadiran &amp; Materi Guru</span>
+            </button>
+          </div>
+
+          <div id="rekap-program-pills" class="filter-chip-row no-print" role="group" aria-label="Filter kategori program rekap">
+            <button type="button" class="filter-chip" data-rekap-program="" aria-pressed="true">Semua Program</button>
+            <button type="button" class="filter-chip" data-rekap-program="Diniyyah" aria-pressed="false">Diniyyah (Resmi)</button>
+            <button type="button" class="filter-chip" data-rekap-program="Tahfidz" aria-pressed="false">Tahfidz</button>
+            <button type="button" class="filter-chip" data-rekap-program="Tarikh" aria-pressed="false">Tarikh</button>
+            <button type="button" class="filter-chip" data-rekap-program="Wustho" aria-pressed="false">Wustho</button>
+          </div>
+
+          <div class="sub-surface stack-gap no-print" style="gap:12px;">
+            <div class="form-grid">
+              <div class="field-group">
+                <label class="field-label" for="rekap-bulan">Bulan</label>
+                <select id="rekap-bulan" class="select-control">
+                  <option value="1">Januari</option>
+                  <option value="2">Februari</option>
+                  <option value="3">Maret</option>
+                  <option value="4">April</option>
+                  <option value="5">Mei</option>
+                  <option value="6">Juni</option>
+                  <option value="7">Juli</option>
+                  <option value="8">Agustus</option>
+                  <option value="9">September</option>
+                  <option value="10">Oktober</option>
+                  <option value="11">November</option>
+                  <option value="12">Desember</option>
+                </select>
               </div>
+              <div class="field-group">
+                <label class="field-label" for="rekap-tahun">Tahun</label>
+                <input id="rekap-tahun" type="number" min="2020" max="2099" class="input-control mono-num" />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="rekap-kelas-filter">Kelas</label>
+                <select id="rekap-kelas-filter" class="select-control">
+                  <option value="">Semua Kelas</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="rekap-search-input">Cari Santri</label>
+                <input id="rekap-search-input" type="search" class="input-control" placeholder="Ketik nama atau ID santri..." />
+              </div>
+            </div>
+            <div class="toolbar-actions" style="justify-content:flex-end;">
+              <button id="btn-reset-rekap" type="button" class="btn btn-secondary" hidden>
+                <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+                <span>Reset Filter</span>
+              </button>
+              <button id="btn-fetch-rekap" type="button" class="btn btn-primary">
+                <i data-lucide="search" aria-hidden="true"></i>
+                <span>Tampilkan Rekap</span>
+              </button>
             </div>
           </div>
 
-          <div class="lg:col-span-5 nextra-card glass-card lg:sticky lg:top-[92px] space-y-6 reveal-on-scroll" style="--stagger-delay: 80ms;">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <span class="typo-label-caps flex items-center gap-2">
-                  <span>Ketersediaan Daya Tampung</span>
-                  <span class="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-1.5 py-0.5 rounded-full">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Live Form Sync
-                  </span>
-                </span>
-                <h3 class="typo-h3 mt-1">Monitoring Kuota Kursi</h3>
-              </div>
-              <div class="flex items-center gap-2">
-                <span id="quota-badge-summary" class="badge-accent">Total 462 Kursi &middot; 22 Terisi</span>
-                <button id="btn-refresh-quota" type="button" class="btn-secondary !p-1.5 !rounded-full !h-8 !w-8 flex items-center justify-center shrink-0 cursor-pointer" title="Perbarui Data Kuota dari Google Sheets Respon Form" aria-label="Perbarui Kuota Realtime">
-                  <svg id="refresh-quota-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-500">
-                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
+          <div id="rekap-kelas-subtabs" class="kelas-subtabs-bar no-print" role="group" aria-label="Filter sub-tab kelas rekap bulanan" hidden></div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
-              <div class="sub-surface p-3.5">
-                <span class="text-xs text-ink-muted block">Total Kuota</span>
-                <strong id="quota-summary-total" class="text-sm font-mono font-semibold text-ink-primary">462 Kursi</strong>
-              </div>
-              <div class="notice-accent rounded-2xl p-3.5">
-                <span class="text-xs block">Terisi</span>
-                <strong id="quota-summary-filled" class="text-sm font-mono font-semibold">22 Siswa</strong>
-              </div>
-              <div class="sub-surface p-3.5 col-span-2 sm:col-span-1">
-                <span class="text-xs text-ink-muted block">Tersedia</span>
-                <strong id="quota-summary-remaining" class="text-sm font-mono font-semibold text-ink-primary">440 Kursi</strong>
-              </div>
-            </div>
+          <div id="admin-rekap-grouped-container" class="stack-gap no-print"></div>
+          <div id="admin-rekap-guru-container" class="stack-gap no-print" hidden></div>
 
-            <div id="ppdb-quota-chart" class="space-y-3.5" aria-live="polite">
-              <div class="text-xs text-ink-muted py-4">Memuat data keterisian kuota kursi...</div>
-            </div>
+          <div id="rekap-print-pages" class="print-only-block"></div>
+        </section>
+      </div>
 
-            <div class="pt-2">
-              <a href="https://docs.google.com/spreadsheets/d/1GzdjUBtnrKXPgZvCebYhQ6iAU0jkhgFNKDWeN6wzMa4/edit#gid=1003" target="_blank" rel="noopener noreferrer" class="btn-with-icon group w-full justify-center no-underline" title="Buka Tab 3_Dashboard_Kuota di Google Sheets">
-                <span class="relative z-10 whitespace-nowrap">
-                  Akses Buku Kendali Pendaftaran ↗
-                </span>
-                <div class="btn-icon-circle" aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
-                </div>
-              </a>
+      <!-- TAB 4: KELOLA KELAS & PEMETAAN GURU -->
+      <div id="admin-panel-kelas" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="admin-tab-kelas" hidden>
+        <section id="admin-kelas-management-section" class="surface-card stack-gap no-print">
+          <div class="card-spotlight-layer" aria-hidden="true"></div>
+          <div class="section-toolbar" style="margin-bottom:0;">
+            <div>
+              <h2 class="heading-lg">Kelola Kelas &amp; Pemetaan Guru</h2>
+              <p class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Atur daftar kelas resmi dan guru pengampu setiap kelas secara terpusat tanpa membuka Google Sheets.</p>
+            </div>
+            <div class="toolbar-actions">
+              <button id="btn-refresh-kelas" type="button" class="btn btn-secondary btn-sm">
+                <i data-lucide="refresh-cw" aria-hidden="true"></i>
+                <span>Muat Ulang</span>
+              </button>
+              <button id="btn-add-kelas" type="button" class="btn btn-primary btn-sm">
+                <i data-lucide="folder-plus" aria-hidden="true"></i>
+                <span>Tambah Kelas</span>
+              </button>
             </div>
           </div>
+
+          <div class="summary-mini-grid" aria-label="Ringkasan kelas dan guru">
+            <div class="sub-surface summary-mini-card">
+              <span class="stat-label">Total Kelas Aktif</span>
+              <strong id="kelas-stat-total" class="mono-num stat-mini-val">0</strong>
+            </div>
+            <div class="sub-surface summary-mini-card">
+              <span class="stat-label">Sudah Ada Guru</span>
+              <strong id="kelas-stat-mapped" class="mono-num stat-mini-val" style="color:var(--status-hadir-fg);">0</strong>
+            </div>
+            <div class="sub-surface summary-mini-card">
+              <span class="stat-label">Belum Ada Guru</span>
+              <strong id="kelas-stat-unmapped" class="mono-num stat-mini-val" style="color:var(--status-sakit-fg);">0</strong>
+            </div>
+          </div>
+
+          <div id="admin-kelas-grid" class="kelas-manage-grid"></div>
+        </section>
+      </div>
+
+      <!-- TAB 5: KELOLA AKUN GURU & ADMIN -->
+      <div id="admin-panel-akun" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="admin-tab-akun" hidden>
+        <section id="admin-akun-management-section" class="surface-card stack-gap no-print">
+          <div class="card-spotlight-layer" aria-hidden="true"></div>
+          <div class="section-toolbar" style="margin-bottom:0;">
+            <div>
+              <h2 class="heading-lg">Kelola Akun Guru &amp; Admin</h2>
+              <p class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Kelola akun masuk, kata sandi, dan pembagian kelas ampu untuk Kepala Madrasah maupun Guru.</p>
+            </div>
+            <div class="toolbar-actions">
+              <button id="btn-refresh-users" type="button" class="btn btn-secondary btn-sm">
+                <i data-lucide="refresh-cw" aria-hidden="true"></i>
+                <span>Muat Ulang</span>
+              </button>
+              <button id="btn-add-user" type="button" class="btn btn-primary btn-sm">
+                <i data-lucide="user-plus" aria-hidden="true"></i>
+                <span>Tambah Pengguna</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="summary-mini-grid" aria-label="Ringkasan akun portal">
+            <div class="sub-surface summary-mini-card">
+              <span class="stat-label">Total Akun</span>
+              <strong id="users-stat-total" class="mono-num stat-mini-val">0</strong>
+            </div>
+            <div class="sub-surface summary-mini-card">
+              <span class="stat-label">Akun Guru</span>
+              <strong id="users-stat-guru" class="mono-num stat-mini-val" style="color:var(--status-izin-fg);">0</strong>
+            </div>
+            <div class="sub-surface summary-mini-card">
+              <span class="stat-label">Guru Belum Dipetakan</span>
+              <strong id="users-stat-unmapped" class="mono-num stat-mini-val" style="color:var(--status-sakit-fg);">0</strong>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label" for="users-search-input">Cari Akun Guru / Admin</label>
+              <input id="users-search-input" type="search" class="input-control" placeholder="Ketik nama, username, atau kelas ampu..." />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="users-role-filter">Filter Peran</label>
+              <select id="users-role-filter" class="select-control">
+                <option value="Semua">Semua Peran</option>
+                <option value="guru">Guru Saja</option>
+                <option value="admin">Kepala Madrasah / Admin</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-scroll mobile-cards-wrap">
+            <table class="data-table mobile-cards-table mobile-cards-users">
+              <thead>
+                <tr>
+                  <th>Nama &amp; Username</th>
+                  <th>Peran</th>
+                  <th>Kelas Ampu</th>
+                  <th>Status</th>
+                  <th style="width:96px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- MODUL KALKULATOR UAS (AKSES CEPAT HEADER, BUKAN DI TAB BAWAH) -->
+      <div id="admin-panel-uas" class="tab-panel stack-gap" role="region" aria-label="Kalkulator UAS" hidden>
+        <div class="calc-view-backbar no-print">
+          <button type="button" class="btn btn-secondary btn-sm" data-back-to-dashboard="true">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Kembali ke Beranda Laporan</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" data-admin-calc="raport">
+            <i data-lucide="clipboard-list" aria-hidden="true"></i>
+            <span>Buka Kalkulator Raport</span>
+          </button>
         </div>
+        <div id="admin-uas-mount"></div>
+      </div>
+
+      <!-- MODUL KALKULATOR RAPORT (AKSES CEPAT HEADER, BUKAN DI TAB BAWAH) -->
+      <div id="admin-panel-raport" class="tab-panel stack-gap" role="region" aria-label="Kalkulator Raport" hidden>
+        <div class="calc-view-backbar no-print">
+          <button type="button" class="btn btn-secondary btn-sm" data-back-to-dashboard="true">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Kembali ke Beranda Laporan</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" data-admin-calc="uas">
+            <i data-lucide="calculator" aria-hidden="true"></i>
+            <span>Buka Kalkulator UAS</span>
+          </button>
+        </div>
+        <div id="admin-raport-mount"></div>
       </div>
     </section>
 
-    <!-- ===================================================================
-         E. KONSULTASI & LAYANAN INFORMASI (Lapisan Tumpang Tindih + Chat + FAQ + VA Resmi)
-         =================================================================== -->
-    <section id="konsultasi" class="stack-section section-band">
-      <div class="stack-inner container-1100 space-y-12">
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <div class="space-y-2.5 max-w-2xl">
-            <span class="typo-label-caps block reveal-text" style="--stagger-delay: 0ms;">Layanan Informasi &amp; Pendampingan Orang Tua</span>
-            <h2 class="typo-h2 reveal-text" style="--stagger-delay: 70ms;">Konsultasi Layanan &amp; Pertanyaan Umum</h2>
-            <p class="text-sm text-ink-secondary reveal-on-scroll" style="--stagger-delay: 140ms;">
-              Sampaikan pertanyaan mengenai pendaftaran, kurikulum, maupun rincian biaya melalui layanan konsultasi interaktif bersama Ustadzah Fatimah.
-            </p>
-          </div>
-          <div class="shrink-0 reveal-on-scroll" style="--stagger-delay: 140ms;">
-            <a href="https://gemini.google.com/gem/1EbvEx9ZESqYhA6Ty5HFyuintqHlsGUp2?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-with-icon group no-underline" title="Buka AI Advisor: Ustadzah Fatimah">
-              <span class="relative z-10 whitespace-nowrap">
-                Buka AI Advisor: Ustadzah Fatimah ↗
+    <!-- =================================================================
+         PORTAL GURU (BANNER GURU PIKET + 3 TAB)
+         ================================================================= -->
+    <section id="view-guru" class="view-panel" aria-labelledby="guru-portal-heading" hidden>
+      <!-- Header Banner GURU PIKET -->
+      <div class="guru-banner no-print">
+        <div class="guru-banner-identity">
+          <div id="guru-piket-avatar" class="guru-banner-avatar">G</div>
+          <div class="guru-banner-info">
+            <span class="guru-banner-badge">
+              <i data-lucide="shield-check" aria-hidden="true" style="width:15px;height:15px;"></i>
+              <span>GURU PIKET</span>
+            </span>
+            <h1 id="guru-portal-heading" class="heading-xl" style="font-size:clamp(1.35rem,2.2vw,1.8rem);">
+              <span id="guru-piket-name">Nama Guru</span>
+            </h1>
+            <p id="guru-piket-date" class="text-muted" style="margin:4px 0 0;font-size:0.875rem;">-</p>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;">
+              <span id="guru-kelas-ampu-badge" class="status-badge status-izin">
+                <i data-lucide="book-open" aria-hidden="true" style="width:14px;height:14px;"></i>
+                <span id="guru-kelas-ampu-text">Pengampu: -</span>
               </span>
-              <div class="btn-icon-circle" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </div>
-            </a>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <!-- Kiri: Chatbot Minimalis -->
-          <div class="lg:col-span-7 nextra-card !p-0 flex flex-col h-[560px] overflow-hidden reveal-on-scroll">
-            <div class="chat-bar px-6 py-4 border-b flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full chat-avatar-bot flex items-center justify-center shrink-0">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-                    <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="text-sm font-semibold text-ink-primary">Ustadzah Fatimah</h3>
-                  <p class="text-xs text-accent-brand font-medium">Asisten Layanan Informasi PPDB &middot; Online 24 Jam</p>
-                </div>
-              </div>
-              <button id="btn-clear-chat" type="button" class="btn-secondary !py-1.5 !px-3.5 !text-xs">
-                Bersihkan Pesan
-              </button>
-            </div>
-
-            <div id="chat-messages" class="chat-stream flex-grow p-6 overflow-y-auto space-y-4" role="log" aria-live="polite" aria-label="Riwayat percakapan konsultasi"></div>
-
-            <form id="chat-form" class="chat-bar p-4 border-t flex flex-col sm:flex-row sm:items-end gap-3">
-              <div class="flex-grow">
-                <label for="chat-input" class="block text-xs font-semibold text-ink-secondary mb-1">Pertanyaan Anda</label>
-                <input id="chat-input" type="text" class="input-auralis" placeholder="Contoh: Berapa rincian biaya masuk SDIT Gelombang 1?" autocomplete="off" required />
-              </div>
-              <button id="chat-submit" type="submit" class="btn-with-icon btn-with-icon-md group shrink-0">
-                <span class="chat-btn-text relative z-10 whitespace-nowrap">
-                  Kirim Pesan
-                </span>
-                <div class="btn-icon-circle" aria-hidden="true">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
-                </div>
-              </button>
-            </form>
-          </div>
-
-          <!-- Kanan: FAQ Akordeon Tertutup Default -->
-          <div class="lg:col-span-5 nextra-card space-y-5 reveal-on-scroll" style="--stagger-delay: 80ms;">
-            <div>
-              <span class="typo-label-caps">Panduan Informasi Wali Murid</span>
-              <h3 class="typo-h3 mt-1">Pertanyaan yang Sering Diajukan (FAQ)</h3>
-            </div>
-
-            <div>
-              <label for="faq-search" class="block text-xs font-semibold text-ink-secondary mb-1.5">Cari Pertanyaan</label>
-              <input id="faq-search" type="search" class="input-auralis" placeholder="Ketik kata kunci (misal: usia SDIT, cicilan, VA)..." />
-            </div>
-
-            <div id="faq-cat-tabs" class="relative flex flex-wrap gap-2" role="group" aria-label="Filter kategori pertanyaan"></div>
-
-            <div id="faq-items-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-1" aria-live="polite">
-              <div class="text-xs text-ink-muted py-4">Memuat daftar pertanyaan umum...</div>
             </div>
           </div>
         </div>
-
-        <!-- Kotak Peringatan Rekening Bernuansa Biru Institusi (Glassmorphism) -->
-        <div class="nextra-card glass-card notice-accent rounded-[24px] p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 reveal-on-scroll">
-          <div class="space-y-2 max-w-2xl">
-            <div class="inline-flex items-center gap-2 font-semibold text-xs">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                <polyline points="9 12 11 14 15 10"></polyline>
-              </svg>
-              <span>Pemberitahuan Resmi Transaksi Keuangan (Statuta Pasal 12 Ayat 3)</span>
-            </div>
-            <h3 class="text-lg font-semibold text-ink-primary">
-              Pembayaran Resmi Hanya Melalui Nomor Virtual Account Bank Syariah Mitra
-            </h3>
-            <p class="text-sm text-ink-secondary leading-relaxed">
-              Seluruh pembayaran biaya pendaftaran, Dana Pengembangan Pendidikan (DPP), dan SPP bulanan <strong class="text-ink-primary">hanya sah apabila ditujukan ke Nomor Virtual Account (VA) resmi atas nama Yayasan Pendidikan Islam Al-Mun'imiyah</strong>. Yayasan menolak segala bentuk pembayaran tunai maupun transfer ke rekening pribadi.
-            </p>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2.5 shrink-0 min-w-[260px] text-xs">
-            <div class="sub-surface px-4 py-3 flex items-center justify-between gap-4">
-              <span class="font-semibold text-ink-primary">Bank Syariah Indonesia (BSI)</span>
-              <code class="font-mono font-bold text-accent-brand">90012 (PPDB) / 90088 (SPP)</code>
-            </div>
-            <div class="sub-surface px-4 py-3 flex items-center justify-between gap-4">
-              <span class="font-semibold text-ink-primary">Bank Muamalat</span>
-              <code class="font-mono font-bold text-accent-brand">77101</code>
-            </div>
-            <div class="sub-surface px-4 py-3 flex items-center justify-between gap-4">
-              <span class="font-semibold text-ink-primary">Bank BJB Syariah</span>
-              <code class="font-mono font-bold text-accent-brand">88205</code>
-            </div>
-          </div>
+        <div class="guru-banner-meta">
+          <span id="guru-piket-count" class="status-badge status-hadir mono-num">0 presensi tercatat hari ini</span>
         </div>
       </div>
-    </section>
 
+      <div id="guru-unmapped-alert" class="inline-alert inline-alert-warn no-print" role="alert" hidden>
+        <i data-lucide="alert-triangle" aria-hidden="true" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;"></i>
+        <span id="guru-unmapped-alert-msg"></span>
+      </div>
+
+      <!-- TAB 1: PRESENSI (SCAN QR RINGKAS + POPUP ABSENSI MANUAL) -->
+      <div id="guru-panel-presensi" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="guru-tab-presensi">
+        <div id="guru-presensi-mode-bar" class="presensi-mode-bar" role="group" aria-label="Opsi presensi">
+          <button id="btn-guru-mode-qr" type="button" class="report-mode-btn" data-presensi-mode="qr" aria-pressed="true">
+            <i data-lucide="qr-code" aria-hidden="true"></i>
+            <span>Scan QR</span>
+          </button>
+          <button id="btn-guru-mode-manual" type="button" class="report-mode-btn" data-presensi-mode="manual" aria-pressed="false">
+            <i data-lucide="clipboard-list" aria-hidden="true"></i>
+            <span>Absensi Manual</span>
+          </button>
+        </div>
+
+        <!-- VIEW UTAMA: SCAN QR + DAFTAR PRESENSI HARI INI -->
+        <div id="guru-presensi-qr-view" class="stack-gap">
+          <section class="surface-card stack-gap">
+            <div class="card-spotlight-layer" aria-hidden="true"></div>
+            <div>
+              <h2 class="heading-lg">Pemindaian QR-Code</h2>
+              <p class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Arahkan kartu QR santri ke kamera untuk mencatat kehadiran otomatis.</p>
+            </div>
+
+            <div class="toolbar-actions">
+              <button id="btn-qr-start" type="button" class="btn btn-accent">
+                <i data-lucide="camera" aria-hidden="true"></i>
+                <span>Mulai Kamera</span>
+              </button>
+              <button id="btn-qr-stop" type="button" class="btn btn-danger" hidden>
+                <i data-lucide="camera-off" aria-hidden="true"></i>
+                <span>Hentikan Kamera</span>
+              </button>
+              <select id="qr-kelas-select" class="select-control" aria-label="Pilih kelas untuk scan QR" style="max-width:190px;" hidden></select>
+              <select id="qr-camera-select" class="select-control" aria-label="Pilih perangkat kamera" style="flex:1;min-width:170px;" hidden></select>
+              <button id="btn-qr-sound-toggle" type="button" class="btn btn-secondary btn-icon" aria-pressed="false" aria-label="Suara pemindaian aktif, klik untuk bisukan" title="Suara Aktif (Klik untuk Bisu)" style="margin-left:auto;">
+                <i data-lucide="volume-2" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="qr-viewport-shell">
+              <div id="qr-reader" class="qr-reader-box"></div>
+
+              <div id="qr-camera-idle" style="display:flex;flex-direction:column;align-items:center;gap:8px;max-width:340px;">
+                <i data-lucide="scan-line" aria-hidden="true" style="width:32px;height:32px;color:var(--text-muted);"></i>
+                <strong style="font-size:0.95rem;">Kamera Pemindai Siap</strong>
+                <p class="text-muted" style="margin:0;font-size:0.84rem;">Klik "Mulai Kamera" untuk mengaktifkan pemindaian QR-Code kartu santri.</p>
+              </div>
+
+              <!-- Informasi jika izin kamera ditolak / tidak tersedia -->
+              <div id="qr-camera-fallback" style="width:100%;text-align:left;" hidden>
+                <div class="inline-alert inline-alert-warn" role="alert" style="margin-bottom:0;">
+                  <i data-lucide="video-off" aria-hidden="true" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;"></i>
+                  <div>
+                    <strong style="display:block;margin-bottom:2px;">Kamera Tidak Dapat Digunakan</strong>
+                    <span id="qr-fallback-reason">Kamera tidak tersedia atau izin ditolak. Klik tombol "Absensi Manual" di atas untuk mencatat kehadiran kelas.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="qr-last-scan-result" class="inline-alert inline-alert-info" hidden></div>
+          </section>
+
+          <!-- Daftar Presensi Hari Ini -->
+          <section class="surface-card stack-gap">
+            <div class="card-spotlight-layer" aria-hidden="true"></div>
+            <div class="section-toolbar" style="margin-bottom:0;">
+              <div>
+                <h3 class="heading-md">Daftar Presensi Santri Hari Ini</h3>
+                <p class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Otomatis bersih saat pergantian hari (WIB) sambil menjaga rekap bulanan, dan tersinkron ke Beranda Laporan Admin.</p>
+              </div>
+              <div class="toolbar-actions">
+                <button id="btn-guru-clear-presensi-harian" type="button" class="btn btn-danger btn-sm">
+                  <i data-lucide="trash-2" aria-hidden="true"></i>
+                  <span>Bersihkan Log Harian</span>
+                </button>
+              </div>
+            </div>
+            <div class="guru-presensi-counts">
+              <div class="sub-surface" style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="stat-label">Hadir</span>
+                <strong id="guru-sum-hadir" class="mono-num" style="font-size:1.25rem;color:var(--status-hadir-fg);">0</strong>
+              </div>
+              <div class="sub-surface" style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="stat-label">Sakit</span>
+                <strong id="guru-sum-sakit" class="mono-num" style="font-size:1.25rem;color:var(--status-sakit-fg);">0</strong>
+              </div>
+              <div class="sub-surface" style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="stat-label">Izin</span>
+                <strong id="guru-sum-izin" class="mono-num" style="font-size:1.25rem;color:var(--status-izin-fg);">0</strong>
+              </div>
+              <div class="sub-surface" style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="stat-label">Alpa</span>
+                <strong id="guru-sum-alpa" class="mono-num" style="font-size:1.25rem;color:var(--status-alpa-fg);">0</strong>
+              </div>
+            </div>
+            <div class="table-scroll mobile-cards-wrap">
+              <table class="data-table mobile-cards-table mobile-cards-generic">
+                <thead>
+                  <tr>
+                    <th>Nama Santri</th>
+                    <th>Kelas</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="guru-session-log-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- TAB 2: KALKULATOR UAS -->
+      <div id="guru-panel-uas" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="guru-tab-uas" hidden>
+        <div id="guru-uas-mount"></div>
+      </div>
+
+      <!-- TAB 3: KALKULATOR RAPORT -->
+      <div id="guru-panel-raport" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="guru-tab-raport" hidden>
+        <div id="guru-raport-mount"></div>
+      </div>
+
+      <!-- TAB 4: ABSEN & MATERI HARIAN GURU -->
+      <div id="guru-panel-absen-guru" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="guru-tab-absen-guru" hidden>
+        <section class="surface-card stack-gap">
+          <div class="card-spotlight-layer" aria-hidden="true"></div>
+          <div>
+            <h2 class="heading-lg">Absen &amp; Laporan Materi Harian Guru</h2>
+            <p class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Catat kehadiran mengajar dan materi yang disampaikan hari ini untuk dipantau Kepala Madrasah.</p>
+          </div>
+          <form id="form-guru-absen-materi" class="stack-gap" style="gap:14px;">
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label class="field-label" for="guru-absen-kelas">Kelas &amp; Program</label>
+                <select id="guru-absen-kelas" class="select-control" required></select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="guru-absen-status">Status Mengajar</label>
+                <select id="guru-absen-status" class="select-control" required>
+                  <option value="Hadir Mengajar">Hadir Mengajar</option>
+                  <option value="Izin">Izin</option>
+                  <option value="Sakit">Sakit</option>
+                  <option value="Tugas Luar">Tugas Luar</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="guru-absen-materi">Laporan Materi yang Diajarkan Hari Ini</label>
+              <textarea id="guru-absen-materi" class="textarea-control" rows="3" placeholder="Tuliskan kitab/bab/surat/materi yang diajarkan hari ini..." required></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="guru-absen-keterangan">Keterangan Tambahan (Opsional)</label>
+              <input id="guru-absen-keterangan" type="text" class="input-control" placeholder="Contoh: Pengganti sementara / kendala kelas" />
+            </div>
+            <div class="toolbar-actions" style="justify-content:flex-end;">
+              <button id="btn-save-absensi-guru" type="submit" class="btn btn-primary">
+                <i data-lucide="send" aria-hidden="true"></i>
+                <span>Kirim Absen &amp; Materi</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="surface-card stack-gap">
+          <div class="card-spotlight-layer" aria-hidden="true"></div>
+          <h3 class="heading-md">Riwayat Absen &amp; Materi Hari Ini</h3>
+          <div id="guru-absen-history-list" class="stack-gap" style="gap:10px;"></div>
+        </section>
+      </div>
+
+      <!-- TAB 5: PROFIL & FOTO GURU -->
+      <div id="guru-panel-profil" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="guru-tab-profil" hidden>
+        <section class="surface-card stack-gap">
+          <div class="card-spotlight-layer" aria-hidden="true"></div>
+          <div>
+            <h2 class="heading-lg">Profil &amp; Foto Guru</h2>
+            <p class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Foto profil tersimpan di Google Drive dan tampil pada header, drawer, tampilan Presensi Santri, serta Laporan &amp; Monitoring Guru Admin.</p>
+          </div>
+          <form id="form-guru-profil" class="stack-gap" style="gap:14px;">
+            <div class="profil-photo-row">
+              <div id="guru-profil-foto-preview" class="profil-avatar-lg" aria-hidden="true">G</div>
+              <div style="min-width:0;flex:1;">
+                <label class="field-label" for="guru-profil-foto-input">Foto Profil (JPG/PNG)</label>
+                <input id="guru-profil-foto-input" type="file" accept="image/jpeg,image/png,image/webp" class="input-control" />
+                <p class="text-muted" style="margin:4px 0 0;font-size:0.76rem;">Gambar otomatis dikompresi sebelum diunggah ke folder Profil_Guru di Drive.</p>
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label class="field-label" for="guru-profil-nama">Nama Lengkap</label>
+                <input id="guru-profil-nama" type="text" class="input-control" required />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="guru-profil-no-wa">No. WhatsApp</label>
+                <input id="guru-profil-no-wa" type="tel" class="input-control mono-num" placeholder="08..." />
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label class="field-label" for="guru-profil-pendidikan">Pendidikan Terakhir</label>
+                <input id="guru-profil-pendidikan" type="text" class="input-control" placeholder="Contoh: S1 Pendidikan Agama Islam" />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="guru-profil-bidang">Bidang Ajar / Kitab</label>
+                <input id="guru-profil-bidang" type="text" class="input-control" placeholder="Contoh: Fiqih, Tajwid, Tahfidz" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="guru-profil-alamat">Alamat</label>
+              <input id="guru-profil-alamat" type="text" class="input-control" placeholder="Alamat tempat tinggal" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="guru-profil-bio">Bio Singkat</label>
+              <textarea id="guru-profil-bio" class="textarea-control" rows="2" placeholder="Catatan singkat pengajar"></textarea>
+            </div>
+            <div class="toolbar-actions" style="justify-content:flex-end;">
+              <button id="btn-save-profil-guru" type="submit" class="btn btn-primary">
+                <i data-lucide="save" aria-hidden="true"></i>
+                <span>Simpan Profil &amp; Foto</span>
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
   </main>
 
-  <!-- =====================================================================
-       MODAL ARSIP RESMI YAYASAN (MURNI HANYA 5 BERKAS DATA MASTER)
-       ===================================================================== -->
-  <div id="drive-modal" role="dialog" aria-modal="true" aria-labelledby="drive-modal-title" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4">
-    <div class="nextra-card modal-panel max-w-xl w-full !p-6 sm:!p-8 max-h-[85vh] flex flex-col gap-5">
-      <div class="flex items-center justify-between border-b border-hairline pb-4 gap-4">
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>&copy; <span id="footer-year">2026</span> MDTA ASY SYIFA AL MUSRI' (Bojongsoang, Kab. Bandung)</span>
+      <span>Portal Digital Madrasah &amp; Penilaian Raport</span>
+    </div>
+  </footer>
+
+  <!-- ===================================================================
+       MODAL DETAIL NILAI REKAP (KEPALA MADRASAH)
+       =================================================================== -->
+  <div id="modal-detail-nilai" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-nilai-modal-title" hidden>
+    <div class="modal-panel modal-panel-lg">
+      <div class="modal-header">
         <div>
-          <span class="typo-label-caps">Dokumen Acuan Kelembagaan</span>
-          <h2 id="drive-modal-title" class="text-lg font-semibold text-ink-primary mt-0.5">Arsip Dokumen Resmi Yayasan</h2>
+          <span class="eyebrow-label">Rincian Nilai Santri</span>
+          <h2 id="detail-nilai-modal-title" class="heading-md">Detail Nilai Kelas</h2>
+          <p id="detail-nilai-subtitle" class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;"></p>
         </div>
-        <button id="btn-close-drive-modal" type="button" class="btn-secondary !py-2 !px-3 !text-xs" aria-label="Tutup dialog Arsip Dokumen Resmi">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-          <span>Tutup</span>
+        <button id="btn-close-detail-nilai" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup detail nilai">
+          <i data-lucide="x" aria-hidden="true"></i>
         </button>
       </div>
-
-      <div id="drive-files-list" class="space-y-2.5 overflow-y-auto text-sm">
-        <div class="text-xs text-ink-muted py-4">Memuat daftar 5 berkas master yayasan...</div>
+      <div class="modal-body">
+        <div class="table-scroll mobile-cards-wrap">
+          <table class="data-table mobile-cards-table mobile-cards-detail-nilai">
+            <thead>
+              <tr id="detail-nilai-thead-row">
+                <th style="width:44px;">No</th>
+                <th>Nama Santri</th>
+                <th>Harian</th>
+                <th>UAS</th>
+                <th>Kehadiran</th>
+                <th>Nilai Akhir</th>
+                <th>Predikat</th>
+              </tr>
+            </thead>
+            <tbody id="detail-nilai-tbody"></tbody>
+          </table>
+        </div>
       </div>
+      <div class="modal-footer">
+        <button id="btn-tutup-detail-nilai" type="button" class="btn btn-primary">Tutup</button>
+      </div>
+    </div>
+  </div>
 
-      <div class="pt-3 border-t border-hairline flex items-center justify-between gap-4">
-        <a id="drive-folder-link" href="https://drive.google.com/drive/folders/157nEr-14sON96VUaWsNkkpetWrMI_bQs" target="_blank" rel="noopener" class="btn-with-icon group w-full justify-center !text-sm !font-semibold !shadow-md no-underline">
-          <span class="relative z-10 transition-all duration-500 whitespace-nowrap">
-            Buka Folder Berkas Master Google Drive ↗
-          </span>
-          <div class="btn-icon-circle" aria-hidden="true">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
+  <!-- ===================================================================
+       MODAL ARSIP DOKUMEN DRIVE (Dokumen_Arsip)
+       =================================================================== -->
+  <div id="modal-arsip-drive" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="arsip-modal-title" hidden>
+    <div class="modal-panel modal-panel-lg">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Google Drive MDTA ASY SYIFA AL MUSRI'</span>
+          <h2 id="arsip-modal-title" class="heading-md">Arsip Dokumen Drive</h2>
+        </div>
+        <button id="btn-close-arsip-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal Arsip Dokumen Drive">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="toolbar-actions" style="justify-content:space-between;">
+          <div id="arsip-category-filters" class="filter-chip-row" role="group" aria-label="Filter kategori dokumen">
+            <button type="button" class="filter-chip" data-arsip-cat="Semua" aria-pressed="true">Semua</button>
+            <button type="button" class="filter-chip" data-arsip-cat="Arsip Resmi" aria-pressed="false">Arsip Resmi</button>
+            <button type="button" class="filter-chip" data-arsip-cat="Impor AI" aria-pressed="false">Impor AI</button>
+            <button type="button" class="filter-chip" data-arsip-cat="Laporan PDF" aria-pressed="false">Laporan PDF</button>
           </div>
+          <button id="btn-refresh-arsip" type="button" class="btn btn-secondary btn-sm">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+            <span>Muat Ulang</span>
+          </button>
+        </div>
+        <div class="field-group">
+          <label class="field-label sr-only" for="arsip-search-input">Cari dokumen atau folder</label>
+          <input id="arsip-search-input" type="search" class="input-control" placeholder="Cari judul dokumen, kategori, atau pengunggah..." />
+        </div>
+        <div id="arsip-drive-list" class="stack-gap" style="gap:10px;"></div>
+      </div>
+      <div class="modal-footer">
+        <a id="arsip-drive-root-link" href="https://drive.google.com/drive/folders/1mgtcD4ipQjBjiqL6omZjBnJyuz3QAT_6" target="_blank" rel="noopener" class="btn btn-primary">
+          <i data-lucide="external-link" aria-hidden="true"></i>
+          <span>Buka Folder Utama Drive</span>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- =====================================================================
-       FLOATING WIDGET (SUDUT KANAN BAWAH — KOMPAK)
-       ===================================================================== -->
-  <a
-    href="#konsultasi"
-    id="floating-chatbot-widget"
-    class="btn-with-icon btn-with-icon-md group !shadow-xl no-underline"
-    aria-label="Tanya Layanan PPDB (Asisten Ustadzah Fatimah)">
-    <span class="fab-online-dot" aria-hidden="true" title="Layanan Aktif Online 24 Jam"></span>
-    <span class="btn-text-label relative z-10 transition-all duration-500 whitespace-nowrap">
-      Tanya Layanan PPDB
-    </span>
-    <div class="btn-icon-circle" aria-hidden="true">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-      </svg>
-    </div>
-  </a>
-
-  <!-- =====================================================================
-       FOOTER MINIMALIS RESMI YAYASAN
-       ===================================================================== -->
-  <footer class="w-full border-t border-hairline bg-[var(--bg-canvas)] pt-12 pb-24 mt-auto">
-    <div class="container-1100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 text-xs text-ink-secondary">
-      <div class="space-y-1">
-        <strong class="text-ink-primary text-sm block">Yayasan Pendidikan Islam Al-Mun'imiyah (YPIA)</strong>
-        <span>Jl. Pendidikan Terpadu No. 99, Arcamanik, Kota Bandung 40292 &middot; Layanan Informasi: <strong id="footer-wa" class="text-ink-primary">0811-2233-4455</strong></span>
+  <!-- ===================================================================
+       MODAL MANAJEMEN PENGGUNA / GURU
+       =================================================================== -->
+  <div id="modal-user" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="user-modal-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Kelola Akun Pengguna</span>
+          <h2 id="user-modal-title" class="heading-md">Tambah Pengguna / Guru</h2>
+        </div>
+        <button id="btn-close-user-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal pengguna">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
       </div>
-      <div class="flex flex-wrap gap-1">
-        <a href="#beranda" class="nav-link !text-xs">Beranda</a>
-        <a href="#profil" class="nav-link !text-xs">Profil &amp; Tata Kelola</a>
-        <a href="#unit" class="nav-link !text-xs">Unit Pendidikan</a>
-        <a href="#ppdb" class="nav-link !text-xs">Informasi PPDB</a>
-        <a href="#konsultasi" class="nav-link !text-xs">Konsultasi</a>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Lapisan Transisi Halaman Antar-Menu (Directional Overlapping Sheet) -->
-  <div id="page-transition-sheet" class="page-transition-sheet" aria-hidden="true">
-    <div class="pts-edge-line"></div>
-    <div class="pts-content container-1100">
-      <span id="pts-kicker" class="typo-label-caps"></span>
-      <div id="pts-title" class="pts-title"></div>
+      <form id="form-user" class="modal-body">
+        <input id="user-id" type="hidden" />
+        <div class="field-group">
+          <label class="field-label" for="user-nama">Nama Lengkap</label>
+          <input id="user-nama" type="text" class="input-control" placeholder="Contoh: Ustadz Ahmad Fauzi" required />
+        </div>
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="user-username">Username Login</label>
+            <input id="user-username" type="text" class="input-control" placeholder="Contoh: guru1" required />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="user-role">Peran (Role)</label>
+            <select id="user-role" class="select-control">
+              <option value="guru">Guru</option>
+              <option value="admin">Kepala Madrasah / Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="user-password">Kata Sandi</label>
+            <input id="user-password" type="password" class="input-control" placeholder="Masukkan kata sandi" />
+            <span id="user-password-hint" class="text-muted" style="font-size:0.78rem;"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="user-status">Status Akun</label>
+            <select id="user-status" class="select-control">
+              <option value="aktif">Aktif</option>
+              <option value="nonaktif">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div id="user-kelas-ampu-group" class="field-group">
+          <span class="field-label">Kelas yang Diampu</span>
+          <div id="user-kelas-checkboxes" class="kelas-checkbox-grid"></div>
+          <span id="user-kelas-empty-hint" class="text-muted" style="font-size:0.78rem;">Centang satu atau lebih kelas yang diampu guru ini. Data guru akan terisolasi hanya untuk kelas terpilih.</span>
+        </div>
+        <p id="user-kelas-admin-note" class="text-muted" style="margin:0;font-size:0.8125rem;" hidden>Akun Kepala Madrasah / Admin memiliki akses ke seluruh kelas.</p>
+        <div class="modal-footer" style="padding:12px 0 0;border-top:none;">
+          <button id="btn-cancel-user-modal" type="button" class="btn btn-secondary">Batal</button>
+          <button id="btn-save-user" type="submit" class="btn btn-primary">
+            <i data-lucide="save" aria-hidden="true"></i>
+            <span>Simpan Pengguna</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <script defer src="./js/core.js"></script>
-  <script defer src="./js/assistant-browser.js"></script>
-  <script defer src="./js/app.js"></script>
+  <!-- ===================================================================
+       MODAL TAMBAH / EDIT SANTRI
+       =================================================================== -->
+  <div id="modal-santri" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="santri-modal-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Data Santri Madrasah</span>
+          <h2 id="santri-modal-title" class="heading-md">Tambah Santri Baru</h2>
+        </div>
+        <button id="btn-close-santri-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal santri">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="form-santri" class="modal-body">
+        <input id="santri-id" type="hidden" />
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="santri-nama">Nama Lengkap Santri</label>
+            <input id="santri-nama" type="text" class="input-control" placeholder="Nama lengkap santri" required />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="santri-nama-ayah">Nama Ayah Kandung</label>
+            <input id="santri-nama-ayah" type="text" class="input-control" placeholder="Nama lengkap ayah kandung" maxlength="120" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="santri-nis">NIS (Nomor Induk Santri)</label>
+            <input id="santri-nis" type="text" inputmode="numeric" class="input-control mono-num" placeholder="Contoh: 2026001" maxlength="30" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="santri-nik">NIK (16 Digit)</label>
+            <input id="santri-nik" type="text" inputmode="numeric" class="input-control mono-num" placeholder="16 digit NIK santri" maxlength="16" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="santri-tempat-lahir">Tempat Lahir</label>
+            <input id="santri-tempat-lahir" type="text" class="input-control" placeholder="Contoh: Bandung" maxlength="80" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="santri-tanggal-lahir">Tanggal Lahir</label>
+            <input id="santri-tanggal-lahir" type="date" class="input-control mono-num" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="santri-kelas">Kelas</label>
+            <select id="santri-kelas" class="select-control" required></select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="santri-hp">No. WhatsApp Orang Tua</label>
+            <input id="santri-hp" type="tel" class="input-control mono-num" placeholder="6281234567890" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="santri-qr-token">Token Kartu QR (Opsional)</label>
+            <div style="display:flex;gap:8px;">
+              <input id="santri-qr-token" type="text" class="input-control mono-num" placeholder="Otomatis dari ID jika kosong" />
+              <button id="btn-regen-qr-token" type="button" class="btn btn-secondary" aria-label="Buat token QR baru">
+                <i data-lucide="refresh-cw" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="santri-status">Status Santri</label>
+            <select id="santri-status" class="select-control">
+              <option value="aktif">Aktif</option>
+              <option value="nonaktif">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer" style="padding:12px 0 0;border-top:none;">
+          <button id="btn-cancel-santri-modal" type="button" class="btn btn-secondary">Batal</button>
+          <button id="btn-save-santri" type="submit" class="btn btn-accent">
+            <i data-lucide="save" aria-hidden="true"></i>
+            <span>Simpan Data Santri</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL TAMBAH / EDIT KELAS RESMI
+       =================================================================== -->
+  <div id="modal-kelas" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="kelas-modal-title" hidden>
+    <div class="modal-panel modal-panel-sm">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Master Kelas Madrasah</span>
+          <h2 id="kelas-modal-title" class="heading-md">Tambah Kelas Resmi</h2>
+        </div>
+        <button id="btn-close-kelas-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal kelas">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="form-kelas" class="modal-body">
+        <input id="kelas-id" type="hidden" />
+        <div class="field-group">
+          <label class="field-label" for="kelas-nama">Nama Kelas Resmi</label>
+          <input id="kelas-nama" type="text" class="input-control" placeholder="Contoh: Kelas 7A" required />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="kelas-kategori-program">Kategori Program</label>
+          <select id="kelas-kategori-program" class="select-control">
+            <option value="Diniyyah">Diniyyah (Resmi)</option>
+            <option value="Tahfidz">Tahfidz</option>
+            <option value="Tarikh">Tarikh</option>
+            <option value="Wustho">Wustho</option>
+          </select>
+        </div>
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="kelas-tingkat">Tingkat / Jenjang</label>
+            <input id="kelas-tingkat" type="text" class="input-control" placeholder="Contoh: Kelas 7 / Ula" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="kelas-status">Status</label>
+            <select id="kelas-status" class="select-control">
+              <option value="aktif">Aktif</option>
+              <option value="nonaktif">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="kelas-keterangan">Keterangan (Opsional)</label>
+          <input id="kelas-keterangan" type="text" class="input-control" placeholder="Contoh: Rombel Pagi" />
+        </div>
+        <p id="kelas-edit-hint" class="text-muted" style="margin:0;font-size:0.78rem;" hidden>Jika nama kelas diubah, seluruh data santri &amp; pemetaan guru untuk kelas ini otomatis ikut diperbarui.</p>
+        <div class="modal-footer" style="padding:12px 0 0;border-top:none;">
+          <button id="btn-cancel-kelas-modal" type="button" class="btn btn-secondary">Batal</button>
+          <button id="btn-save-kelas" type="submit" class="btn btn-primary">
+            <i data-lucide="save" aria-hidden="true"></i>
+            <span>Simpan Kelas</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL PEMETAAN GURU PENGAMPU PER KELAS
+       =================================================================== -->
+  <div id="modal-kelas-guru" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="kelas-guru-modal-title" hidden>
+    <div class="modal-panel modal-panel-sm">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Pemetaan Guru Pengampu</span>
+          <h2 id="kelas-guru-modal-title" class="heading-md">Atur Guru Pengampu</h2>
+          <p id="kelas-guru-subtitle" class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;"></p>
+        </div>
+        <button id="btn-close-kelas-guru-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal pemetaan guru">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="form-kelas-guru" class="modal-body">
+        <input id="kelas-guru-target-nama" type="hidden" />
+        <div id="kelas-guru-checkboxes" class="kelas-checkbox-grid"></div>
+        <div class="modal-footer" style="padding:12px 0 0;border-top:none;">
+          <button id="btn-cancel-kelas-guru-modal" type="button" class="btn btn-secondary">Batal</button>
+          <button id="btn-save-kelas-guru" type="submit" class="btn btn-primary">
+            <i data-lucide="save" aria-hidden="true"></i>
+            <span>Simpan Pemetaan</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL ATUR ANGGOTA SANTRI KELAS (CHECKBOX + PENCARIAN)
+       =================================================================== -->
+  <div id="modal-kelas-santri" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="kelas-santri-modal-title" hidden>
+    <div class="modal-panel modal-panel-detail">
+      <div class="modal-header detail-modal-header">
+        <div style="min-width:0;flex:1;">
+          <span class="eyebrow-label">Anggota Kelas</span>
+          <h2 id="kelas-santri-modal-title" class="heading-md">Atur Santri Kelas</h2>
+          <p id="kelas-santri-subtitle" class="text-muted detail-modal-sub"></p>
+        </div>
+        <button id="btn-close-kelas-santri-modal" type="button" class="btn btn-secondary btn-icon modal-close-touch" aria-label="Tutup modal atur santri kelas">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="form-kelas-santri" class="modal-body detail-modal-body">
+        <input id="kelas-santri-target-nama" type="hidden" />
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+          <div class="field-group" style="flex:1 1 220px;">
+            <label class="field-label sr-only" for="kelas-santri-search">Cari santri aktif</label>
+            <input id="kelas-santri-search" type="search" class="input-control" placeholder="Cari nama santri atau kelas..." />
+          </div>
+          <span id="kelas-santri-selected-count" class="status-badge status-izin mono-num">0 dipilih</span>
+        </div>
+        <div id="kelas-santri-checkboxes" class="kelas-checkbox-grid"></div>
+        <div class="modal-footer detail-modal-footer" style="padding:12px 0 0;border-top:none;">
+          <button id="btn-cancel-kelas-santri-modal" type="button" class="btn btn-secondary">Batal</button>
+          <button id="btn-save-kelas-santri" type="submit" class="btn btn-primary">
+            <i data-lucide="save" aria-hidden="true"></i>
+            <span>Simpan Anggota Kelas</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL PINDAH KELAS SANTRI (SATUAN)
+       =================================================================== -->
+  <div id="modal-move-kelas" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="move-kelas-modal-title" hidden>
+    <div class="modal-panel modal-panel-sm">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Pemindahan Kelas Santri</span>
+          <h2 id="move-kelas-modal-title" class="heading-md">Pindahkan Santri ke Kelas</h2>
+        </div>
+        <button id="btn-close-move-kelas-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal pindah kelas">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="form-move-kelas" class="modal-body">
+        <input id="move-santri-id" type="hidden" />
+        <p id="move-santri-label" style="margin:0;font-weight:600;font-size:0.9375rem;"></p>
+        <div class="field-group">
+          <label class="field-label" for="move-target-kelas">Pilih Kelas Tujuan</label>
+          <select id="move-target-kelas" class="select-control" required></select>
+        </div>
+        <div class="modal-footer" style="padding:12px 0 0;border-top:none;">
+          <button id="btn-cancel-move-kelas-modal" type="button" class="btn btn-secondary">Batal</button>
+          <button id="btn-save-move-kelas" type="submit" class="btn btn-primary">
+            <i data-lucide="arrow-right-left" aria-hidden="true"></i>
+            <span>Pindahkan</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL LIHAT / UNDUH / CETAK KARTU QR SANTRI
+       =================================================================== -->
+  <div id="modal-qr" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title" hidden>
+    <div class="modal-panel modal-panel-sm">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Kartu Presensi Digital</span>
+          <h2 id="qr-modal-title" class="heading-md">Kartu QR Santri</h2>
+        </div>
+        <button id="btn-close-qr-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal kartu QR">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="qr-card-sheet">
+          <canvas id="qr-card-preview-canvas" class="qr-card-preview-canvas" aria-label="Preview Kartu QR Santri"></canvas>
+          <div id="qr-render-target" class="qr-card-code-box" hidden aria-hidden="true"></div>
+          <div id="qr-card-loading" class="text-muted" style="font-size:0.82rem;padding:12px;" hidden>Memuat template kartu...</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-download-qr-png" type="button" class="btn btn-secondary">
+          <i data-lucide="download" aria-hidden="true"></i>
+          <span>Unduh PNG</span>
+        </button>
+        <button id="btn-print-qr-card" type="button" class="btn btn-primary">
+          <i data-lucide="printer" aria-hidden="true"></i>
+          <span>Cetak Kartu QR</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL DETAIL LENGKAP SANTRI
+       =================================================================== -->
+  <div id="modal-detail-santri" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-santri-modal-title" hidden>
+    <div class="modal-panel modal-panel-detail">
+      <div class="modal-header detail-modal-header">
+        <div style="min-width:0;flex:1;">
+          <span class="eyebrow-label">Profil Santri</span>
+          <h2 id="detail-santri-modal-title" class="heading-md">Detail Santri</h2>
+          <p id="detail-santri-subtitle" class="text-muted detail-modal-sub">-</p>
+        </div>
+        <button id="btn-close-detail-santri" type="button" class="btn btn-secondary btn-icon modal-close-touch" aria-label="Tutup modal detail santri">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="detail-santri-body" class="modal-body detail-modal-body"></div>
+      <div class="modal-footer detail-modal-footer">
+        <button id="btn-detail-santri-hapus" type="button" class="btn btn-danger">
+          <i data-lucide="trash-2" aria-hidden="true"></i>
+          <span>Hapus</span>
+        </button>
+        <button id="btn-detail-santri-edit" type="button" class="btn btn-primary">
+          <i data-lucide="pencil" aria-hidden="true"></i>
+          <span>Edit Data</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL DETAIL REKAP PRESENSI & NILAI SANTRI
+       =================================================================== -->
+  <div id="modal-detail-rekap" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-rekap-modal-title" hidden>
+    <div class="modal-panel modal-panel-detail">
+      <div class="modal-header detail-modal-header">
+        <div style="min-width:0;flex:1;">
+          <span id="detail-rekap-eyebrow" class="eyebrow-label">Detail Rekap Presensi</span>
+          <h2 id="detail-rekap-modal-title" class="heading-md">Detail Santri</h2>
+          <p id="detail-rekap-subtitle" class="text-muted detail-modal-sub">-</p>
+        </div>
+        <button id="btn-close-detail-rekap" type="button" class="btn btn-secondary btn-icon modal-close-touch" aria-label="Tutup modal detail rekap">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="detail-rekap-body" class="modal-body detail-modal-body"></div>
+      <div class="modal-footer detail-modal-footer">
+        <button id="btn-detail-rekap-tutup" type="button" class="btn btn-secondary">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL UNGGAH PDF REKAP KE DRIVE
+       =================================================================== -->
+  <div id="modal-upload-pdf" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="upload-pdf-modal-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Arsip Laporan PDF</span>
+          <h2 id="upload-pdf-modal-title" class="heading-md">Unggah Laporan PDF ke Drive</h2>
+        </div>
+        <button id="btn-close-upload-pdf-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal unggah PDF">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="form-upload-pdf" class="modal-body">
+        <div class="field-group">
+          <label class="field-label" for="upload-pdf-filename">Nama Berkas di Google Drive</label>
+          <input id="upload-pdf-filename" type="text" class="input-control" required />
+        </div>
+        <div class="field-group">
+          <span class="field-label">Sumber Laporan PDF</span>
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;">
+            <input type="radio" name="uploadPdfMode" value="snapshot" checked />
+            <span>Buat PDF langsung dari tabel rekap aktif &amp; unggah ke Drive</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;">
+            <input type="radio" name="uploadPdfMode" value="file" />
+            <span>Unggah berkas PDF hasil cetak dari perangkat Anda</span>
+          </label>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="upload-pdf-file">Pilih Berkas PDF (jika memilih unggah berkas)</label>
+          <input id="upload-pdf-file" type="file" accept=".pdf,application/pdf" class="input-control" />
+        </div>
+        <div class="modal-footer" style="padding:12px 0 0;border-top:none;">
+          <button id="btn-cancel-upload-pdf" type="button" class="btn btn-secondary">Batal</button>
+          <button id="btn-submit-upload-pdf" type="submit" class="btn btn-accent">
+            <i data-lucide="upload-cloud" aria-hidden="true"></i>
+            <span>Unggah ke Drive</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL ASISTEN IMPOR NILAI AI (Gemini 2.5 Flash)
+       =================================================================== -->
+  <div id="modal-import-ai" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="import-ai-modal-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow-label">Ekstraksi Daftar Nilai Otomatis</span>
+          <h2 id="import-ai-modal-title" class="heading-md">Asisten Impor Nilai AI</h2>
+        </div>
+        <button id="btn-close-import-ai-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup modal Asisten Impor Nilai AI">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="form-import-ai" class="modal-body">
+        <p class="text-muted" style="margin:0;font-size:0.875rem;">
+          Unggah berkas PDF atau foto daftar nilai santri, atau tempel teks mentah nilai harian, UAS, dan kehadiran.
+        </p>
+        <div id="import-ai-error" class="inline-alert inline-alert-error" role="alert" hidden></div>
+        <div class="field-group">
+          <label class="field-label" for="import-ai-file">Unggah PDF atau Foto Daftar Nilai (Maks 6 MB)</label>
+          <input id="import-ai-file" type="file" accept=".pdf,image/*" class="input-control" />
+          <span id="import-ai-file-status" class="text-muted" style="font-size:0.78rem;">Belum ada berkas dipilih.</span>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="import-ai-text">Atau Tempel Teks Daftar Nilai</label>
+          <textarea id="import-ai-text" class="textarea-control" placeholder="Contoh per baris:&#10;Muhammad Al-Fatih, 90, 88.6, 100&#10;Aisyah Humaira, 85, 81, 90"></textarea>
+        </div>
+        <div class="modal-footer" style="padding:12px 0 0;border-top:none;justify-content:space-between;">
+          <button id="btn-import-ai-local" type="button" class="btn btn-secondary btn-sm">
+            <i data-lucide="table" aria-hidden="true"></i>
+            <span>Urai Teks CSV Lokal</span>
+          </button>
+          <div class="toolbar-actions">
+            <button id="btn-cancel-import-ai" type="button" class="btn btn-secondary">Batal</button>
+            <button id="btn-import-ai-submit" type="submit" class="btn btn-accent">
+              <i data-lucide="file-up" aria-hidden="true"></i>
+              <span>Proses &amp; Isi Tabel</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL POPUP ABSENSI MANUAL KELAS (PORTAL GURU)
+       =================================================================== -->
+  <div id="modal-presensi-manual" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="manual-presensi-modal-title" hidden>
+    <div class="modal-panel modal-panel-manual">
+      <div class="modal-header manual-modal-header">
+        <div style="min-width:0;flex:1;">
+          <h2 id="manual-presensi-modal-title" class="heading-md">Absensi Manual Kelas</h2>
+          <p id="guru-santri-sync-status" class="text-muted manual-modal-sub">Menyiapkan daftar santri kelas ampu...</p>
+        </div>
+        <button id="btn-close-manual-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup popup absensi manual">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="manual-modal-toolbar">
+        <div class="manual-modal-quickbar">
+          <div id="manual-kelas-filter-wrap" class="manual-kelas-filter" hidden>
+            <label class="sr-only" for="manual-santri-kelas">Pilih Kelas Ampu</label>
+            <select id="manual-santri-kelas" class="select-control"></select>
+          </div>
+          <button id="btn-manual-mark-all-hadir" type="button" class="btn btn-accent btn-sm">
+            <i data-lucide="check-check" aria-hidden="true"></i>
+            <span>Tandai Semua Hadir</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body manual-modal-body">
+        <div id="guru-manual-roster-list" class="manual-roster-list"></div>
+      </div>
+
+      <div class="modal-footer manual-modal-footer">
+        <button id="btn-cancel-manual-modal" type="button" class="btn btn-secondary">Tutup</button>
+        <button id="btn-submit-presensi-manual" type="button" class="btn btn-primary">
+          <i data-lucide="save" aria-hidden="true"></i>
+          <span>Simpan Semua Presensi</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL KONFIRMASI AKSI
+       =================================================================== -->
+  <div id="modal-confirm" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" hidden>
+    <div class="modal-panel modal-panel-sm">
+      <div class="modal-header">
+        <h2 id="confirm-modal-title" class="heading-md">Konfirmasi</h2>
+        <button id="btn-close-confirm-modal" type="button" class="btn btn-secondary btn-icon" aria-label="Tutup dialog konfirmasi">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-modal-message" style="margin:0;font-size:0.9375rem;"></p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-confirm-cancel" type="button" class="btn btn-secondary">Batal</button>
+        <button id="btn-confirm-ok" type="button" class="btn btn-danger">Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

@@ -1,0 +1,146 @@
+/**
+ * Konfigurasi Global Sistem Madrasah (MDTA)
+ * MDTA ASY SYIFA AL MUSRI' - Bojongsoang, Kab. Bandung
+ * Terhubung ke Backend Code.gs & Database Sistem MDTA
+ */
+(function (root) {
+  'use strict';
+
+  root.MDTA_CONFIG = {
+    GAS_WEB_APP_URL:
+      'https://script.google.com/macros/s/AKfycby98oO9c0kMX5M2gvRknsEJHUEbILUyEt1z7XSEJdLL5N5kvIokb3yVUdC3JlvYlxFS/exec',
+    SPREADSHEET_ID: '1AL5a6m1aIcJvODOlTZ1DzPghddz34bRT3bfOBfBxrqY',
+    DRIVE_ROOT_URL: 'https://drive.google.com/drive/folders/1mgtcD4ipQjBjiqL6omZjBnJyuz3QAT_6',
+    FOLDER_ARSIP_ID: '1FtDyo6Nxq0iX5tv7iKeSWrT_XPToK0Nh',
+    FOLDER_UPLOAD_AI_ID: '1x-F9wQThtTcXIz-XgDIMmXzBelMrQXot',
+    FOLDER_LAPORAN_PDF_ID: '1neoKIVTmIhKV71sOzmANg3D7wy9Xutgy',
+    APP_NAME: "MDTA ASY SYIFA AL MUSRI'",
+    APP_SUBTITLE: 'Portal Digital Madrasah & Penilaian Raport',
+    INSTITUTION_NAME: "MDTA ASY SYIFA AL MUSRI'",
+    INSTITUTION_LOCATION: 'Bojongsoang, Kab. Bandung',
+    SESSION_KEY: 'mdta_auth_session',
+    SESSION_TTL_MS: 7 * 24 * 60 * 60 * 1000,
+    THEME_KEY: 'mdta_theme',
+    CACHE_PREFIX: 'mdta_swr_v1_',
+    SYNC_POLL_INTERVAL_MS: 5000,
+    PROGRAM_CATEGORIES: ['Diniyyah', 'Tahfidz', 'Tarikh', 'Wustho'],
+    DEFAULT_RAPORT_WEIGHTS: {
+      harian: 40,
+      uas: 40,
+      absensi: 20,
+    },
+    UAS_SCHEMES: [
+      {
+        id: '25-10',
+        label: '25 PG & 10 Essay (Standar)',
+        maxPg: 25,
+        maxEssay: 10,
+        bobotPg: 70,
+        bobotEssay: 30,
+      },
+      {
+        id: '30-5',
+        label: '30 PG & 5 Essay',
+        maxPg: 30,
+        maxEssay: 5,
+        bobotPg: 70,
+        bobotEssay: 30,
+      },
+      {
+        id: '35-5',
+        label: '35 PG & 5 Essay',
+        maxPg: 35,
+        maxEssay: 5,
+        bobotPg: 70,
+        bobotEssay: 30,
+      },
+      {
+        id: '40-5',
+        label: '40 PG & 5 Essay',
+        maxPg: 40,
+        maxEssay: 5,
+        bobotPg: 70,
+        bobotEssay: 30,
+      },
+      {
+        id: 'custom',
+        label: 'Skema Kustom (Atur Jumlah & Bobot PG/Essay)',
+        maxPg: 25,
+        maxEssay: 10,
+        bobotPg: 70,
+        bobotEssay: 30,
+        isCustom: true,
+      },
+    ],
+    MONTH_NAMES: [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ],
+    KELAS_OPTIONS: [
+      'Kelas 7A',
+      'Kelas 7B',
+      'Kelas 8A',
+      'Kelas 8B',
+      'Kelas 9A',
+      'Kelas 9B',
+      'Kelas 1 MDTA',
+      'Kelas 2 MDTA',
+      'Kelas 3 MDTA',
+      'Kelas 4 MDTA',
+      'Kelas 5 MDTA',
+      'Kelas 6 MDTA',
+    ],
+    MAPEL_OPTIONS: [
+      "Al-Qur'an Hadits",
+      'Aqidah Akhlak',
+      'Fiqih',
+      'Tarikh Islam',
+      'Bahasa Arab',
+      'Tajwid & Tahsin',
+      'Tahfidz Juz 30',
+      'Praktek Ibadah',
+    ],
+  };
+
+  // State bersama lintas modul (tanpa data rekaan)
+  root.MDTA_STATE = {
+    kelas: [],
+    santri: [],
+    users: [],
+    dashboard: null,
+    rekapKepsek: null,
+    rekapKepsekKey: '',
+    rekap: [],
+    lastRekapPeriod: null,
+    nilaiUAS: [],
+    nilaiRaportSaved: [],
+    raportRows: [],
+    dokumenArsip: [],
+    logSetoran: [],
+    presensiToday: [],
+    loaded: {
+      bootstrap: false,
+      dashboard: false,
+      kelas: false,
+      santri: false,
+      rekap: false,
+      uas: false,
+      raport: false,
+      arsip: false,
+      guruPresensi: false,
+    },
+    lastSyncAt: 0,
+    localSyncTs: null,
+  };
+  root.appState = root.MDTA_STATE;
+})(window);

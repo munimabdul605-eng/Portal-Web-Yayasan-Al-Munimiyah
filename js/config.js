@@ -23,6 +23,8 @@
     THEME_KEY: 'mdta_theme',
     CACHE_PREFIX: 'mdta_swr_v1_',
     SYNC_POLL_INTERVAL_MS: 5000,
+    GURU_SYNC_POLL_INTERVAL_MS: 30000,
+    HARI_OPTIONS: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
     PROGRAM_CATEGORIES: ['Diniyyah', 'Tahfidz', 'Tarikh', 'Wustho'],
     DEFAULT_RAPORT_WEIGHTS: {
       harian: 40,

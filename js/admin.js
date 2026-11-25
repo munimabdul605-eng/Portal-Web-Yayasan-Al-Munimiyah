@@ -55,6 +55,7 @@
     editingSantriId: null,
     editingKelasId: null,
     editingKelasOriginalName: '',
+    kelasHariManuallyEdited: false,
     mappingKelasName: '',
     movingSantriId: '',
     selectedSantriIds: new Set(),
@@ -2007,6 +2008,24 @@
               .join('')}</div>`
           : `<span class="text-muted" style="font-size:0.8rem;">Belum ada guru pengampu dipetakan</span>`;
       const katProg = kls.kategori_program || resolveClassKategori(kls.nama_kelas);
+      const hariLabel =
+        typeof API.formatHariMengajarShort === 'function'
+          ? API.formatHariMengajarShort(kls.hari_mengajar_list || kls.hari_mengajar || '')
+          : 'Sen - Jum';
+      const hasFixedClock = Boolean(kls.jam_mulai && kls.jam_selesai);
+      const scheduleText = hasFixedClock
+        ? `${hariLabel}, ${kls.jam_mulai} - ${kls.jam_selesai} WIB`
+        : `${hariLabel}, jam belum diatur`;
+      const todayWib = UI.todayISO();
+      const hasActiveOverride =
+        kls.override_status &&
+        kls.override_status !== 'Normal' &&
+        kls.override_tanggal &&
+        kls.override_tanggal >= todayWib;
+      const overrideLabel =
+        kls.override_status === 'Libur'
+          ? `Libur ${kls.override_tanggal}`
+          : `Ubah Jam ${kls.override_tanggal} (${kls.override_jam_mulai || '--:--'}-${kls.override_jam_selesai || '--:--'})`;
 
       return `
         <article class="kelas-manage-card">
@@ -2023,6 +2042,20 @@
             <span class="status-badge ${kls.status !== 'nonaktif' ? 'status-hadir' : 'status-sakit'}">
               ${kls.status !== 'nonaktif' ? 'Aktif' : 'Nonaktif'}
             </span>
+          </div>
+
+          <div class="kelas-card-schedule">
+            <span class="kelas-card-schedule-row">
+              <i data-lucide="clock" aria-hidden="true" style="width:13px;height:13px;flex-shrink:0;"></i>
+              <span>${UI.esc(scheduleText)}</span>
+            </span>
+            ${
+              hasActiveOverride
+                ? `<span class="status-badge ${kls.override_status === 'Libur' ? 'status-alpa' : 'status-sakit'} kelas-card-override-pill">${UI.esc(overrideLabel)}${
+                    kls.override_catatan ? ` (${UI.esc(kls.override_catatan)})` : ''
+                  }</span>`
+                : ''
+            }
           </div>
 
           ${kls.keterangan ? `<div class="text-muted" style="font-size:0.8rem;">${UI.esc(kls.keterangan)}</div>` : ''}
@@ -2134,13 +2167,52 @@
     UI.refreshIcons(grid);
   }
 
+  function setKelasHariChips(hariList) {
+    const group = document.getElementById('kelas-hari-chips');
+    if (!group) return;
+    const selectedSet = new Set(Array.isArray(hariList) ? hariList : []);
+    group.querySelectorAll('.day-chip[data-kelas-hari]').forEach((btn) => {
+      const active = selectedSet.has(btn.dataset.kelasHari);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      btn.classList.toggle('active', active);
+    });
+  }
+
+  function getSelectedKelasHariChips() {
+    const group = document.getElementById('kelas-hari-chips');
+    if (!group) return [];
+    const order = CONFIG.HARI_OPTIONS || ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    const picked = new Set();
+    group.querySelectorAll('.day-chip[data-kelas-hari]').forEach((btn) => {
+      if (btn.getAttribute('aria-pressed') === 'true') {
+        picked.add(btn.dataset.kelasHari);
+      }
+    });
+    return order.filter((d) => picked.has(d));
+  }
+
+  function syncKelasOverrideFieldsUI() {
+    const statusEl = document.getElementById('kelas-override-status');
+    const fieldsWrap = document.getElementById('kelas-override-fields');
+    const timeRow = document.getElementById('kelas-override-time-row');
+    const dateInput = document.getElementById('kelas-override-tanggal');
+    const statusVal = (statusEl && statusEl.value) || 'Normal';
+    if (fieldsWrap) fieldsWrap.hidden = statusVal === 'Normal';
+    if (timeRow) timeRow.hidden = statusVal !== 'Ubah Jam';
+    if (dateInput && statusVal !== 'Normal' && !dateInput.value) {
+      dateInput.value = UI.todayISO();
+    }
+  }
+
   function closeKelasModal() {
     localState.editingKelasId = null;
     localState.editingKelasOriginalName = '';
+    localState.kelasHariManuallyEdited = false;
     const form = document.getElementById('form-kelas');
     if (form) form.reset();
     const idEl = document.getElementById('kelas-id');
     if (idEl) idEl.value = '';
+    syncKelasOverrideFieldsUI();
     UI.closeModal('modal-kelas');
   }
 
@@ -2152,16 +2224,54 @@
     const hint = document.getElementById('kelas-edit-hint');
     localState.editingKelasId = kelasObj ? (kelasObj.isSynthetic ? '' : kelasObj.id_kelas) : null;
     localState.editingKelasOriginalName = kelasObj ? kelasObj.nama_kelas : '';
+    localState.kelasHariManuallyEdited = Boolean(kelasObj && kelasObj.hari_mengajar);
 
     document.getElementById('kelas-id').value = localState.editingKelasId || '';
     document.getElementById('kelas-nama').value = kelasObj ? kelasObj.nama_kelas : '';
     const katSel = document.getElementById('kelas-kategori-program');
+    const katProg = kelasObj ? (kelasObj.kategori_program || resolveClassKategori(kelasObj.nama_kelas)) : 'Diniyyah';
     if (katSel) {
-      katSel.value = kelasObj ? (kelasObj.kategori_program || resolveClassKategori(kelasObj.nama_kelas)) : 'Diniyyah';
+      katSel.value = katProg;
+      if (typeof UI.syncCustomSelect === 'function') UI.syncCustomSelect(katSel);
     }
     document.getElementById('kelas-tingkat').value = kelasObj ? kelasObj.tingkat || '' : '';
     document.getElementById('kelas-keterangan').value = kelasObj ? kelasObj.keterangan || '' : '';
-    document.getElementById('kelas-status').value = kelasObj ? kelasObj.status || 'aktif' : 'aktif';
+    const statusSel = document.getElementById('kelas-status');
+    if (statusSel) {
+      statusSel.value = kelasObj ? kelasObj.status || 'aktif' : 'aktif';
+      if (typeof UI.syncCustomSelect === 'function') UI.syncCustomSelect(statusSel);
+    }
+
+    const hariList =
+      typeof API.parseHariMengajar === 'function'
+        ? API.parseHariMengajar(kelasObj ? kelasObj.hari_mengajar_list || kelasObj.hari_mengajar : '', katProg)
+        : ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'];
+    setKelasHariChips(hariList);
+
+    const legacyRange =
+      typeof API.parseLegacyJadwalRange === 'function' && kelasObj && !kelasObj.jam_mulai
+        ? API.parseLegacyJadwalRange(kelasObj.jadwal || '')
+        : { jam_mulai: '', jam_selesai: '' };
+    const jamMulaiEl = document.getElementById('kelas-jam-mulai');
+    const jamSelesaiEl = document.getElementById('kelas-jam-selesai');
+    if (jamMulaiEl) jamMulaiEl.value = (kelasObj && kelasObj.jam_mulai) || legacyRange.jam_mulai || '';
+    if (jamSelesaiEl) jamSelesaiEl.value = (kelasObj && kelasObj.jam_selesai) || legacyRange.jam_selesai || '';
+
+    const ovStatusEl = document.getElementById('kelas-override-status');
+    const ovDateEl = document.getElementById('kelas-override-tanggal');
+    const ovStartEl = document.getElementById('kelas-override-jam-mulai');
+    const ovEndEl = document.getElementById('kelas-override-jam-selesai');
+    const ovNoteEl = document.getElementById('kelas-override-catatan');
+    const ovStatus = (kelasObj && kelasObj.override_status) || 'Normal';
+    if (ovStatusEl) {
+      ovStatusEl.value = ovStatus;
+      if (typeof UI.syncCustomSelect === 'function') UI.syncCustomSelect(ovStatusEl);
+    }
+    if (ovDateEl) ovDateEl.value = ovStatus !== 'Normal' && kelasObj ? kelasObj.override_tanggal || '' : '';
+    if (ovStartEl) ovStartEl.value = ovStatus === 'Ubah Jam' && kelasObj ? kelasObj.override_jam_mulai || '' : '';
+    if (ovEndEl) ovEndEl.value = ovStatus === 'Ubah Jam' && kelasObj ? kelasObj.override_jam_selesai || '' : '';
+    if (ovNoteEl) ovNoteEl.value = ovStatus !== 'Normal' && kelasObj ? kelasObj.override_catatan || '' : '';
+    syncKelasOverrideFieldsUI();
 
     if (title) title.textContent = kelasObj && !kelasObj.isSynthetic ? `Edit Kelas (${kelasObj.nama_kelas})` : 'Tambah Kelas Resmi';
     if (hint) hint.hidden = !(kelasObj && !kelasObj.isSynthetic);
@@ -2331,6 +2441,36 @@
     if (closeKelasBtn) closeKelasBtn.addEventListener('click', closeKelasModal);
     if (cancelKelasBtn) cancelKelasBtn.addEventListener('click', closeKelasModal);
 
+    const hariChipsGroup = document.getElementById('kelas-hari-chips');
+    if (hariChipsGroup) {
+      hariChipsGroup.addEventListener('click', (e) => {
+        const chip = e.target && typeof e.target.closest === 'function' ? e.target.closest('.day-chip[data-kelas-hari]') : null;
+        if (!chip) return;
+        const pressed = chip.getAttribute('aria-pressed') === 'true';
+        chip.setAttribute('aria-pressed', pressed ? 'false' : 'true');
+        chip.classList.toggle('active', !pressed);
+        localState.kelasHariManuallyEdited = true;
+      });
+    }
+
+    const katSelectEl = document.getElementById('kelas-kategori-program');
+    if (katSelectEl) {
+      katSelectEl.addEventListener('change', () => {
+        if (!localState.editingKelasId && !localState.kelasHariManuallyEdited) {
+          const defHari =
+            typeof API.defaultHariMengajarForProgram === 'function'
+              ? API.defaultHariMengajarForProgram(katSelectEl.value)
+              : ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'];
+          setKelasHariChips(defHari);
+        }
+      });
+    }
+
+    const ovStatusSel = document.getElementById('kelas-override-status');
+    if (ovStatusSel) {
+      ovStatusSel.addEventListener('change', syncKelasOverrideFieldsUI);
+    }
+
     if (closeMapBtn) closeMapBtn.addEventListener('click', closeKelasGuruModal);
     if (cancelMapBtn) cancelMapBtn.addEventListener('click', closeKelasGuruModal);
 
@@ -2352,6 +2492,55 @@
         const keterangan = document.getElementById('kelas-keterangan').value.trim();
         const status = document.getElementById('kelas-status').value || 'aktif';
 
+        const selectedHari = getSelectedKelasHariChips();
+        const hariMengajar =
+          selectedHari.length > 0
+            ? selectedHari.join(',')
+            : (typeof API.defaultHariMengajarForProgram === 'function'
+                ? API.defaultHariMengajarForProgram(kategoriProgram).join(',')
+                : 'Sen,Sel,Rab,Kam,Jum');
+        const jamMulai = (document.getElementById('kelas-jam-mulai')?.value || '').trim();
+        const jamSelesai = (document.getElementById('kelas-jam-selesai')?.value || '').trim();
+        if ((jamMulai && !jamSelesai) || (!jamMulai && jamSelesai)) {
+          UI.toast('Lengkapi Jam Mulai dan Jam Selesai jadwal tetap.', 'error');
+          return;
+        }
+        if (jamMulai && jamSelesai && jamSelesai <= jamMulai) {
+          UI.toast('Jam Selesai jadwal tetap harus lebih akhir dari Jam Mulai.', 'error');
+          return;
+        }
+
+        const overrideStatus = document.getElementById('kelas-override-status')?.value || 'Normal';
+        let overrideTanggal = (document.getElementById('kelas-override-tanggal')?.value || '').trim();
+        let overrideJamMulai = (document.getElementById('kelas-override-jam-mulai')?.value || '').trim();
+        let overrideJamSelesai = (document.getElementById('kelas-override-jam-selesai')?.value || '').trim();
+        let overrideCatatan = (document.getElementById('kelas-override-catatan')?.value || '').trim();
+
+        if (overrideStatus === 'Normal') {
+          overrideTanggal = '';
+          overrideJamMulai = '';
+          overrideJamSelesai = '';
+          overrideCatatan = '';
+        } else {
+          if (!overrideTanggal) {
+            UI.toast('Pilih Tanggal Berlaku untuk penyesuaian jadwal sementara.', 'error');
+            return;
+          }
+          if (overrideStatus === 'Ubah Jam') {
+            if (!overrideJamMulai || !overrideJamSelesai) {
+              UI.toast('Lengkapi Jam Mulai dan Jam Selesai pengganti.', 'error');
+              return;
+            }
+            if (overrideJamSelesai <= overrideJamMulai) {
+              UI.toast('Jam Selesai pengganti harus lebih akhir dari Jam Mulai pengganti.', 'error');
+              return;
+            }
+          } else {
+            overrideJamMulai = '';
+            overrideJamSelesai = '';
+          }
+        }
+
         if (!namaKelas) {
           UI.toast('Nama kelas wajib diisi.', 'error');
           return;
@@ -2366,6 +2555,14 @@
           tingkat,
           keterangan,
           status,
+          hari_mengajar: hariMengajar,
+          jam_mulai: jamMulai,
+          jam_selesai: jamSelesai,
+          override_status: overrideStatus,
+          override_tanggal: overrideTanggal,
+          override_jam_mulai: overrideJamMulai,
+          override_jam_selesai: overrideJamSelesai,
+          override_catatan: overrideCatatan,
         };
 
         UI.setButtonLoading(saveKelasBtn, true, 'Menyimpan...');

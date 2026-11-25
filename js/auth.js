@@ -810,6 +810,7 @@
     UI.refreshIcons(document);
     UI.bindSpotlights(document);
     if (typeof UI.initMotionInteractions === 'function') UI.initMotionInteractions();
+    if (typeof UI.initCustomSelects === 'function') UI.initCustomSelects(document);
     initTheme();
     initScrollProgress();
     initNavDrawer();

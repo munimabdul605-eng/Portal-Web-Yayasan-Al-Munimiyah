@@ -35,12 +35,34 @@
   let serverTodayPresensi = [];
 
   let guruSyncTimer = null;
+  let guruCountdownTimer = null;
   let guruSyncActive = false;
   let guruSyncUnsupported = false;
   let guruSyncCheckInFlight = false;
   let guruSyncRefreshInFlight = false;
   let guruSyncVisibilityBound = false;
   let localGuruSyncTs = null;
+  let guruNotifEnabled = false;
+  try {
+    guruNotifEnabled = Boolean(
+      root.localStorage &&
+      root.localStorage.getItem('mdta_guru_notif_enabled') === '1' &&
+      typeof root.Notification === 'function' &&
+      root.Notification.permission === 'granted'
+    );
+  } catch (e) {
+    guruNotifEnabled = false;
+  }
+  const remindedScheduleKeys = new Set();
+  try {
+    const savedRem = root.sessionStorage && root.sessionStorage.getItem('mdta_guru_reminded_v1');
+    if (savedRem) {
+      const parsedRem = JSON.parse(savedRem);
+      if (Array.isArray(parsedRem)) parsedRem.forEach((k) => remindedScheduleKeys.add(String(k)));
+    }
+  } catch (e) {
+    // Abaikan bila sessionStorage tidak tersedia
+  }
 
   function recordGuruSyncTs(tsVal) {
     if (tsVal === null || tsVal === undefined || tsVal === '') return;
@@ -734,14 +756,15 @@
       renderGuruAbsenHistory();
     }
 
+    const prevSantri = STATE.santri || [];
+    const prevPresensi = serverTodayPresensi;
+    const prevKelas = STATE.kelas || [];
+
     if (Array.isArray(bundle.kelas)) {
       STATE.kelas = bundle.kelas.map(API.normalizeKelas);
       STATE.loaded.kelas = true;
       if (CACHE) CACHE.write('kelas', STATE.kelas);
     }
-
-    const prevSantri = STATE.santri || [];
-    const prevPresensi = serverTodayPresensi;
 
     if (Array.isArray(bundle.santri)) {
       STATE.santri = API.filterByGuruScope(bundle.santri.map(API.normalizeSantri), guruSession, 'kelas');
@@ -781,11 +804,13 @@
 
     STATE.loaded.guruPresensi = true;
     updateGuruSyncStatusBanner();
+    renderGuruScheduleReminder();
 
     const santriChanged = !CACHE || CACHE.hasChanged(prevSantri, STATE.santri);
     const dataChanged =
       santriChanged ||
       CACHE.hasChanged(prevPresensi, serverTodayPresensi);
+    const kelasChanged = !CACHE || CACHE.hasChanged(prevKelas, STATE.kelas || []);
 
     populateManualKelasSelect();
     if (dataChanged || Array.isArray(bundle.kelas_ampu)) {
@@ -807,6 +832,8 @@
       const ampuChanged = !CACHE || CACHE.hasChanged(prevAmpu, nextAmpu);
       if (ampuChanged) {
         UI.toast('Pemetaan kelas ampu Anda diperbarui oleh Administrator.', 'info');
+      } else if (kelasChanged) {
+        UI.toast('Jadwal kelas diperbarui oleh Administrator.', 'info');
       }
     }
   }
@@ -838,6 +865,7 @@
 
       const kelasAmpu = getGuruKelasAmpu();
       updateGuruSyncStatusBanner();
+      renderGuruScheduleReminder();
 
       if (!force && STATE.loaded.guruPresensi && STATE.santri.length > 0 && kelasAmpu.length > 0) {
         return;
@@ -1501,8 +1529,461 @@ function bindQRPanelEvents() {
 }
 
 // =========================================================================
-// SMART POLLING REAL-TIME GURU (5 DETIK VIA getSyncVersion)
+// PENGINGAT JADWAL & LIVE COUNTDOWN WIB + SMART POLLING 30 DETIK
 // =========================================================================
+function persistRemindedScheduleKey(key) {
+  if (!key) return;
+  remindedScheduleKeys.add(key);
+  try {
+    if (root.sessionStorage) {
+      const tail = Array.from(remindedScheduleKeys).slice(-40);
+      root.sessionStorage.setItem('mdta_guru_reminded_v1', JSON.stringify(tail));
+    }
+  } catch (err) {
+    // Abaikan jika sessionStorage tidak tersedia
+  }
+}
+
+function playScheduleReminderChime() {
+  const ctx = ensureScanAudioContext();
+  if (!ctx || typeof ctx.createOscillator !== 'function') return;
+  try {
+    const now = ctx.currentTime;
+    [
+      { freq: 587.33, start: 0, dur: 0.16 },
+      { freq: 880, start: 0.17, dur: 0.28 },
+    ].forEach((note) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(note.freq, now + note.start);
+      gain.gain.setValueAtTime(0.001, now + note.start);
+      gain.gain.linearRampToValueAtTime(0.16, now + note.start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + note.start + note.dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + note.start);
+      osc.stop(now + note.start + note.dur + 0.02);
+    });
+  } catch (err) {
+    // Abaikan bila pemutaran audio diblokir oleh kebijakan autoplay browser
+  }
+}
+
+function triggerBrowserScheduleNotification(title, body) {
+  if (!guruNotifEnabled || typeof root.Notification !== 'function') return;
+  if (root.Notification.permission !== 'granted') return;
+  try {
+    new root.Notification(title, {
+      body,
+      tag: 'mdta-schedule-reminder',
+    });
+  } catch (err) {
+    // Abaikan jika environment tidak mengizinkan Notification
+  }
+}
+
+function syncGuruNotifButton() {
+  const btn = document.getElementById('btn-guru-notif-toggle');
+  if (!btn) return;
+  const active = Boolean(
+    guruNotifEnabled &&
+    typeof root.Notification === 'function' &&
+    root.Notification.permission === 'granted'
+  );
+  btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  btn.setAttribute('aria-label', active ? 'Notifikasi pengingat aktif, klik untuk nonaktifkan' : 'Aktifkan pengingat notifikasi browser');
+  btn.setAttribute('title', active ? 'Notifikasi Browser Aktif' : 'Aktifkan Notifikasi Browser');
+  btn.innerHTML = `<i data-lucide="${active ? 'bell-ring' : 'bell-off'}" aria-hidden="true"></i>`;
+  UI.refreshIcons(btn);
+}
+
+function formatRemainingParts(totalSec) {
+  const clamped = Math.max(0, Math.floor(Number(totalSec) || 0));
+  const days = Math.floor(clamped / 86400);
+  const rem = clamped % 86400;
+  const hh = Math.floor(rem / 3600);
+  const mm = Math.floor((rem % 3600) / 60);
+  const ss = rem % 60;
+  return {
+    days,
+    hh: String(hh).padStart(2, '0'),
+    mm: String(mm).padStart(2, '0'),
+    ss: String(ss).padStart(2, '0'),
+  };
+}
+
+function getGuruScopedClasses() {
+  const kelasAmpu = getGuruKelasAmpu();
+  if (kelasAmpu.length === 0) return [];
+  const allKelas = Array.isArray(STATE.kelas) ? STATE.kelas : [];
+  const matched = [];
+  const seen = new Set();
+
+  kelasAmpu.forEach((ampuName) => {
+    const key = normKelasKey(ampuName);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    const found = allKelas.find((k) => normKelasKey(k.nama_kelas || k.kelas) === key);
+    if (found) {
+      matched.push(found);
+    } else {
+      matched.push({
+        nama_kelas: ampuName,
+        kategori_program: resolveClassKategori(ampuName),
+        status: 'aktif',
+      });
+    }
+  });
+  return matched;
+}
+
+function renderGuruScheduleReminder() {
+  const card = document.getElementById('guru-schedule-reminder');
+  if (!card) return;
+  const kelasAmpu = getGuruKelasAmpu();
+  if (!guruSession || kelasAmpu.length === 0) {
+    card.hidden = true;
+    return;
+  }
+
+  const now = new Date();
+  const scopedClasses = getGuruScopedClasses();
+  const res =
+    typeof API.resolveClassScheduleState === 'function'
+      ? API.resolveClassScheduleState(scopedClasses, now)
+      : { state: 'unconfigured', nowWib: { isoDate: UI.todayISO(), hour: 0, minute: 0, second: 0 } };
+
+  const nowWib = res.nowWib || { isoDate: UI.todayISO(), hour: 0, minute: 0, second: 0 };
+  if (nowWib.isoDate && nowWib.isoDate !== activeDateWib) {
+    checkGuruDayRollover({ triggerFetch: true });
+  }
+
+  card.hidden = false;
+  card.classList.remove('is-ongoing', 'is-soon', 'is-upcoming', 'is-holiday', 'is-next-day', 'is-unconfigured');
+
+  const statusBadge = document.getElementById('guru-sched-status-badge');
+  const statusText = document.getElementById('guru-sched-status-text');
+  const liveDot = document.getElementById('guru-sched-live-dot');
+  const overrideBadge = document.getElementById('guru-sched-override-badge');
+  const wibClockEl = document.getElementById('guru-sched-wib-clock');
+  const kelasNameEl = document.getElementById('guru-sched-kelas-name');
+  const progBadgeEl = document.getElementById('guru-sched-program-badge');
+  const timeRangeEl = document.getElementById('guru-sched-time-range');
+  const noteEl = document.getElementById('guru-sched-note');
+  const queueEl = document.getElementById('guru-sched-next-queue');
+  const countdownWrap = document.getElementById('guru-sched-countdown-wrap');
+  const countdownLabel = document.getElementById('guru-sched-countdown-label');
+  const daysPillEl = document.getElementById('guru-sched-days-pill');
+  const hhEl = document.getElementById('guru-sched-hh');
+  const mmEl = document.getElementById('guru-sched-mm');
+  const ssEl = document.getElementById('guru-sched-ss');
+  const actionsWrap = document.getElementById('guru-sched-actions');
+  const startPresensiBtn = document.getElementById('btn-sched-start-presensi');
+  const isiMateriBtn = document.getElementById('btn-sched-isi-materi');
+
+  if (wibClockEl) {
+    wibClockEl.textContent = `${String(nowWib.hour).padStart(2, '0')}:${String(nowWib.minute).padStart(2, '0')}:${String(nowWib.second).padStart(2, '0')} WIB`;
+  }
+
+  const updateDigits = (secVal, labelText) => {
+    const parts = formatRemainingParts(secVal);
+    if (hhEl) hhEl.textContent = parts.hh;
+    if (mmEl) mmEl.textContent = parts.mm;
+    if (ssEl) ssEl.textContent = parts.ss;
+    if (countdownLabel) countdownLabel.textContent = labelText || '';
+    if (daysPillEl) {
+      daysPillEl.hidden = parts.days <= 0;
+      if (parts.days > 0) daysPillEl.textContent = `+${parts.days} hari`;
+    }
+  };
+
+  const setActionKelas = (kelasNama, visible) => {
+    if (actionsWrap) actionsWrap.hidden = !visible;
+    if (startPresensiBtn) startPresensiBtn.dataset.kelas = kelasNama || '';
+    if (isiMateriBtn) isiMateriBtn.dataset.kelas = kelasNama || '';
+  };
+
+  if (res.state === 'ongoing' && res.primary) {
+    const k = res.primary.kelas;
+    card.classList.add('is-ongoing');
+    if (statusBadge) statusBadge.className = 'status-badge status-hadir';
+    if (statusText) statusText.textContent = 'Sedang Berlangsung';
+    if (liveDot) liveDot.hidden = false;
+    if (overrideBadge) overrideBadge.hidden = !res.primary.isOverride;
+    if (kelasNameEl) kelasNameEl.textContent = k.nama_kelas;
+    if (progBadgeEl) {
+      progBadgeEl.hidden = false;
+      progBadgeEl.textContent = k.kategori_program || resolveClassKategori(k.nama_kelas);
+    }
+    if (timeRangeEl) {
+      timeRangeEl.textContent = `Jam mengajar ${res.primary.jamMulai} - ${res.primary.jamSelesai} WIB`;
+    }
+    if (noteEl) {
+      const cat = res.primary.isOverride && res.primary.overrideCatatan ? res.primary.overrideCatatan : '';
+      noteEl.hidden = !cat;
+      noteEl.textContent = cat ? `Catatan: ${cat}` : '';
+    }
+    if (queueEl) {
+      const nextToday = (res.todayQueue || [])[0];
+      if (nextToday) {
+        queueEl.hidden = false;
+        queueEl.textContent = `Berikutnya hari ini: ${nextToday.kelas.nama_kelas} (${nextToday.jamMulai} - ${nextToday.jamSelesai} WIB)`;
+      } else {
+        queueEl.hidden = true;
+        queueEl.textContent = '';
+      }
+    }
+    if (countdownWrap) countdownWrap.hidden = false;
+    updateDigits(res.remainingSec, 'Sisa durasi kelas');
+    setActionKelas(k.nama_kelas, true);
+    return;
+  }
+
+  if (res.state === 'upcoming_today' && res.primary) {
+    const k = res.primary.kelas;
+    const isSoon = Boolean(res.isWarningSoon);
+    card.classList.add(isSoon ? 'is-soon' : 'is-upcoming');
+    if (statusBadge) statusBadge.className = isSoon ? 'status-badge status-sakit' : 'status-badge status-izin';
+    if (statusText) statusText.textContent = isSoon ? 'Segera Masuk Kelas' : 'Jadwal Hari Ini';
+    if (liveDot) liveDot.hidden = true;
+    if (overrideBadge) overrideBadge.hidden = !res.primary.isOverride;
+    if (kelasNameEl) kelasNameEl.textContent = k.nama_kelas;
+    if (progBadgeEl) {
+      progBadgeEl.hidden = false;
+      progBadgeEl.textContent = k.kategori_program || resolveClassKategori(k.nama_kelas);
+    }
+    if (timeRangeEl) {
+      timeRangeEl.textContent = `Masuk pukul ${res.primary.jamMulai} - ${res.primary.jamSelesai} WIB`;
+    }
+    if (noteEl) {
+      const cat = res.primary.isOverride && res.primary.overrideCatatan ? res.primary.overrideCatatan : '';
+      noteEl.hidden = !cat;
+      noteEl.textContent = cat ? `Catatan: ${cat}` : '';
+    }
+    if (queueEl) {
+      const hints = [];
+      if (res.todayQueue && res.todayQueue.length > 0) {
+        const nxt = res.todayQueue[0];
+        hints.push(`Berikutnya: ${nxt.kelas.nama_kelas} (${nxt.jamMulai} WIB)`);
+      }
+      if (res.todayHolidays && res.todayHolidays.length > 0) {
+        hints.push(`${res.todayHolidays[0].kelas.nama_kelas} diliburkan hari ini`);
+      }
+      queueEl.hidden = hints.length === 0;
+      queueEl.textContent = hints.join(' | ');
+    }
+    if (countdownWrap) countdownWrap.hidden = false;
+    updateDigits(res.remainingSec, isSoon ? 'Kurang dari 15 menit lagi' : 'Menuju jam masuk');
+    setActionKelas(k.nama_kelas, true);
+
+    if (isSoon) {
+      const reminderKey = `${nowWib.isoDate}|${k.nama_kelas}|${res.primary.jamMulai}`;
+      if (!remindedScheduleKeys.has(reminderKey)) {
+        persistRemindedScheduleKey(reminderKey);
+        const minsLeft = Math.max(1, Math.ceil(res.remainingSec / 60));
+        playScheduleReminderChime();
+        UI.toast(`Pengingat Mengajar: Kelas ${k.nama_kelas} dimulai dalam ${minsLeft} menit (${res.primary.jamMulai} WIB).`, 'warn');
+        triggerBrowserScheduleNotification(
+          `Jadwal Mengajar ${k.nama_kelas}`,
+          `Kelas dimulai dalam ${minsLeft} menit (${res.primary.jamMulai} WIB).`
+        );
+      }
+    }
+    return;
+  }
+
+  if (res.state === 'holiday' && res.primary) {
+    const k = res.primary.kelas;
+    card.classList.add('is-holiday');
+    if (statusBadge) statusBadge.className = 'status-badge status-alpa';
+    if (statusText) statusText.textContent = 'Kelas Diliburkan Hari Ini';
+    if (liveDot) liveDot.hidden = true;
+    if (overrideBadge) overrideBadge.hidden = true;
+    if (kelasNameEl) kelasNameEl.textContent = k.nama_kelas;
+    if (progBadgeEl) {
+      progBadgeEl.hidden = false;
+      progBadgeEl.textContent = k.kategori_program || resolveClassKategori(k.nama_kelas);
+    }
+    if (timeRangeEl) {
+      timeRangeEl.textContent = 'Penyesuaian jadwal sementara aktif khusus hari ini (besok otomatis kembali normal).';
+    }
+    if (noteEl) {
+      const cat = res.primary.overrideCatatan || '';
+      noteEl.hidden = !cat;
+      noteEl.textContent = cat ? `Catatan Admin: ${cat}` : '';
+    }
+    if (res.nextUp) {
+      const n = res.nextUp;
+      if (queueEl) {
+        queueEl.hidden = false;
+        queueEl.textContent = `Jadwal berikutnya: ${n.kelas.nama_kelas} (${n.weekdayFull}, ${n.jamMulai} WIB)`;
+      }
+      if (countdownWrap) countdownWrap.hidden = false;
+      updateDigits(res.remainingSec, `Menuju jadwal ${n.weekdayFull}`);
+    } else {
+      if (queueEl) queueEl.hidden = true;
+      if (countdownWrap) countdownWrap.hidden = true;
+    }
+    setActionKelas(k.nama_kelas, false);
+    return;
+  }
+
+  if (res.state === 'next_day' && res.primary) {
+    const k = res.primary.kelas;
+    card.classList.add('is-next-day');
+    if (statusBadge) statusBadge.className = 'status-badge status-izin';
+    if (statusText) statusText.textContent = 'Jadwal Berikutnya';
+    if (liveDot) liveDot.hidden = true;
+    if (overrideBadge) overrideBadge.hidden = !res.primary.isOverride;
+    if (kelasNameEl) kelasNameEl.textContent = k.nama_kelas;
+    if (progBadgeEl) {
+      progBadgeEl.hidden = false;
+      progBadgeEl.textContent = k.kategori_program || resolveClassKategori(k.nama_kelas);
+    }
+    if (timeRangeEl) {
+      timeRangeEl.textContent = `${res.primary.weekdayFull}, ${res.primary.jamMulai} - ${res.primary.jamSelesai} WIB`;
+    }
+    if (noteEl) {
+      const cat = res.primary.isOverride && res.primary.overrideCatatan ? res.primary.overrideCatatan : '';
+      noteEl.hidden = !cat;
+      noteEl.textContent = cat ? `Catatan: ${cat}` : '';
+    }
+    if (queueEl) {
+      queueEl.hidden = false;
+      queueEl.textContent = 'Hari ini tidak ada kelas aktif tersisa; hitungan mundur menuju pertemuan berikutnya.';
+    }
+    if (countdownWrap) countdownWrap.hidden = false;
+    updateDigits(res.remainingSec, `Menuju ${res.primary.weekdayFull} ${res.primary.jamMulai} WIB`);
+    setActionKelas(k.nama_kelas, true);
+    return;
+  }
+
+  card.classList.add('is-unconfigured');
+  if (statusBadge) statusBadge.className = 'status-badge status-sakit';
+  if (statusText) statusText.textContent = 'Jadwal Belum Diatur';
+  if (liveDot) liveDot.hidden = true;
+  if (overrideBadge) overrideBadge.hidden = true;
+  if (kelasNameEl) kelasNameEl.textContent = kelasAmpu.join(', ');
+  if (progBadgeEl) {
+    progBadgeEl.hidden = false;
+    progBadgeEl.textContent = resolveClassKategori(kelasAmpu[0]);
+  }
+  if (timeRangeEl) {
+    timeRangeEl.textContent = STATE.loaded.kelas
+      ? 'Jam mengajar belum diatur Administrator pada menu Kelola Kelas.'
+      : 'Menyelaraskan jadwal mengajar kelas...';
+  }
+  if (noteEl) noteEl.hidden = true;
+  if (queueEl) queueEl.hidden = true;
+  if (countdownWrap) countdownWrap.hidden = true;
+  setActionKelas(kelasAmpu[0], true);
+}
+
+let scheduleEventsBound = false;
+function bindScheduleReminderEvents() {
+  if (scheduleEventsBound) return;
+  scheduleEventsBound = true;
+
+  const notifBtn = document.getElementById('btn-guru-notif-toggle');
+  if (notifBtn) {
+    notifBtn.addEventListener('click', async () => {
+      if (typeof root.Notification !== 'function') {
+        UI.toast('Browser ini tidak mendukung notifikasi desktop; pengingat visual & suara tetap aktif.', 'info');
+        return;
+      }
+      if (root.Notification.permission === 'denied') {
+        UI.toast('Izin notifikasi diblokir pada pengaturan browser Anda.', 'warn');
+        return;
+      }
+      if (root.Notification.permission === 'granted') {
+        guruNotifEnabled = !guruNotifEnabled;
+        try {
+          if (root.localStorage) root.localStorage.setItem('mdta_guru_notif_enabled', guruNotifEnabled ? '1' : '0');
+        } catch (err) {
+          // Abaikan
+        }
+        syncGuruNotifButton();
+        UI.toast(guruNotifEnabled ? 'Notifikasi pengingat jadwal diaktifkan.' : 'Notifikasi pengingat jadwal dinonaktifkan.', 'info');
+        return;
+      }
+      try {
+        const perm = await root.Notification.requestPermission();
+        guruNotifEnabled = perm === 'granted';
+        if (root.localStorage) root.localStorage.setItem('mdta_guru_notif_enabled', guruNotifEnabled ? '1' : '0');
+        syncGuruNotifButton();
+        if (guruNotifEnabled) {
+          UI.toast('Notifikasi pengingat kelas berhasil diaktifkan.', 'success');
+        } else {
+          UI.toast('Izin notifikasi tidak diberikan; pengingat visual & audio tetap berjalan.', 'info');
+        }
+      } catch (err) {
+        UI.toast('Gagal meminta izin notifikasi browser.', 'warn');
+      }
+    });
+  }
+
+  const startPresensiBtn = document.getElementById('btn-sched-start-presensi');
+  if (startPresensiBtn) {
+    startPresensiBtn.addEventListener('click', () => {
+      const targetKelas = startPresensiBtn.dataset.kelas || getGuruKelasAmpu()[0] || '';
+      if (tabController) tabController.selectByName('presensi', true);
+      if (targetKelas) {
+        const qrSel = document.getElementById('qr-kelas-select');
+        const manSel = document.getElementById('manual-santri-kelas');
+        if (qrSel) {
+          qrSel.value = targetKelas;
+          if (typeof UI.syncCustomSelect === 'function') UI.syncCustomSelect(qrSel);
+        }
+        if (manSel) {
+          manSel.value = targetKelas;
+          if (typeof UI.syncCustomSelect === 'function') UI.syncCustomSelect(manSel);
+        }
+      }
+      const panel = document.getElementById('guru-panel-presensi');
+      if (panel && typeof panel.scrollIntoView === 'function') {
+        panel.scrollIntoView({ behavior: UI.canUseMotion() ? 'smooth' : 'auto', block: 'start' });
+      }
+    });
+  }
+
+  const isiMateriBtn = document.getElementById('btn-sched-isi-materi');
+  if (isiMateriBtn) {
+    isiMateriBtn.addEventListener('click', () => {
+      const targetKelas = isiMateriBtn.dataset.kelas || getGuruKelasAmpu()[0] || '';
+      if (tabController) tabController.selectByName('absen-guru', true);
+      if (targetKelas) {
+        const absenSel = document.getElementById('guru-absen-kelas');
+        if (absenSel) {
+          absenSel.value = targetKelas;
+          if (typeof UI.syncCustomSelect === 'function') UI.syncCustomSelect(absenSel);
+        }
+      }
+      const materiInput = document.getElementById('guru-absen-materi');
+      if (materiInput && typeof materiInput.focus === 'function') {
+        setTimeout(() => materiInput.focus(), 60);
+      }
+    });
+  }
+}
+
+function clearGuruCountdownTimer() {
+  if (guruCountdownTimer !== null) {
+    clearInterval(guruCountdownTimer);
+    guruCountdownTimer = null;
+  }
+}
+
+function startGuruCountdownTimer() {
+  clearGuruCountdownTimer();
+  renderGuruScheduleReminder();
+  if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+    const t = setInterval(renderGuruScheduleReminder, 1000);
+    if (t && typeof t.unref === 'function') t.unref();
+    guruCountdownTimer = t;
+  }
+}
+
 function clearGuruSyncTimer() {
   if (guruSyncTimer !== null) {
     clearInterval(guruSyncTimer);
@@ -1511,10 +1992,12 @@ function clearGuruSyncTimer() {
 }
 
 function scheduleGuruSyncInterval() {
-    clearGuruSyncTimer();
-    const intervalMs = Math.max(2000, Number(CONFIG.SYNC_POLL_INTERVAL_MS) || 5000);
-    guruSyncTimer = setInterval(pollGuruSyncVersion, intervalMs);
-  }
+  clearGuruSyncTimer();
+  const intervalMs = Math.max(5000, Number(CONFIG.GURU_SYNC_POLL_INTERVAL_MS) || 30000);
+  const t = setInterval(pollGuruSyncVersion, intervalMs);
+  if (t && typeof t.unref === 'function') t.unref();
+  guruSyncTimer = t;
+}
 
 async function pollGuruSyncVersion() {
   if (checkGuruDayRollover({ triggerFetch: true })) return;
@@ -1554,9 +2037,11 @@ function handleGuruVisibilityChange() {
   if (!guruSyncActive || guruSyncUnsupported) return;
   if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
     clearGuruSyncTimer();
+    clearGuruCountdownTimer();
   } else {
     const rolledOver = checkGuruDayRollover({ triggerFetch: true });
     scheduleGuruSyncInterval();
+    startGuruCountdownTimer();
     if (!rolledOver) pollGuruSyncVersion();
   }
 }
@@ -1869,6 +2354,7 @@ function init(session) {
     bindQRPanelEvents();
     bindPresensiManualEvents();
     bindGuruAbsenAndProfilEvents();
+    bindScheduleReminderEvents();
 
     tabController = UI.initSlidingTabs(tablist, (tabName) => {
       if (tabName !== 'presensi') {
@@ -1896,14 +2382,17 @@ function init(session) {
     tabController.selectByName('presensi', false);
   }
 
+  syncGuruNotifButton();
   loadGuruBootstrapSWR(false);
   startGuruLiveSync();
+  startGuruCountdownTimer();
 }
 
 function cleanup() {
   closeManualPresensiModal();
   stopQRScanner();
   stopGuruLiveSync();
+  clearGuruCountdownTimer();
 }
 
 root.MDTA_GURU = {
@@ -1911,5 +2400,6 @@ root.MDTA_GURU = {
   cleanup,
   checkDayRollover: checkGuruDayRollover,
   setPresensiMode,
+  renderScheduleReminder: renderGuruScheduleReminder,
 };
 }) (window);

@@ -3238,8 +3238,10 @@ html.light .filter-chip[aria-pressed="true"] {
   .portal-tablist-wrap,
   .no-print,
   .toast-container,
+  .cselect-portal,
   .skip-link,
-  .guru-banner {
+  .guru-banner,
+  .schedule-reminder-card {
     display: none !important;
   }
 
@@ -5354,6 +5356,796 @@ body.drawer-open {
 }
 
 /* ==========================================================================
+   CUSTOM SELECT COMPONENT (ADAPTIVE LIGHT & DARK, POPOVER + BOTTOM SHEET)
+   ========================================================================== */
+.cselect-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.cselect-wrap[hidden] {
+  display: none !important;
+}
+
+select.cselect-native {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-width: 0 !important;
+  max-width: 1px !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  clip-path: inset(50%);
+}
+
+.cselect-trigger {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 12px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: var(--glass-input-bg);
+  border: 1px solid var(--border-control);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color 180ms ease-out,
+    box-shadow 180ms ease-out,
+    background-color 180ms ease-out;
+}
+
+.cselect-trigger:hover:not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+.cselect-trigger:focus-visible,
+.cselect-wrap.is-open .cselect-trigger {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 4px var(--focus-halo);
+}
+
+.cselect-trigger:disabled,
+.cselect-wrap.is-disabled .cselect-trigger {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.cselect-wrap.is-table-select .cselect-trigger {
+  min-height: 32px;
+  padding: 5px 8px;
+  font-size: 0.82rem;
+  border-radius: 10px;
+}
+
+.cselect-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cselect-value.is-placeholder {
+  color: var(--text-muted);
+}
+
+.cselect-chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.cselect-chevron svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 180ms ease-out, color 180ms ease-out;
+}
+
+.cselect-wrap.is-open .cselect-chevron svg {
+  transform: rotate(180deg);
+  color: var(--accent-brand-ink);
+}
+
+.cselect-portal {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+}
+
+.cselect-portal[hidden] {
+  display: none !important;
+}
+
+.cselect-backdrop {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+}
+
+.cselect-sheet-handle,
+.cselect-sheet-head {
+  display: none;
+}
+
+.cselect-panel {
+  position: fixed;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
+  transform-origin: top center;
+  animation: cselectPopoverIn 180ms ease-out both;
+}
+
+.cselect-panel.is-above {
+  transform-origin: bottom center;
+}
+
+.cselect-portal.is-desktop.is-closing .cselect-panel {
+  animation: cselectPopoverOut 180ms ease-out forwards;
+}
+
+.cselect-options {
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cselect-optgroup + .cselect-optgroup {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cselect-optgroup-label {
+  padding: 6px 10px 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.cselect-option {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 140ms ease-out, color 140ms ease-out;
+}
+
+.cselect-option-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.cselect-option:hover:not(:disabled),
+.cselect-option:focus-visible:not(:disabled) {
+  background: var(--bg-subsurface);
+  outline: none;
+}
+
+.cselect-option:focus-visible:not(:disabled) {
+  box-shadow: inset 0 0 0 1.5px var(--focus-ring);
+}
+
+.cselect-option.is-selected {
+  background: var(--accent-brand-soft);
+  color: var(--accent-brand-ink);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--accent-brand-border);
+}
+
+.cselect-option-check {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-brand-ink);
+}
+
+.cselect-option-check svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.4;
+}
+
+.cselect-option:disabled,
+.cselect-option.is-disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.cselect-empty {
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+body.cselect-mobile-open {
+  overflow: hidden;
+}
+
+@media screen and (max-width: 768px) {
+  .cselect-trigger {
+    min-height: 40px;
+  }
+  .santri-bulk-bar .cselect-wrap,
+  .toolbar-actions .cselect-wrap {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+  .manual-kelas-filter .cselect-trigger {
+    min-height: 40px;
+    padding: 6px 10px;
+  }
+  .cselect-portal.is-mobile .cselect-backdrop {
+    background: var(--modal-backdrop);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: cselectBackdropIn 180ms ease-out both;
+  }
+  .cselect-portal.is-mobile.is-closing .cselect-backdrop {
+    animation: cselectBackdropOut 180ms ease-out forwards;
+  }
+  .cselect-portal.is-mobile .cselect-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-height: 76dvh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px 20px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    transform-origin: bottom center;
+    animation: cselectSheetUp 180ms ease-out both;
+  }
+  .cselect-portal.is-mobile.is-closing .cselect-panel {
+    animation: cselectSheetDown 180ms ease-out forwards;
+  }
+  .cselect-portal.is-mobile .cselect-sheet-handle {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 4px;
+    flex: 0 0 auto;
+  }
+  .cselect-portal.is-mobile .cselect-sheet-handle span {
+    width: 38px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--border-strong);
+  }
+  .cselect-portal.is-mobile .cselect-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 16px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex: 0 0 auto;
+  }
+  .cselect-portal.is-mobile .cselect-sheet-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cselect-portal.is-mobile .cselect-sheet-close {
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-subsurface);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .cselect-portal.is-mobile .cselect-sheet-close svg {
+    width: 16px;
+    height: 16px;
+  }
+  .cselect-portal.is-mobile .cselect-options {
+    max-height: none;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 8px 12px calc(16px + env(safe-area-inset-bottom, 0px));
+    gap: 4px;
+  }
+  .cselect-portal.is-mobile .cselect-option {
+    min-height: 46px;
+    padding: 11px 14px;
+    font-size: 0.92rem;
+    border-radius: 12px;
+  }
+}
+
+@keyframes cselectPopoverIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes cselectPopoverOut {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0) scale(0.98);
+  }
+}
+
+@keyframes cselectBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cselectBackdropOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes cselectSheetUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cselectSheetDown {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+}
+
+/* ==========================================================================
+   PENGINGAT JADWAL & LIVE COUNTDOWN GURU + PENGATURAN JADWAL ADMIN
+   ========================================================================== */
+.kelas-schedule-box,
+.kelas-override-box {
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--glass-subcard-bg);
+  border: 1px solid var(--glass-inner-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kelas-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.day-chips-group {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.day-chip {
+  min-height: 36px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border-control);
+  background: var(--glass-control-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out,
+    color 160ms ease-out,
+    transform 160ms var(--ease-spring);
+}
+
+.day-chip:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-subsurface);
+}
+
+.day-chip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--focus-halo);
+}
+
+.day-chip[aria-pressed="true"],
+.day-chip.active {
+  background: var(--accent-brand-soft);
+  border-color: var(--accent-brand-border);
+  color: var(--accent-brand-ink);
+  font-weight: 700;
+}
+
+.kelas-card-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kelas-card-schedule-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.kelas-card-override-pill {
+  align-self: flex-start;
+  font-size: 0.74rem;
+}
+
+.schedule-reminder-card {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-left: 4px solid var(--accent-brand);
+}
+
+.schedule-reminder-card.is-ongoing {
+  border-left-color: var(--status-hadir-fg);
+}
+
+.schedule-reminder-card.is-soon {
+  border-left-color: var(--status-sakit-fg);
+}
+
+.schedule-reminder-card.is-holiday {
+  border-left-color: var(--status-alpa-fg);
+}
+
+.sched-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sched-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sched-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--status-hadir-fg);
+  box-shadow: 0 0 0 0 var(--status-hadir-bd);
+  animation: schedLivePulse 1.6s ease-out infinite;
+  flex-shrink: 0;
+}
+
+.sched-top-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sched-wib-clock {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--glass-subcard-bg);
+  border: 1px solid var(--glass-inner-border);
+}
+
+.sched-notif-btn[aria-pressed="true"] {
+  background: var(--accent-brand-soft);
+  border-color: var(--accent-brand-border);
+  color: var(--accent-brand-ink);
+}
+
+.sched-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.sched-info-col {
+  flex: 1 1 260px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sched-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sched-time-range {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.sched-note {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--status-sakit-fg);
+  background: var(--status-sakit-bg);
+  border: 1px solid var(--status-sakit-bd);
+  padding: 5px 10px;
+  border-radius: 8px;
+  align-self: flex-start;
+}
+
+.schedule-reminder-card.is-holiday .sched-note {
+  color: var(--status-alpa-fg);
+  background: var(--status-alpa-bg);
+  border-color: var(--status-alpa-bd);
+}
+
+.sched-next-queue {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.sched-right-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex: 0 1 auto;
+}
+
+.sched-countdown-box {
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--glass-subcard-bg);
+  border: 1px solid var(--glass-inner-border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.schedule-reminder-card.is-ongoing .sched-countdown-box {
+  background: var(--status-hadir-bg);
+  border-color: var(--status-hadir-bd);
+}
+
+.schedule-reminder-card.is-soon .sched-countdown-box {
+  background: var(--status-sakit-bg);
+  border-color: var(--status-sakit-bd);
+}
+
+.schedule-reminder-card.is-holiday .sched-countdown-box {
+  background: var(--status-alpa-bg);
+  border-color: var(--status-alpa-bd);
+}
+
+.sched-countdown-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sched-countdown-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.sched-days-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--accent-brand-soft);
+  color: var(--accent-brand-ink);
+  border: 1px solid var(--accent-brand-border);
+}
+
+.sched-countdown-digits {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 1.38rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.schedule-reminder-card.is-ongoing .sched-countdown-digits {
+  color: var(--status-hadir-fg);
+}
+
+.schedule-reminder-card.is-soon .sched-countdown-digits {
+  color: var(--status-sakit-fg);
+}
+
+.schedule-reminder-card.is-holiday .sched-countdown-digits {
+  color: var(--status-alpa-fg);
+}
+
+.sched-seg {
+  min-width: 2ch;
+  text-align: center;
+}
+
+.sched-sep {
+  opacity: 0.6;
+}
+
+.sched-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@keyframes schedLivePulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .day-chips-group {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .day-chip {
+    min-height: 40px;
+    font-size: 0.8rem;
+  }
+  .schedule-reminder-card {
+    padding: 12px;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .sched-card-body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .sched-info-col {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .sched-right-col {
+    width: 100%;
+    align-items: stretch;
+  }
+  .sched-countdown-box {
+    width: 100%;
+    align-items: center;
+    padding: 10px 12px;
+  }
+  .sched-countdown-digits {
+    font-size: 1.45rem;
+  }
+  .sched-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+  .sched-quick-actions > .btn {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
    REDUCED MOTION SUPPORT (R-39)
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -5365,7 +6157,8 @@ body.drawer-open {
     transition-duration: 0.01ms !important;
   }
   .ui-ripple,
-  .toast-progress {
+  .toast-progress,
+  .sched-live-dot {
     display: none !important;
   }
 }

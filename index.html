@@ -27,20 +27,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="./css/tokens.css?v=20261123-37" />
-  <link rel="stylesheet" href="./css/style.css?v=20261123-37" />
+  <link rel="stylesheet" href="./css/tokens.css?v=20261123-39" />
+  <link rel="stylesheet" href="./css/style.css?v=20261123-39" />
 
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script defer src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <script defer src="./js/config.js?v=20261123-37"></script>
-  <script defer src="./js/api.js?v=20261123-37"></script>
-  <script defer src="./js/calculators.js?v=20261123-37"></script>
-  <script defer src="./js/admin.js?v=20261123-37"></script>
-  <script defer src="./js/guru.js?v=20261123-37"></script>
-  <script defer src="./js/auth.js?v=20261123-37"></script>
+  <script defer src="./js/config.js?v=20261123-39"></script>
+  <script defer src="./js/api.js?v=20261123-39"></script>
+  <script defer src="./js/calculators.js?v=20261123-39"></script>
+  <script defer src="./js/admin.js?v=20261123-39"></script>
+  <script defer src="./js/guru.js?v=20261123-39"></script>
+  <script defer src="./js/auth.js?v=20261123-39"></script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Langsung ke konten utama</a>
@@ -836,6 +836,65 @@
         </div>
       </div>
 
+      <section id="guru-schedule-reminder" class="surface-card schedule-reminder-card no-print" aria-live="polite" hidden>
+        <div class="card-spotlight-layer" aria-hidden="true"></div>
+        <div class="sched-card-top">
+          <div class="sched-badge-row">
+            <span id="guru-sched-status-badge" class="status-badge status-izin">
+              <span id="guru-sched-live-dot" class="sched-live-dot" aria-hidden="true" hidden></span>
+              <i data-lucide="clock" aria-hidden="true" style="width:14px;height:14px;"></i>
+              <span id="guru-sched-status-text">Jadwal Mengajar</span>
+            </span>
+            <span id="guru-sched-override-badge" class="status-badge status-sakit" hidden>Jadwal Disesuaikan</span>
+          </div>
+          <div class="sched-top-tools">
+            <span id="guru-sched-wib-clock" class="sched-wib-clock mono-num">00:00:00 WIB</span>
+            <button id="btn-guru-notif-toggle" type="button" class="btn btn-secondary btn-icon-sm sched-notif-btn" aria-pressed="false" aria-label="Aktifkan pengingat notifikasi browser" title="Pengingat Notifikasi Browser">
+              <i data-lucide="bell-off" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="sched-card-body">
+          <div class="sched-info-col">
+            <div class="sched-title-row">
+              <h2 id="guru-sched-kelas-name" class="heading-lg">-</h2>
+              <span id="guru-sched-program-badge" class="status-badge status-izin">Diniyyah</span>
+            </div>
+            <p id="guru-sched-time-range" class="sched-time-range">-</p>
+            <p id="guru-sched-note" class="sched-note" hidden></p>
+            <p id="guru-sched-next-queue" class="sched-next-queue" hidden></p>
+          </div>
+
+          <div class="sched-right-col">
+            <div id="guru-sched-countdown-wrap" class="sched-countdown-box">
+              <div class="sched-countdown-head">
+                <span id="guru-sched-countdown-label" class="sched-countdown-label">Menuju jam masuk</span>
+                <span id="guru-sched-days-pill" class="sched-days-pill mono-num" hidden>+0 hari</span>
+              </div>
+              <div class="sched-countdown-digits mono-num" aria-label="Hitungan mundur waktu jadwal">
+                <span id="guru-sched-hh" class="sched-seg">00</span>
+                <span class="sched-sep">:</span>
+                <span id="guru-sched-mm" class="sched-seg">00</span>
+                <span class="sched-sep">:</span>
+                <span id="guru-sched-ss" class="sched-seg">00</span>
+              </div>
+            </div>
+
+            <div id="guru-sched-actions" class="sched-quick-actions" hidden>
+              <button id="btn-sched-start-presensi" type="button" class="btn btn-primary btn-sm">
+                <i data-lucide="qr-code" aria-hidden="true"></i>
+                <span>Mulai Presensi</span>
+              </button>
+              <button id="btn-sched-isi-materi" type="button" class="btn btn-secondary btn-sm">
+                <i data-lucide="notebook-pen" aria-hidden="true"></i>
+                <span>Isi Materi</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div id="guru-unmapped-alert" class="inline-alert inline-alert-warn no-print" role="alert" hidden>
         <i data-lucide="alert-triangle" aria-hidden="true" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;"></i>
         <span id="guru-unmapped-alert-msg"></span>
@@ -1308,7 +1367,7 @@
        MODAL TAMBAH / EDIT KELAS RESMI
        =================================================================== -->
   <div id="modal-kelas" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="kelas-modal-title" hidden>
-    <div class="modal-panel modal-panel-sm">
+    <div class="modal-panel">
       <div class="modal-header">
         <div>
           <span class="eyebrow-label">Master Kelas Madrasah</span>
@@ -1350,6 +1409,72 @@
           <label class="field-label" for="kelas-keterangan">Keterangan (Opsional)</label>
           <input id="kelas-keterangan" type="text" class="input-control" placeholder="Contoh: Rombel Pagi" />
         </div>
+
+        <div class="kelas-schedule-box">
+          <div class="kelas-box-header">
+            <span class="field-label" style="display:inline-flex;align-items:center;gap:6px;">
+              <i data-lucide="calendar-clock" aria-hidden="true" style="width:15px;height:15px;"></i>
+              <span>Jadwal Tetap Mengajar (WIB)</span>
+            </span>
+          </div>
+          <div class="field-group">
+            <span class="field-label">Hari Mengajar</span>
+            <div id="kelas-hari-chips" class="day-chips-group" role="group" aria-label="Pilih hari mengajar">
+              <button type="button" class="day-chip" data-kelas-hari="Sen" aria-pressed="false">Sen</button>
+              <button type="button" class="day-chip" data-kelas-hari="Sel" aria-pressed="false">Sel</button>
+              <button type="button" class="day-chip" data-kelas-hari="Rab" aria-pressed="false">Rab</button>
+              <button type="button" class="day-chip" data-kelas-hari="Kam" aria-pressed="false">Kam</button>
+              <button type="button" class="day-chip" data-kelas-hari="Jum" aria-pressed="false">Jum</button>
+              <button type="button" class="day-chip" data-kelas-hari="Sab" aria-pressed="false">Sab</button>
+              <button type="button" class="day-chip" data-kelas-hari="Min" aria-pressed="false">Min</button>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="field-group">
+              <label class="field-label" for="kelas-jam-mulai">Jam Mulai</label>
+              <input id="kelas-jam-mulai" type="time" class="input-control mono-num" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="kelas-jam-selesai">Jam Selesai</label>
+              <input id="kelas-jam-selesai" type="time" class="input-control mono-num" />
+            </div>
+          </div>
+        </div>
+
+        <div class="kelas-override-box">
+          <div class="field-group">
+            <label class="field-label" for="kelas-override-status" style="display:inline-flex;align-items:center;gap:6px;">
+              <i data-lucide="calendar-range" aria-hidden="true" style="width:15px;height:15px;"></i>
+              <span>Penyesuaian Sementara (Opsional, Khusus 1 Tanggal)</span>
+            </label>
+            <select id="kelas-override-status" class="select-control">
+              <option value="Normal">Normal (Ikuti Jadwal Tetap)</option>
+              <option value="Ubah Jam">Ubah Jam (Tanggal Tertentu)</option>
+              <option value="Libur">Libur (Tanggal Tertentu)</option>
+            </select>
+          </div>
+          <div id="kelas-override-fields" class="stack-gap" style="gap:10px;margin-top:8px;" hidden>
+            <div class="field-group">
+              <label class="field-label" for="kelas-override-tanggal">Tanggal Berlaku</label>
+              <input id="kelas-override-tanggal" type="date" class="input-control mono-num" />
+            </div>
+            <div id="kelas-override-time-row" class="form-grid-2" hidden>
+              <div class="field-group">
+                <label class="field-label" for="kelas-override-jam-mulai">Jam Mulai Pengganti</label>
+                <input id="kelas-override-jam-mulai" type="time" class="input-control mono-num" />
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="kelas-override-jam-selesai">Jam Selesai Pengganti</label>
+                <input id="kelas-override-jam-selesai" type="time" class="input-control mono-num" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="kelas-override-catatan">Catatan Singkat (Opsional)</label>
+              <input id="kelas-override-catatan" type="text" class="input-control" placeholder="Contoh: Diundur karena rapat / Libur tanggal merah" />
+            </div>
+          </div>
+        </div>
+
         <p id="kelas-edit-hint" class="text-muted" style="margin:0;font-size:0.78rem;" hidden>Jika nama kelas diubah, seluruh data santri &amp; pemetaan guru untuk kelas ini otomatis ikut diperbarui.</p>
         <div class="modal-footer" style="padding:12px 0 0;border-top:none;">
           <button id="btn-cancel-kelas-modal" type="button" class="btn btn-secondary">Batal</button>

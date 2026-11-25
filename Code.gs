@@ -30,6 +30,17 @@ const LOG_SETORAN_HEADERS = [
   'waktu_submit'
 ];
 
+const KELAS_SCHEDULE_COLUMNS = [
+  'hari_mengajar',
+  'jam_mulai',
+  'jam_selesai',
+  'override_tanggal',
+  'override_status',
+  'override_jam_mulai',
+  'override_jam_selesai',
+  'override_catatan'
+];
+
 const KELAS_HEADERS = [
   'id_kelas',
   'nama_kelas',
@@ -38,7 +49,7 @@ const KELAS_HEADERS = [
   'keterangan',
   'status',
   'created_at'
-];
+].concat(KELAS_SCHEDULE_COLUMNS);
 
 const USER_PROFILE_COLUMNS = [
   'no_wa',
@@ -357,7 +368,7 @@ function isSchemaCached(key) {
   const cache = getScriptCacheSafe();
   if (!cache) return false;
   try {
-    return cache.get('mdta_schema_ok_v1_' + key) === '1';
+    return cache.get('mdta_schema_ok_v2_' + key) === '1';
   } catch (err) {
     return false;
   }
@@ -367,7 +378,7 @@ function markSchemaCached(key) {
   const cache = getScriptCacheSafe();
   if (!cache) return;
   try {
-    cache.put('mdta_schema_ok_v1_' + key, '1', 21600);
+    cache.put('mdta_schema_ok_v2_' + key, '1', 21600);
   } catch (err) {
     // Abaikan jika CacheService tidak tersedia
   }
@@ -679,6 +690,107 @@ function ensureSheetProgramColumn(sheetName) {
   return sheet;
 }
 
+const KELAS_DAY_ORDER = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
+function defaultHariMengajarForProgram(kategoriProgram) {
+  const kat = normalizeKategoriProgram(kategoriProgram, '');
+  return kat === 'Wustho' ? 'Sen,Sel,Rab,Kam,Jum,Sab,Min' : 'Sen,Sel,Rab,Kam,Jum';
+}
+
+function padTwoDigits(n) {
+  const num = Number(n);
+  return (num < 10 ? '0' : '') + String(num);
+}
+
+function normalizeTimeHHMM(val) {
+  if (val === undefined || val === null || val === '') return '';
+  if (val instanceof Date) {
+    const hms = Utilities.formatDate(val, 'Asia/Jakarta', 'HH:mm:ss');
+    return String(hms || '').slice(0, 5);
+  }
+  const s = String(val).trim();
+  if (!s) return '';
+  const directMatch = s.match(/^(\d{1,2})[:.](\d{2})(?::\d{2})?$/);
+  if (directMatch) {
+    const hh = parseInt(directMatch[1], 10);
+    const mm = parseInt(directMatch[2], 10);
+    if (hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59) {
+      return padTwoDigits(hh) + ':' + padTwoDigits(mm);
+    }
+    return '';
+  }
+  const isoParsed = new Date(s);
+  if (!isNaN(isoParsed.getTime())) {
+    const hms = Utilities.formatDate(isoParsed, 'Asia/Jakarta', 'HH:mm:ss');
+    return String(hms || '').slice(0, 5);
+  }
+  return '';
+}
+
+function parseLegacyJadwalRange(rawJadwal) {
+  const raw = String(rawJadwal || '').trim();
+  if (!raw) return { jam_mulai: '', jam_selesai: '' };
+  const matches = raw.match(/\d{1,2}[:.]\d{2}/g) || [];
+  const start = matches[0] ? normalizeTimeHHMM(matches[0]) : '';
+  const end = matches[1] ? normalizeTimeHHMM(matches[1]) : '';
+  return { jam_mulai: start, jam_selesai: end };
+}
+
+function mapSingleHariToken(tok) {
+  const clean = String(tok || '').trim().toLowerCase().replace(/[^a-z]/g, '');
+  if (!clean) return '';
+  if (clean.indexOf('sen') === 0) return 'Sen';
+  if (clean.indexOf('sel') === 0) return 'Sel';
+  if (clean.indexOf('rab') === 0) return 'Rab';
+  if (clean.indexOf('kam') === 0) return 'Kam';
+  if (clean.indexOf('jum') === 0) return 'Jum';
+  if (clean.indexOf('sab') === 0) return 'Sab';
+  if (clean.indexOf('min') === 0 || clean.indexOf('ahad') === 0) return 'Min';
+  return '';
+}
+
+function normalizeHariMengajar(raw, kategoriProgram, allowEmpty) {
+  const picked = {};
+  const list = Array.isArray(raw)
+    ? raw
+    : String(raw || '').split(/[,;|]+/);
+
+  list.forEach(item => {
+    const part = String(item || '').trim();
+    if (!part) return;
+    const rangeParts = part.split(/\s*(?:-|s\/d|sd|hingga)\s*/i);
+    if (rangeParts.length === 2) {
+      const d1 = mapSingleHariToken(rangeParts[0]);
+      const d2 = mapSingleHariToken(rangeParts[1]);
+      const i1 = KELAS_DAY_ORDER.indexOf(d1);
+      const i2 = KELAS_DAY_ORDER.indexOf(d2);
+      if (i1 >= 0 && i2 >= i1) {
+        for (let idx = i1; idx <= i2; idx++) {
+          picked[KELAS_DAY_ORDER[idx]] = true;
+        }
+        return;
+      }
+    }
+    part.split(/\s+/).forEach(word => {
+      const mapped = mapSingleHariToken(word);
+      if (mapped) picked[mapped] = true;
+    });
+  });
+
+  const ordered = KELAS_DAY_ORDER.filter(d => Boolean(picked[d]));
+  if (ordered.length === 0) {
+    return allowEmpty ? '' : defaultHariMengajarForProgram(kategoriProgram);
+  }
+  return ordered.join(',');
+}
+
+function normalizeOverrideStatus(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  if (s === 'libur') return 'Libur';
+  if (s === 'ubah jam' || s === 'ubah_jam' || s === 'ganti jam') return 'Ubah Jam';
+  return 'Normal';
+}
+
 function ensureAbsensiGuruSheet() {
   if (_requestEnsured.absensi_guru) return _requestEnsured.absensi_guru;
   const sheet = ensureSheet('Absensi_Guru', ABSENSI_GURU_HEADERS);
@@ -733,6 +845,10 @@ function ensureKelasSheet() {
     return existing;
   }
   const sheet = ensureSheet('Kelas', KELAS_HEADERS);
+  if (!isSchemaCached('kelas_schedule')) {
+    KELAS_SCHEDULE_COLUMNS.forEach(col => ensureColumn(sheet, col));
+    markSchemaCached('kelas_schedule');
+  }
 
   if (!hadData) {
     const uniqueMap = {};
@@ -758,14 +874,27 @@ function ensureKelasSheet() {
 
     const now = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
     const sortedNames = Object.keys(uniqueMap).map(k => uniqueMap[k]).sort();
-    const seedRows = sortedNames.map((namaKelas, idx) => [
-      'KLS-' + String(idx + 1).padStart(3, '0'),
-      namaKelas,
-      '',
-      'Sinkron otomatis dari data santri',
-      'aktif',
-      now
-    ]);
+    const seedRows = sortedNames.map((namaKelas, idx) => {
+      const katProg = normalizeKategoriProgram('', namaKelas);
+      const rowObj = {
+        id_kelas: 'KLS-' + String(idx + 1).padStart(3, '0'),
+        nama_kelas: namaKelas,
+        kategori_program: katProg,
+        tingkat: '',
+        keterangan: 'Sinkron otomatis dari data santri',
+        status: 'aktif',
+        created_at: now,
+        hari_mengajar: defaultHariMengajarForProgram(katProg),
+        jam_mulai: '',
+        jam_selesai: '',
+        override_tanggal: '',
+        override_status: 'Normal',
+        override_jam_mulai: '',
+        override_jam_selesai: '',
+        override_catatan: ''
+      };
+      return KELAS_HEADERS.map(h => rowObj[h] !== undefined ? rowObj[h] : '');
+    });
     if (seedRows.length > 0) {
       batchAppendRows(sheet, seedRows);
     }
@@ -1374,14 +1503,35 @@ function handleGetKelas(scope) {
   const list = getSheetData('Kelas')
     .map(k => {
       const nama = String(k.nama_kelas || '').trim();
+      const katProg = normalizeKategoriProgram(k.kategori_program, nama);
+      const legacy = parseLegacyJadwalRange(k.jadwal || k.jadwal_kelas || '');
+      const jamMulai = normalizeTimeHHMM(k.jam_mulai) || legacy.jam_mulai;
+      const jamSelesai = normalizeTimeHHMM(k.jam_selesai) || legacy.jam_selesai;
+      const hariMengajar = normalizeHariMengajar(k.hari_mengajar, katProg, false);
+      const overrideStatus = normalizeOverrideStatus(k.override_status);
+      const overrideTanggal = formatDateOnlyWIB(k.override_tanggal);
+      const overrideJamMulai = overrideStatus === 'Ubah Jam' ? normalizeTimeHHMM(k.override_jam_mulai) : '';
+      const overrideJamSelesai = overrideStatus === 'Ubah Jam' ? normalizeTimeHHMM(k.override_jam_selesai) : '';
+      const overrideCatatan = String(k.override_catatan || '').trim();
+      const jadwalDisplay = String(k.jadwal || '').trim() || (jamMulai && jamSelesai ? (jamMulai + '-' + jamSelesai) : '');
+
       return {
         id_kelas: String(k.id_kelas || ''),
         nama_kelas: nama,
-        kategori_program: normalizeKategoriProgram(k.kategori_program, nama),
+        kategori_program: katProg,
         tingkat: String(k.tingkat || '').trim(),
         keterangan: String(k.keterangan || '').trim(),
         status: String(k.status || 'aktif').trim().toLowerCase(),
-        created_at: formatDateOnlyWIB(k.created_at)
+        created_at: formatDateOnlyWIB(k.created_at),
+        jadwal: jadwalDisplay,
+        hari_mengajar: hariMengajar,
+        jam_mulai: jamMulai,
+        jam_selesai: jamSelesai,
+        override_tanggal: overrideTanggal,
+        override_status: overrideStatus,
+        override_jam_mulai: overrideJamMulai,
+        override_jam_selesai: overrideJamSelesai,
+        override_catatan: overrideCatatan
       };
     })
     .filter(k => Boolean(k.nama_kelas));
@@ -1403,6 +1553,45 @@ function handleSaveKelas(data) {
   const tingkat = String((data && data.tingkat) || '').trim();
   const keterangan = String((data && data.keterangan) || '').trim();
   const status = String((data && data.status) || 'aktif').trim().toLowerCase();
+
+  const hariMengajar = normalizeHariMengajar(data && data.hari_mengajar, kategoriProgram, false);
+  const legacyReq = parseLegacyJadwalRange(data && (data.jadwal || data.jadwal_kelas || ''));
+  const jamMulai = normalizeTimeHHMM(data && data.jam_mulai) || legacyReq.jam_mulai;
+  const jamSelesai = normalizeTimeHHMM(data && data.jam_selesai) || legacyReq.jam_selesai;
+  if ((jamMulai && !jamSelesai) || (!jamMulai && jamSelesai)) {
+    throw new Error('Lengkapi Jam Mulai dan Jam Selesai jadwal tetap.');
+  }
+  if (jamMulai && jamSelesai && jamSelesai <= jamMulai) {
+    throw new Error('Jam Selesai jadwal tetap harus lebih akhir dari Jam Mulai.');
+  }
+
+  let overrideStatus = normalizeOverrideStatus(data && data.override_status);
+  let overrideTanggal = formatDateOnlyWIB(data && data.override_tanggal);
+  let overrideJamMulai = normalizeTimeHHMM(data && data.override_jam_mulai);
+  let overrideJamSelesai = normalizeTimeHHMM(data && data.override_jam_selesai);
+  let overrideCatatan = String((data && data.override_catatan) || '').trim();
+
+  if (overrideStatus === 'Normal') {
+    overrideTanggal = '';
+    overrideJamMulai = '';
+    overrideJamSelesai = '';
+    overrideCatatan = '';
+  } else {
+    if (!overrideTanggal) {
+      throw new Error('Tanggal berlaku penyesuaian sementara wajib diisi.');
+    }
+    if (overrideStatus === 'Ubah Jam') {
+      if (!overrideJamMulai || !overrideJamSelesai) {
+        throw new Error('Jam mulai dan jam selesai pengganti wajib diisi untuk status Ubah Jam.');
+      }
+      if (overrideJamSelesai <= overrideJamMulai) {
+        throw new Error('Jam selesai pengganti harus lebih akhir dari jam mulai pengganti.');
+      }
+    } else {
+      overrideJamMulai = '';
+      overrideJamSelesai = '';
+    }
+  }
 
   if (!namaKelas) {
     throw new Error('Nama kelas wajib diisi.');
@@ -1440,6 +1629,14 @@ function handleSaveKelas(data) {
       if (h === 'keterangan') return keterangan;
       if (h === 'status') return status;
       if (h === 'created_at') return existing.created_at || now;
+      if (h === 'hari_mengajar') return hariMengajar;
+      if (h === 'jam_mulai') return jamMulai;
+      if (h === 'jam_selesai') return jamSelesai;
+      if (h === 'override_tanggal') return overrideTanggal;
+      if (h === 'override_status') return overrideStatus;
+      if (h === 'override_jam_mulai') return overrideJamMulai;
+      if (h === 'override_jam_selesai') return overrideJamSelesai;
+      if (h === 'override_catatan') return overrideCatatan;
       return existing[h] !== undefined ? existing[h] : '';
     });
     sheet.getRange(existing._rowIndex, 1, 1, headers.length).setValues([updated]);
@@ -1500,6 +1697,15 @@ function handleSaveKelas(data) {
       keterangan: keterangan,
       status: status,
       created_at: formatDateOnlyWIB(existing.created_at || now),
+      hari_mengajar: hariMengajar,
+      jam_mulai: jamMulai,
+      jam_selesai: jamSelesai,
+      jadwal: jamMulai && jamSelesai ? (jamMulai + '-' + jamSelesai) : '',
+      override_tanggal: overrideTanggal,
+      override_status: overrideStatus,
+      override_jam_mulai: overrideJamMulai,
+      override_jam_selesai: overrideJamSelesai,
+      override_catatan: overrideCatatan,
       renamed_from: normalizeKelasName(oldName) !== normalizeKelasName(namaKelas) ? oldName : '',
       updated: true,
       sync_ts: syncTs
@@ -1519,7 +1725,15 @@ function handleSaveKelas(data) {
     tingkat: tingkat,
     keterangan: keterangan,
     status: status || 'aktif',
-    created_at: now
+    created_at: now,
+    hari_mengajar: hariMengajar,
+    jam_mulai: jamMulai,
+    jam_selesai: jamSelesai,
+    override_tanggal: overrideTanggal,
+    override_status: overrideStatus,
+    override_jam_mulai: overrideJamMulai,
+    override_jam_selesai: overrideJamSelesai,
+    override_catatan: overrideCatatan
   };
   sheet.appendRow(headers.map(h => newRowValues[h] !== undefined ? newRowValues[h] : ''));
   delete _requestSheetData['Kelas'];
@@ -1532,6 +1746,15 @@ function handleSaveKelas(data) {
     keterangan: keterangan,
     status: status || 'aktif',
     created_at: now,
+    hari_mengajar: hariMengajar,
+    jam_mulai: jamMulai,
+    jam_selesai: jamSelesai,
+    jadwal: jamMulai && jamSelesai ? (jamMulai + '-' + jamSelesai) : '',
+    override_tanggal: overrideTanggal,
+    override_status: overrideStatus,
+    override_jam_mulai: overrideJamMulai,
+    override_jam_selesai: overrideJamSelesai,
+    override_catatan: overrideCatatan,
     created: true,
     sync_ts: syncTs
   };

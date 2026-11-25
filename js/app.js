@@ -1520,48 +1520,198 @@
         }
       });
 
-      // PPDB Form Submission Handler
-      ppdbForm.addEventListener('submit', () => {
+      // PPDB Form Submission Handler (Direct Fetch Multi-Page Protocol + Fallback)
+      ppdbForm.addEventListener('submit', (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+
         const submitBtn = document.getElementById('btn-submit-ppdb');
         const submitText = document.getElementById('btn-submit-ppdb-text');
         if (submitBtn) submitBtn.disabled = true;
         if (submitText) submitText.textContent = 'Mengirim Data Pendaftaran...';
 
-        const studentName = document.getElementById('ppdb-student-name')?.value || '-';
-        const unitRadio = ppdbForm.querySelector('input[name="entry.886746899"]:checked')?.value || '-';
-        const waveRadio = ppdbForm.querySelector('input[name="entry.1502592928"]:checked')?.value || '-';
-        const discountCat = document.getElementById('ppdb-discount-cat')?.value || '-';
-        const tahfidzCat = document.getElementById('ppdb-tahfidz-cat')?.value || '-';
-        const parentName = document.getElementById('ppdb-parent-name')?.value || '-';
-        const parentPhone = document.getElementById('ppdb-parent-phone')?.value || '-';
+        const studentName = document.getElementById('ppdb-student-name')?.value?.trim() || '';
+        const unitRadio = ppdbForm.querySelector('input[name="entry.886746899"]:checked')?.value || 'SD';
+        const waveRadio = ppdbForm.querySelector('input[name="entry.1502592928"]:checked')?.value || 'Gelombang 1';
+        const discountCat = document.getElementById('ppdb-discount-cat')?.value || 'Reguler / Umum';
+        const tahfidzCat = document.getElementById('ppdb-tahfidz-cat')?.value || 'Tidak Ada';
+        const paymentRadio = ppdbForm.querySelector('input[name="entry.1676886351"]:checked')?.value || 'LUNAS';
+        const parentName = document.getElementById('ppdb-parent-name')?.value?.trim() || '';
+        const parentPhone = document.getElementById('ppdb-parent-phone')?.value?.trim() || '';
 
-        setTimeout(() => {
+        // Hitung estimasi nomor registrasi, VA BSI, biaya formulir, dan total tagihan resmi
+        const currentFilled = state.liveQuotaStats.reduce((s, q) => s + (q.filled || 0), 0) || 22;
+        const seqNumber = currentFilled + 1;
+        const seqStr = String(seqNumber).padStart(4, '0');
+        const unitCodes = { PG: '1', TK: '2', SD: '3', SMP: '4', SMA: '5' };
+        const unitCode = unitCodes[unitRadio] || '3';
+        const regNumber = `YPIA-26-${unitRadio}-${seqStr}`;
+        const vaNumber = `900120${unitCode}${seqStr}`;
+
+        // Rincian Tarif & Diskon Resmi PPDB YPIA
+        const formFees = { PG: 250000, TK: 250000, SD: 350000, SMP: 400000, SMA: 450000 };
+        const dppNormals = { PG: 5500000, TK: 7500000, SD: 14500000, SMP: 17500000, SMA: 20000000 };
+        const otherFees = { PG: 3950000, TK: 4550000, SD: 6650000, SMP: 7450000, SMA: 8100000 };
+
+        const formFee = formFees[unitRadio] || 350000;
+        const dppNormal = dppNormals[unitRadio] || 14500000;
+        const otherFee = otherFees[unitRadio] || 6650000;
+
+        let waveDiscPct = 0;
+        if (waveRadio === 'Gelombang 1') waveDiscPct = 0.15;
+        else if (waveRadio === 'Gelombang 2') waveDiscPct = 0.08;
+
+        let statutaDiscPct = 0;
+        if (tahfidzCat.includes('10 Juz') || discountCat.includes('Afirmasi')) statutaDiscPct = 1.0;
+        else if (tahfidzCat.includes('5 Juz')) statutaDiscPct = 0.5;
+        else if (discountCat.includes('Alumni')) statutaDiscPct = 0.2;
+        else if (discountCat.includes('Sibling') || discountCat.includes('Saudara')) statutaDiscPct = 0.1;
+
+        let lunasDiscPct = paymentRadio === 'LUNAS' ? 0.03 : 0.0;
+        const totalDiscPct = Math.min(1.0, waveDiscPct + statutaDiscPct + lunasDiscPct);
+        const dppNet = Math.round(dppNormal * (1 - totalDiscPct));
+        const totalBill = dppNet + otherFee;
+
+        const formatRp = (num) => 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+        const cleanPhone = (phone) => {
+          let p = (phone || '').replace(/[^0-9]/g, '');
+          if (p.startsWith('0')) p = '62' + p.substring(1);
+          return p;
+        };
+        const parentPhoneClean = cleanPhone(parentPhone);
+
+        // Tampilkan Ringkasan Faktur & Tagihan Sukses Seketika
+        const successBanner = document.getElementById('ppdb-success-banner');
+        const summaryEl = document.getElementById('ppdb-success-summary');
+        const waParentBtn = document.getElementById('ppdb-wa-parent-btn');
+        const waConfirmBtn = document.getElementById('ppdb-wa-confirm-btn');
+
+        if (summaryEl) {
+          summaryEl.innerHTML = `
+            <div class="space-y-2">
+              <div class="flex flex-wrap items-center justify-between border-b border-hairline pb-2 text-xs">
+                <span>No. Registrasi: <strong class="text-ink-primary font-bold text-sm tracking-wide">${esc(regNumber)}</strong></span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded text-[11px]">Terdaftar Resmi</span>
+              </div>
+              <div class="p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 space-y-1">
+                <div class="text-[10px] uppercase tracking-wider text-ink-muted font-sans font-bold">Nomor Virtual Account BSI Resmi:</div>
+                <div class="text-base font-bold text-ink-primary font-mono tracking-wider flex items-center justify-between">
+                  <span class="select-all">${esc(vaNumber)}</span>
+                  <span class="text-[10px] font-sans font-normal text-ink-muted">Bank Syariah Indonesia (BSI)</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                <div>&bull; Biaya Formulir: <strong class="text-ink-primary">${formatRp(formFee)}</strong></div>
+                <div>&bull; Est. Daftar Ulang: <strong class="text-ink-primary">${formatRp(totalBill)}</strong></div>
+                <div>&bull; Calon Siswa: <strong>${esc(studentName || '-')}</strong> (${esc(unitRadio)})</div>
+                <div>&bull; Orang Tua/Wali: <strong>${esc(parentName || '-')}</strong> (${esc(parentPhone || '-')})</div>
+                <div>&bull; Skema: <strong>${esc(paymentRadio === 'LUNAS' ? 'Pelunasan Sekaligus (Diskon 3%)' : 'Cicilan 3x Termin')}</strong></div>
+                <div>&bull; Diskon Akumulasi: <strong>${Math.round(totalDiscPct * 100)}%</strong></div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Pesan Resmi Tagihan & VA untuk dikirimkan ke WhatsApp Orang Tua
+        const invoiceMsgForParent = `*INVOICE & NOMOR VIRTUAL ACCOUNT PPDB YPIA TA 2026/2027*
+Yayasan Pendidikan Islam Al-Mun'imiyah
+
+Assalamu'alaikum Warahmatullahi Wabarakatuh,
+Yth. Ayah/Bunda *${parentName || 'Orang Tua / Wali'}*,
+Wali dari calon siswa: *${studentName}* (Jenjang ${unitRadio})
+
+Alhamdulillah, data pendaftaran Ananda telah berhasil dicatat resmi di Sistem Penerimaan Peserta Didik Baru (PPDB) Yayasan Pendidikan Islam Al-Mun'imiyah.
+
+📋 *DATA REGISTRASI RESMI:*
+• No. Registrasi : *${regNumber}*
+• Jenjang Tujuan : *${unitRadio}*
+• Gelombang      : *${waveRadio}*
+• Kategori Jalur : *${discountCat}*
+• Skema Bayar    : *${paymentRadio === 'LUNAS' ? 'Pelunasan Sekaligus (Diskon Ekstra 3%)' : 'Cicilan 3x Termin Resmi'}*
+
+💳 *REKENING VIRTUAL ACCOUNT RESMI (BSI):*
+• Bank Penerima  : *Bank Syariah Indonesia (BSI)*
+• Nomor VA       : *${vaNumber}*
+• Atas Nama      : *YPI AL-MUN'IMIYAH - ${studentName}*
+• Biaya Formulir : *${formatRp(formFee)}*
+• Estimasi Tagihan Daftar Ulang : *${formatRp(totalBill)}* (Diskon DPP ${Math.round(totalDiscPct * 100)}%)
+
+📌 *PETUNJUK PEMBAYARAN:*
+1. Pembayaran Biaya Formulir sebesar *${formatRp(formFee)}* dilakukan via BSI Mobile / ATM / Transfer Antarbank ke Nomor VA BSI di atas (Pilih Bank Syariah Indonesia / Kode Bank 451).
+2. Simpan bukti transfer untuk validasi berkas pada saat observasi / pemetaan minat bakat siswa.
+3. Hotline & Layanan Informasi Resmi YPIA: *0895-3782-33567*.
+
+Jazakumullah Khairan Katsiran atas kepercayaan Ayah/Bunda kepada Yayasan Pendidikan Islam Al-Mun'imiyah.
+Wassalamu'alaikum Warahmatullahi Wabarakatuh.
+_Panitia PPDB YPIA Kota Bandung_`;
+
+        if (waParentBtn) {
+          const targetWa = parentPhoneClean || '62895378233567';
+          waParentBtn.href = `https://wa.me/${targetWa}?text=${encodeURIComponent(invoiceMsgForParent)}`;
+          const waParentText = document.getElementById('ppdb-wa-parent-text');
+          if (waParentText) {
+            waParentText.textContent = parentPhone ? `Kirim VA ke No WA Tertera (${parentPhone}) ↗` : 'Kirim VA ke No WA Tertera ↗';
+          }
+        }
+
+        if (waConfirmBtn) {
+          const adminWaMsg = `Assalamu'alaikum Panitia PPDB YPIA. Saya mengonfirmasi pendaftaran online siswa:
+• Nama Siswa: ${studentName} (${unitRadio})
+• No. Registrasi: ${regNumber}
+• No. VA BSI: ${vaNumber}
+• Biaya Formulir: ${formatRp(formFee)}
+• Estimasi Daftar Ulang: ${formatRp(totalBill)}
+• Orang Tua: ${parentName} (${parentPhone})
+Mohon verifikasi nomor registrasi dan jadwal observasi Ananda. Terima kasih.`;
+          waConfirmBtn.href = `https://wa.me/62895378233567?text=${encodeURIComponent(adminWaMsg)}`;
+        }
+
+        if (successBanner) {
+          successBanner.classList.remove('hidden');
+          successBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Siapkan payload form data lengkap (mengirim langsung via fetch no-cors yang kebal batasan iframe)
+        const params = new URLSearchParams();
+        params.append('fvv', '1');
+        params.append('pageHistory', '0,1');
+        params.append('entry.8597841', studentName);
+        params.append('entry.886746899', unitRadio);
+        params.append('entry.1502592928', waveRadio);
+        params.append('entry.1880708247', discountCat);
+        params.append('entry.447849860', tahfidzCat);
+        params.append('entry.1676886351', paymentRadio);
+        params.append('entry.2102236790', parentName);
+        params.append('entry.1381684453', parentPhone);
+
+        const formActionUrl = ppdbForm.getAttribute('action') || 'https://docs.google.com/forms/d/e/1FAIpQLSeYFTTWE3y8D9O_Q3IXDNZ6x7QxFB_02IMNyntsuNkB8jAoHA/formResponse';
+
+        // Eksekusi pengiriman data langsung ke Google Forms
+        fetch(formActionUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params.toString()
+        }).then(() => {
+          console.log('[PPDB Form] Berhasil dikirimkan ke Google Forms via Direct Fetch');
+        }).catch((err) => {
+          console.warn('[PPDB Form] Direct fetch gagal, mencoba fallback iframe:', err);
+          try {
+            ppdbForm.submit();
+          } catch (_) {}
+        }).finally(() => {
           if (submitBtn) submitBtn.disabled = false;
           if (submitText) submitText.textContent = 'Kirim Formulir Pendaftaran Sekarang';
 
-          const successBanner = document.getElementById('ppdb-success-banner');
-          const summaryEl = document.getElementById('ppdb-success-summary');
-          const waBtn = document.getElementById('ppdb-wa-confirm-btn');
+          // Sinkronisasi kuota realtime beberapa detik setelah pendaftaran masuk
+          setTimeout(() => syncLiveQuotaFromSheets(), 1500);
+          setTimeout(() => syncLiveQuotaFromSheets(), 4000);
+          setTimeout(() => syncLiveQuotaFromSheets(), 7500);
+        });
 
-          if (summaryEl) {
-            summaryEl.innerHTML = `
-              <div>&bull; Calon Siswa: <strong>${esc(studentName)}</strong></div>
-              <div>&bull; Jenjang: <strong>${esc(unitRadio)}</strong> &middot; Gelombang: <strong>${esc(waveRadio)}</strong></div>
-              <div>&bull; Diskon: <strong>${esc(discountCat)}</strong> &middot; Tahfidz: <strong>${esc(tahfidzCat)}</strong></div>
-              <div>&bull; Orang Tua/Wali: <strong>${esc(parentName)}</strong> (${esc(parentPhone)})</div>
-            `;
-          }
-
-          if (waBtn) {
-            const waMsg = `Assalamu'alaikum Admin PPDB YPIA. Saya telah mengisi formulir online untuk calon siswa: ${studentName} (Jenjang ${unitRadio}, ${waveRadio}). Mohon konfirmasi nomor registrasi & VA resmi. Terima kasih.`;
-            waBtn.href = `https://wa.me/6281122334455?text=${encodeURIComponent(waMsg)}`;
-          }
-
-          if (successBanner) {
-            successBanner.classList.remove('hidden');
-            successBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-
+        // Form reset ditunda 4 detik agar tidak mengosongkan input sebelum dikirim
+        setTimeout(() => {
           ppdbForm.reset();
           const sdCard = ppdbForm.querySelector('input[value="SD"]')?.closest('.form-radio-card');
           const g1Card = ppdbForm.querySelector('input[value="Gelombang 1"]')?.closest('.form-radio-card');
@@ -1570,11 +1720,7 @@
           if (sdCard) sdCard.classList.add('is-selected');
           if (g1Card) g1Card.classList.add('is-selected');
           if (lunasCard) lunasCard.classList.add('is-selected');
-
-          // Auto-sync kuota realtime dari Google Sheets respon form setelah pendaftaran baru
-          setTimeout(() => syncLiveQuotaFromSheets(), 2200);
-          setTimeout(() => syncLiveQuotaFromSheets(), 5500);
-        }, 600);
+        }, 4000);
       });
     }
 
@@ -1646,9 +1792,11 @@
 
   let eventsBound = false;
   async function init() {
+    console.log('[APP] init() started');
     if (!eventsBound) {
       setupEvents();
       eventsBound = true;
+      console.log('[APP] setupEvents() finished');
     }
     try {
       try {
@@ -1660,12 +1808,19 @@
         if (!res.ok) throw new Error('HTTP ' + res.status);
         KB = await res.json();
       }
+      console.log('[APP] KB loaded, rendering sections...');
       renderBeranda();
+      console.log('[APP] renderBeranda done');
       renderProfil();
+      console.log('[APP] renderProfil done');
       renderUnit();
+      console.log('[APP] renderUnit done');
       renderPPDB();
+      console.log('[APP] renderPPDB done');
       renderKonsultasi();
+      console.log('[APP] renderKonsultasi done');
       renderDriveModal();
+      console.log('[APP] renderDriveModal done');
       bindCardSpotlights();
       observeReveals();
       window.requestAnimationFrame(() => {
@@ -1676,7 +1831,9 @@
 
       // Live Auto-Sync Kuota PPDB dari Google Sheets
       await syncLiveQuotaFromSheets();
+      console.log('[APP] syncLiveQuotaFromSheets done');
     } catch (err) {
+      console.error('[APP] init error:', err);
       renderErrorState(err && err.message ? err.message : 'Koneksi ke berkas data gagal.');
     }
   }

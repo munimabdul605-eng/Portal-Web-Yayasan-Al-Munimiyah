@@ -38,6 +38,7 @@
     }
   }
 
+  let themeIconTimer = null;
   function initTheme() {
     syncThemeUI();
     const btn = document.getElementById('btn-theme-toggle');
@@ -52,6 +53,19 @@
         // Abaikan pembatasan penyimpanan lokal
       }
       syncThemeUI();
+      if (UI && typeof UI.canUseMotion === 'function' && UI.canUseMotion()) {
+        const iconHolder = document.getElementById('theme-toggle-icon-wrap');
+        if (iconHolder) {
+          if (themeIconTimer) clearTimeout(themeIconTimer);
+          iconHolder.classList.remove('is-theme-pop');
+          void iconHolder.offsetWidth;
+          iconHolder.classList.add('is-theme-pop');
+          themeIconTimer = setTimeout(() => {
+            themeIconTimer = null;
+            iconHolder.classList.remove('is-theme-pop');
+          }, 420);
+        }
+      }
     });
   }
 
@@ -429,11 +443,18 @@
     }
   }
 
+  let drawerCloseTimer = null;
   function openNavDrawer() {
     const drawer = document.getElementById('app-nav-drawer');
     const backdrop = document.getElementById('app-drawer-backdrop');
     const btn = document.getElementById('btn-nav-drawer');
     if (!drawer) return;
+    if (drawerCloseTimer) {
+      clearTimeout(drawerCloseTimer);
+      drawerCloseTimer = null;
+    }
+    drawer.classList.remove('is-closing');
+    if (backdrop) backdrop.classList.remove('is-closing');
     drawer.hidden = false;
     if (backdrop) backdrop.hidden = false;
     if (btn) btn.setAttribute('aria-expanded', 'true');
@@ -444,10 +465,29 @@
     const drawer = document.getElementById('app-nav-drawer');
     const backdrop = document.getElementById('app-drawer-backdrop');
     const btn = document.getElementById('btn-nav-drawer');
-    if (drawer) drawer.hidden = true;
-    if (backdrop) backdrop.hidden = true;
     if (btn) btn.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('drawer-open');
+    if (UI && typeof UI.canUseMotion === 'function' && UI.canUseMotion() && drawer && !drawer.hidden) {
+      if (drawerCloseTimer) return;
+      drawer.classList.add('is-closing');
+      if (backdrop) backdrop.classList.add('is-closing');
+      drawerCloseTimer = setTimeout(() => {
+        drawerCloseTimer = null;
+        drawer.classList.remove('is-closing');
+        if (backdrop) backdrop.classList.remove('is-closing');
+        drawer.hidden = true;
+        if (backdrop) backdrop.hidden = true;
+      }, 200);
+      return;
+    }
+    if (drawer) {
+      drawer.classList.remove('is-closing');
+      drawer.hidden = true;
+    }
+    if (backdrop) {
+      backdrop.classList.remove('is-closing');
+      backdrop.hidden = true;
+    }
   }
 
   function initNavDrawer() {
@@ -769,6 +809,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     UI.refreshIcons(document);
     UI.bindSpotlights(document);
+    if (typeof UI.initMotionInteractions === 'function') UI.initMotionInteractions();
     initTheme();
     initScrollProgress();
     initNavDrawer();

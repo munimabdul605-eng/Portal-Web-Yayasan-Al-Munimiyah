@@ -19,24 +19,28 @@
     })();
   </script>
 
+  <link rel="dns-prefetch" href="https://script.google.com" />
+  <link rel="dns-prefetch" href="https://script.googleusercontent.com" />
+  <link rel="preconnect" href="https://script.google.com" crossorigin />
+  <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="./css/tokens.css?v=20261123-33" />
-  <link rel="stylesheet" href="./css/style.css?v=20261123-33" />
+  <link rel="stylesheet" href="./css/tokens.css?v=20261123-37" />
+  <link rel="stylesheet" href="./css/style.css?v=20261123-37" />
 
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script defer src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <script defer src="./js/config.js?v=20261123-33"></script>
-  <script defer src="./js/api.js?v=20261123-33"></script>
-  <script defer src="./js/calculators.js?v=20261123-33"></script>
-  <script defer src="./js/admin.js?v=20261123-33"></script>
-  <script defer src="./js/guru.js?v=20261123-33"></script>
-  <script defer src="./js/auth.js?v=20261123-33"></script>
+  <script defer src="./js/config.js?v=20261123-37"></script>
+  <script defer src="./js/api.js?v=20261123-37"></script>
+  <script defer src="./js/calculators.js?v=20261123-37"></script>
+  <script defer src="./js/admin.js?v=20261123-37"></script>
+  <script defer src="./js/guru.js?v=20261123-37"></script>
+  <script defer src="./js/auth.js?v=20261123-37"></script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Langsung ke konten utama</a>
@@ -311,7 +315,7 @@
 
       <!-- TAB 1: BERANDA KEPALA MADRASAH -->
       <div id="admin-panel-dashboard" class="tab-panel stack-gap" role="tabpanel" aria-labelledby="admin-tab-dashboard">
-        <!-- Bar Kontrol Tanggal, Kelas & Mode Laporan -->
+        <!-- Bar Kontrol Kelas & Mode Laporan -->
         <section class="surface-card stack-gap kepsek-control-card no-print">
           <div class="card-spotlight-layer" aria-hidden="true"></div>
           <div class="section-toolbar" style="margin-bottom:0;">
@@ -327,17 +331,11 @@
             </div>
           </div>
 
-          <div class="form-grid">
-            <div class="field-group">
-              <label class="field-label" for="kepsek-filter-tanggal">Tanggal</label>
-              <input id="kepsek-filter-tanggal" type="date" class="input-control" />
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="kepsek-filter-kelas">Kelas</label>
-              <select id="kepsek-filter-kelas" class="select-control">
-                <option value="">Semua Kelas</option>
-              </select>
-            </div>
+          <div class="field-group kepsek-kelas-filter-group">
+            <label class="field-label" for="kepsek-filter-kelas">Kelas</label>
+            <select id="kepsek-filter-kelas" class="select-control">
+              <option value="">Semua Kelas</option>
+            </select>
           </div>
 
           <div id="kepsek-program-pills" class="filter-chip-row" role="group" aria-label="Filter kategori program">

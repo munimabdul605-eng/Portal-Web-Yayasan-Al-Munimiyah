@@ -1090,6 +1090,7 @@
   API.savePresensi(payload)
     .then((res) => {
       const d = res.data || res;
+      if (d && d.sync_ts !== undefined) recordGuruSyncTs(d.sync_ts);
       const resolvedNama = API.pick(d, ['santri', 'nama_santri'], initialNama);
       optimisticEntry.id_presensi = d.id_presensi || '';
       optimisticEntry.nama_santri = resolvedNama;
@@ -1159,6 +1160,8 @@
 }
             }
 
+let cachedQrCameras = null;
+
 async function startQRScanner() {
   ensureScanAudioContext();
   hideCameraFallback();
@@ -1181,11 +1184,16 @@ async function startQRScanner() {
   UI.setButtonLoading(startBtn, true, 'Menyiapkan Kamera...');
 
   try {
-    const cameras = await root.Html5Qrcode.getCameras();
+    const cameras =
+      Array.isArray(cachedQrCameras) && cachedQrCameras.length > 0
+        ? cachedQrCameras
+        : await root.Html5Qrcode.getCameras();
     const selectEl = document.getElementById('qr-camera-select');
     if (!cameras || cameras.length === 0) {
+      cachedQrCameras = null;
       throw new Error('Tidak ada perangkat kamera yang terdeteksi pada perangkat ini.');
     }
+    cachedQrCameras = cameras;
 
     if (selectEl) {
       const prev = selectEl.value;
@@ -1226,6 +1234,7 @@ async function startQRScanner() {
     scannerRunning = true;
     updateScannerButtons(true);
   } catch (err) {
+    cachedQrCameras = null;
     scannerRunning = false;
     updateScannerButtons(false);
     const rawMsg = String((err && err.message) || err || '');
@@ -1366,6 +1375,7 @@ function bindPresensiManualEvents() {
       try {
         const res = await API.savePresensi(entriesToSubmit);
         const d = res.data || res || {};
+        if (d.sync_ts !== undefined) recordGuruSyncTs(d.sync_ts);
         const savedItems = Array.isArray(d.items) && d.items.length > 0 ? d.items : entriesToSubmit;
 
         submittedDraftKeys.forEach((dk) => manualDraftMap.delete(dk));
@@ -1429,6 +1439,7 @@ function bindPresensiManualEvents() {
       try {
         const res = await API.clearPresensiHarian({ tanggal: todayWib });
         const d = res.data || res || {};
+        if (d.sync_ts !== undefined) recordGuruSyncTs(d.sync_ts);
 
         sessionPresensiLogs.length = 0;
         serverTodayPresensi = [];
@@ -1747,6 +1758,7 @@ function bindGuruAbsenAndProfilEvents() {
           keterangan: ket,
         });
         const saved = (res && res.data) || res || {};
+        if (saved.sync_ts !== undefined) recordGuruSyncTs(saved.sync_ts);
         const prevList = Array.isArray(STATE.absensiGuruToday) ? STATE.absensiGuruToday : [];
         const filtered = prevList.filter((item) => item.id_absen_guru !== saved.id_absen_guru);
         STATE.absensiGuruToday = [saved].concat(filtered);
@@ -1806,6 +1818,7 @@ function bindGuruAbsenAndProfilEvents() {
           foto_mime: pendingProfilFotoMime || '',
         });
         const updated = (res && res.data) || res || {};
+        if (updated.sync_ts !== undefined) recordGuruSyncTs(updated.sync_ts);
         pendingProfilFotoBase64 = '';
         pendingProfilFotoMime = '';
         if (uploadedDataUrl) recentUploadedFotoDataUrl = uploadedDataUrl;

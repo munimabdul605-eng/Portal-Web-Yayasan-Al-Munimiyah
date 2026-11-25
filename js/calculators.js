@@ -256,7 +256,7 @@
           <div class="section-toolbar" style="margin-bottom:0;">
             <div>
               <h3 class="heading-md">Daftar Santri Kelas</h3>
-              <p id="${scope}-uas-limits-hint" class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Batas skema: Maks 25 PG, Maks 10 Essay (Setengah Benar = 0.5x Essay).</p>
+              <p id="${scope}-uas-limits-hint" class="text-muted" style="margin:2px 0 0;font-size:0.78rem;">Batas skema: Maks 25 PG, Maks 10 Essay (Setengah Benar = 0.5x Essay).</p>
             </div>
             <span id="${scope}-uas-roster-count" class="status-badge status-izin mono-num">0 santri</span>
           </div>
@@ -306,7 +306,7 @@
           <div class="section-toolbar" style="margin-bottom:0;">
             <div>
               <h3 class="heading-md">Riwayat Nilai UAS</h3>
-              <p class="text-muted" style="margin:4px 0 0;font-size:0.8125rem;">Data resmi yang tersimpan di Admin. Gunakan Bersihkan Log / Reset Sesi sebelum memulai sesi penilaian baru.</p>
+              <p class="text-muted" style="margin:2px 0 0;font-size:0.78rem;">Data resmi yang tersimpan di Admin. Gunakan Bersihkan Log / Reset Sesi sebelum memulai sesi penilaian baru.</p>
             </div>
             <div class="toolbar-actions">
               <button type="button" id="${scope}-uas-clear-session" class="btn btn-danger btn-sm">
@@ -1592,7 +1592,7 @@
 
         <!-- Pengaturan Bobot (Default 40 / 40 / 20) -->
         <div class="sub-surface no-print">
-          <div class="section-toolbar" style="margin-bottom:10px;">
+          <div class="section-toolbar" style="margin-bottom:8px;">
             <strong style="font-size:0.9rem;">Pengaturan Bobot Penilaian (%)</strong>
             <div class="toolbar-actions">
               <span id="${scope}-raport-weight-badge" class="status-badge status-hadir mono-num">Total: 100%</span>
@@ -1618,7 +1618,7 @@
               <datalist id="${scope}-raport-mapel-list">${mapelOptions}</datalist>
             </div>
           </div>
-          <div class="form-grid" style="margin-top:12px;">
+          <div class="form-grid" style="margin-top:8px;">
             <div class="field-group">
               <label class="field-label" for="${scope}-raport-kelas-filter">Filter Kelas</label>
               <select id="${scope}-raport-kelas-filter" class="select-control">
@@ -2224,11 +2224,27 @@
       }
       try {
         const now = new Date();
+        const semVal = (semSelect && semSelect.value) || '';
+        const taVal = (tahunInput && tahunInput.value) || '';
+        const needSantri = force || !STATE.santri || STATE.santri.length === 0 || !STATE.loaded.santri;
+        const needRaport = force || !STATE.nilaiRaportSaved || STATE.nilaiRaportSaved.length === 0 || !STATE.loaded.bootstrap;
+
+        const [santriOutcome, rekapOutcome, raportOutcome] = await Promise.allSettled([
+          needSantri ? API.getSantri() : Promise.resolve(null),
+          API.getRekapLaporan(now.getMonth() + 1, now.getFullYear(), {
+            semester: semVal,
+            tahun_ajaran: taVal,
+          }).catch(() => null),
+          needRaport ? API.getNilaiRaport().catch(() => null) : Promise.resolve(null),
+        ]);
+        if (mySeq !== raportSyncSeq) return;
+
         let santriList = STATE.santri || [];
-        if (force || santriList.length === 0 || !STATE.loaded.santri) {
-          const santriRes = await API.getSantri();
-          if (mySeq !== raportSyncSeq) return;
-          santriList = API.extractArray(santriRes, ['santri']).map(API.normalizeSantri);
+        if (needSantri) {
+          if (santriOutcome.status === 'rejected') {
+            throw santriOutcome.reason;
+          }
+          santriList = API.extractArray(santriOutcome.value, ['santri']).map(API.normalizeSantri);
           if (scope === 'guru') santriList = API.filterByGuruScope(santriList, sess, 'kelas');
           STATE.santri = santriList;
           STATE.loaded.santri = true;
@@ -2238,15 +2254,9 @@
         }
         santriList = santriList.filter((s) => API.isActiveSantri(s));
 
-        let rekapMap = new Map();
-        try {
-          const semVal = (semSelect && semSelect.value) || '';
-          const taVal = (tahunInput && tahunInput.value) || '';
-          const rekapRes = await API.getRekapLaporan(now.getMonth() + 1, now.getFullYear(), {
-            semester: semVal,
-            tahun_ajaran: taVal,
-          });
-          if (mySeq !== raportSyncSeq) return;
+        const rekapMap = new Map();
+        const rekapRes = rekapOutcome.status === 'fulfilled' ? rekapOutcome.value : null;
+        if (rekapRes) {
           const rekapList = API.extractArray(rekapRes, ['rekap']).map(API.normalizeRekap);
           rekapList.forEach((rk) => {
             if (rk.total > 0) {
@@ -2255,23 +2265,20 @@
               rekapMap.set(`${rk.nama_lengkap.trim().toLowerCase()}::${kKey}`, rk.persentase);
             }
           });
-        } catch (err) {
-          // Gunakan nilai raport tersimpan bila rekap bulan belum tersedia
         }
 
         let savedRaportList = STATE.nilaiRaportSaved || [];
-        if (force || savedRaportList.length === 0 || !STATE.loaded.bootstrap) {
-          try {
-            const rptRes = await API.getNilaiRaport();
-            if (mySeq !== raportSyncSeq) return;
+        if (needRaport) {
+          const rptRes = raportOutcome.status === 'fulfilled' ? raportOutcome.value : null;
+          if (rptRes) {
             savedRaportList = API.extractArray(rptRes, ['raport'])
               .map(API.normalizeNilaiRaport)
               .filter((r) => isValidNamaSantri(r.nama_santri));
             if (scope === 'guru') savedRaportList = API.filterByGuruScope(savedRaportList, sess, 'kelas');
             STATE.nilaiRaportSaved = savedRaportList;
             if (CACHE_CUR) CACHE_CUR.write('nilaiRaportSaved', savedRaportList);
-          } catch (err) {
-            savedRaportList = STATE.nilaiRaportSaved || [];
+          } else if (scope === 'guru') {
+            savedRaportList = API.filterByGuruScope(savedRaportList, sess, 'kelas');
           }
         } else if (scope === 'guru') {
           savedRaportList = API.filterByGuruScope(savedRaportList, sess, 'kelas');

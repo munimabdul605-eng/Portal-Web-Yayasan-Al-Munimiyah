@@ -193,6 +193,17 @@
     return s;
   }
 
+  function canUseMotion() {
+    if (typeof root.matchMedia !== 'function' || typeof root.getComputedStyle !== 'function') {
+      return false;
+    }
+    try {
+      return !root.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (err) {
+      return true;
+    }
+  }
+
   // Toast Notification
   function toast(message, type) {
     const container = document.getElementById('toast-container');
@@ -215,19 +226,32 @@
       <button type="button" class="btn-icon-sm btn-secondary" aria-label="Tutup notifikasi" style="min-height:30px;min-width:30px;padding:0;border-radius:6px;">
         <i data-lucide="x" aria-hidden="true" style="width:14px;height:14px;"></i>
       </button>
+      <span class="toast-progress" aria-hidden="true"></span>
     `;
 
     const closeBtn = el.querySelector('button');
     let timer = null;
+    let exitTimer = null;
+    let removed = false;
     const removeToast = () => {
+      if (removed) return;
+      removed = true;
       if (timer) clearTimeout(timer);
-      if (el.parentNode) el.parentNode.removeChild(el);
+      if (canUseMotion()) {
+        el.classList.add('is-leaving');
+        exitTimer = setTimeout(() => {
+          exitTimer = null;
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 200);
+      } else if (el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
     };
 
     closeBtn.addEventListener('click', removeToast);
     container.appendChild(el);
     refreshIcons(el);
-    timer = setTimeout(removeToast, 5200);
+    timer = setTimeout(removeToast, 4800);
   }
 
   function setButtonLoading(btn, isLoading, loadingLabel) {
@@ -295,6 +319,7 @@
   // MODAL FOCUS TRAP & DIALOG KONFIRMASI
   // =========================================================================
   const modalStack = [];
+  const modalCloseTimers = new Map();
 
   function getFocusable(container) {
     return Array.from(
@@ -307,6 +332,12 @@
   function openModal(modalId, opts) {
     const backdrop = document.getElementById(modalId);
     if (!backdrop) return;
+
+    if (modalCloseTimers.has(modalId)) {
+      clearTimeout(modalCloseTimers.get(modalId));
+      modalCloseTimers.delete(modalId);
+    }
+    backdrop.classList.remove('is-closing');
 
     const existingIdx = modalStack.findIndex((m) => m.id === modalId);
     if (existingIdx >= 0 && !backdrop.hidden) {
@@ -367,9 +398,8 @@
 
   function closeModal(modalId) {
     const backdrop = document.getElementById(modalId);
-    if (!backdrop || backdrop.hidden) return;
+    if (!backdrop || backdrop.hidden || modalCloseTimers.has(modalId)) return;
 
-    backdrop.hidden = true;
     const idx = modalStack.findIndex((m) => m.id === modalId);
     let closedEntry = null;
     if (idx >= 0) {
@@ -385,6 +415,19 @@
     }
     if (closedEntry && typeof closedEntry.onClose === 'function') {
       closedEntry.onClose();
+    }
+
+    if (canUseMotion()) {
+      backdrop.classList.add('is-closing');
+      const timerId = setTimeout(() => {
+        modalCloseTimers.delete(modalId);
+        backdrop.classList.remove('is-closing');
+        backdrop.hidden = true;
+      }, 185);
+      modalCloseTimers.set(modalId, timerId);
+    } else {
+      backdrop.classList.remove('is-closing');
+      backdrop.hidden = true;
     }
   }
 
@@ -436,6 +479,7 @@
     if (!tablistEl) return null;
     const tabs = Array.from(tablistEl.querySelectorAll('[role="tab"]'));
     const pill = tablistEl.querySelector('.tab-sliding-indicator');
+    let prevTabIndex = -1;
 
     function positionPill(activeTab) {
       if (!pill || !activeTab) return;
@@ -454,6 +498,8 @@
 
     function activate(tabEl, emit) {
       if (!tabEl) return;
+      const nextIdx = tabs.indexOf(tabEl);
+      const dir = prevTabIndex < 0 ? 'initial' : nextIdx >= prevTabIndex ? 'forward' : 'backward';
       tabs.forEach((t) => {
         const isTarget = t === tabEl;
         t.setAttribute('aria-selected', isTarget ? 'true' : 'false');
@@ -462,9 +508,15 @@
         const panelId = t.getAttribute('aria-controls');
         if (panelId) {
           const panel = document.getElementById(panelId);
-          if (panel) panel.hidden = !isTarget;
+          if (panel) {
+            if (isTarget && panel.dataset) {
+              panel.dataset.enterDir = dir;
+            }
+            panel.hidden = !isTarget;
+          }
         }
       });
+      prevTabIndex = nextIdx;
       requestAnimationFrame(() => positionPill(tabEl));
       if (emit && typeof onSelect === 'function') {
         onSelect(tabEl.dataset.tab || '', tabEl);
@@ -539,6 +591,78 @@
         },
         { passive: true }
       );
+    });
+  }
+
+  let motionInteractionsBound = false;
+  function initMotionInteractions() {
+    if (motionInteractionsBound || typeof document === 'undefined' || typeof document.addEventListener !== 'function') {
+      return;
+    }
+    motionInteractionsBound = true;
+
+    const rippleSelector = '.btn, .report-mode-btn, .drawer-nav-item, .kelas-subtab, .filter-chip, .manual-status-btn, .user-session-chip';
+    document.addEventListener(
+      'pointerdown',
+      (e) => {
+        if (!canUseMotion() || (typeof e.button === 'number' && e.button > 0)) return;
+        const target = e.target && typeof e.target.closest === 'function' ? e.target.closest(rippleSelector) : null;
+        if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true' || target.getAttribute('aria-busy') === 'true') {
+          return;
+        }
+        if (typeof target.getBoundingClientRect !== 'function') return;
+        const rect = target.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+
+        const prevRipples = target.querySelectorAll('.ui-ripple');
+        if (prevRipples.length >= 2) {
+          prevRipples[0].remove();
+        }
+
+        const size = Math.ceil(Math.max(rect.width, rect.height) * 2.15);
+        const hasCoords = typeof e.clientX === 'number' && typeof e.clientY === 'number' && (e.clientX !== 0 || e.clientY !== 0);
+        const x = hasCoords ? e.clientX - rect.left : rect.width / 2;
+        const y = hasCoords ? e.clientY - rect.top : rect.height / 2;
+        const isDarkSurface =
+          target.classList.contains('btn-primary') ||
+          target.classList.contains('btn-accent') ||
+          target.getAttribute('aria-pressed') === 'true' ||
+          target.classList.contains('active');
+
+        const wave = document.createElement('span');
+        wave.className = `ui-ripple ${isDarkSurface ? 'ui-ripple-light' : 'ui-ripple-dark'}`;
+        wave.setAttribute('aria-hidden', 'true');
+        wave.style.width = `${size}px`;
+        wave.style.height = `${size}px`;
+        wave.style.left = `${Math.round(x)}px`;
+        wave.style.top = `${Math.round(y)}px`;
+        target.appendChild(wave);
+
+        let cleared = false;
+        const cleanup = () => {
+          if (cleared) return;
+          cleared = true;
+          if (wave.parentNode) wave.parentNode.removeChild(wave);
+        };
+        wave.addEventListener('animationend', cleanup, { once: true });
+        setTimeout(cleanup, 580);
+      },
+      { passive: true }
+    );
+
+    const refreshBtnSelector = '#btn-refresh-dashboard, #btn-refresh-users, #btn-refresh-arsip, #btn-recheck-api';
+    document.addEventListener('click', (e) => {
+      if (!canUseMotion()) return;
+      const btn = e.target && typeof e.target.closest === 'function' ? e.target.closest(refreshBtnSelector) : null;
+      if (!btn || btn.disabled) return;
+      const svg = btn.querySelector('svg');
+      if (!svg) return;
+      svg.classList.remove('is-spin-pulse');
+      void svg.offsetWidth;
+      svg.classList.add('is-spin-pulse');
+      setTimeout(() => {
+        svg.classList.remove('is-spin-pulse');
+      }, 540);
     });
   }
 
@@ -621,6 +745,8 @@
     }
   }
 
+  const inflightGetRequests = new Map();
+
   async function requestGet(action, params) {
     const url = new URL(CONFIG.GAS_WEB_APP_URL);
     url.searchParams.set('action', action);
@@ -641,17 +767,29 @@
       }
     }
 
-    let response;
-    try {
-      response = await fetch(url.toString(), {
-        method: 'GET',
-        redirect: 'follow',
-      });
-    } catch (err) {
-      throw new Error(`Gagal terhubung ke server (${action}): periksa koneksi internet atau akses deployment Apps Script.`);
+    const reqKey = url.toString();
+    if (inflightGetRequests.has(reqKey)) {
+      return inflightGetRequests.get(reqKey);
     }
 
-    return parseGasResponse(response, action);
+    const reqPromise = (async () => {
+      let response;
+      try {
+        response = await fetch(reqKey, {
+          method: 'GET',
+          redirect: 'follow',
+        });
+      } catch (err) {
+        throw new Error(`Gagal terhubung ke server (${action}): periksa koneksi internet atau akses deployment Apps Script.`);
+      }
+
+      return parseGasResponse(response, action);
+    })().finally(() => {
+      inflightGetRequests.delete(reqKey);
+    });
+
+    inflightGetRequests.set(reqKey, reqPromise);
+    return reqPromise;
   }
 
   async function requestPost(action, payload) {
@@ -1170,6 +1308,8 @@
     confirmDialog,
     initSlidingTabs,
     bindSpotlights,
+    canUseMotion,
+    initMotionInteractions,
     getInitials,
     buildAvatarInnerHtml,
     bindAvatarFallbacks,
